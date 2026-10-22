@@ -1,2 +1,11 @@
+#Entwicklungsumgebung
 .idea/
+#Node.js
+node_modules/
+dist/
+
+.env
+
+*.log
+
 flashcards-app.iml
