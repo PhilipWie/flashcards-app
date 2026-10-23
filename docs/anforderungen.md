@@ -16,7 +16,7 @@
 > - Ein Lernmodus wo eine Karte angezeigt wird und der Nutzer angibt ob er es wusste oder nicht.
 > - Ein System wodurch Karten die der Nutzer wusste seltener dran kommen als welche die er nicht wusste.
 > - Der Fortschritt liegt in einer Datenbank auf dem Server und ist auf jedem Gerät verfügbar.
->
+
 
 ## Anforderungen nach MoSCoW
 #### Must have
@@ -29,12 +29,12 @@
 | Server Speicherung | Karten , Ordner und Nutzerdaten werden auf dem Server gespeichert                         |
 
 #### Should have
-| Anforderung                  | Beschreibung                                                                              |
-|------------------------------|-------------------------------------------------------------------------------------------|
-| Lernsystem wie zB. (Leitner) | Karten die schwieriger sind werden öfter wiederholt einfache weniger. Logik auf dem server| 
-| Filterung                    | Filtern nach "Nur nicht gelernte Karten lernen" und ähnliche (tbd)                        |
-| Rudimentäre Lernstatistik    | Statistiken über die Lernhistorie                                                         |
-| Dokumentation                | Aufbau und Technische Dokumentation wie zB. (API) im Repository                           |
+| Anforderung                  | Beschreibung                                                                               |
+|------------------------------|--------------------------------------------------------------------------------------------|
+| Lernsystem wie zB. (Leitner) | Karten die schwieriger sind werden öfter wiederholt einfache weniger. Logik auf dem server | 
+| Filterung                    | Filtern nach "Nur nicht gelernte Karten lernen" und ähnliche (tbd)                         |
+| Rudimentäre Lernstatistik    | Statistiken über die Lernhistorie                                                          |
+| Dokumentation                | Aufbau und Technische Dokumentation wie zB. (API) im Repository                            |
 
 #### Could have
 | Anforderung                           | Beschreibung                                                                                                                                             |
@@ -43,8 +43,8 @@
 | Automatische KI Bewertung beim Lernen | Ein Textfeld wird im Lernmodus angezeigt wo der Nutzer seine Antwort schreiben kann eine KI bewertet diese und beurteilt den Lernbedarf bei dieser Karte |
 
 #### Won't have
-| Anforderung                           | Beschreibung                                                             |
-|---------------------------------------|--------------------------------------------------------------------------|
+| Anforderung                           | Beschreibung                                                               |
+|---------------------------------------|----------------------------------------------------------------------------|
 | Native Mobile-App                     | Eine eigene spezifische App für Andoid und oder Ios ist noch nicht geplant | 
-| Automatische KI Bewertung beim Lernen | Bilder und Audio bei Karteikarten                                        |
-| Interaktivität                        | Ein zusammenarbeiten (Lernen) ist nicht vorgesehen                   |
+| Automatische KI Bewertung beim Lernen | Bilder und Audio bei Karteikarten                                          |
+| Interaktivität                        | Ein zusammenarbeiten (Lernen) ist nicht vorgesehen                         |
