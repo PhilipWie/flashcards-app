@@ -20,18 +20,21 @@
 
 ## Anforderungen nach MoSCoW
 #### Must have
-| Anforderung        | Beschreibung                                                                              |
-|--------------------|-------------------------------------------------------------------------------------------|
-| Registrieren       | Nutzer kann sich mit E-Mail und Passwort registrieren                                     | 
-| Anmelden- Abmelden | Anmeldung mit E-Mail und Passwort.                                                        |
-| Karten verwalten   | Karten können in Ordnern kategorisiert werden, Karten können erstellt und gelöscht werden |
-| Lernmodus          | Karten anzeigen, umdrehen und mit gewusst oder nicht gewusst antworten                    |
-| Server Speicherung | Karten , Ordner und Nutzerdaten werden auf dem Server gespeichert                         |
+| Anforderung               | Beschreibung                                                                              |
+|---------------------------|-------------------------------------------------------------------------------------------|
+| Client-Server Architektur | React-Frontend (Client) Express-Backend (Server)                                          |
+| Browser Kompatibilität    | lauffähig in aktuellen Standardbrowsern (Chrome,Firefox, Edge, Safari)                    |
+| Anmelden- Abmelden        | Anmeldung mit E-Mail und Passwort.                                                        |
+| Registrieren              | Nutzer kann sich mit E-Mail und Passwort registrieren                                     | 
+| Karten verwalten          | Karten können in Ordnern kategorisiert werden, Karten können erstellt und gelöscht werden |
+| Lernmodus                 | Karten anzeigen, umdrehen und mit gewusst oder nicht gewusst antworten                    |
+| Server Speicherung        | Karten , Ordner und Nutzerdaten werden auf dem Server gespeichert                         |
 
 #### Should have
 | Anforderung                  | Beschreibung                                                                               |
 |------------------------------|--------------------------------------------------------------------------------------------|
 | Lernsystem wie zB. (Leitner) | Karten die schwieriger sind werden öfter wiederholt einfache weniger. Logik auf dem server | 
+| Continous Integration        | Github baut das Projekt bei jedem Push                                                     |
 | Filterung                    | Filtern nach "Nur nicht gelernte Karten lernen" und ähnliche (tbd)                         |
 | Rudimentäre Lernstatistik    | Statistiken über die Lernhistorie                                                          |
 | Dokumentation                | Aufbau und Technische Dokumentation wie zB. (API) im Repository                            |
