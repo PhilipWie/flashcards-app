@@ -8,7 +8,10 @@
     "start": "node --env-file=.env dist/index.js",
     "dev": "npm run db:start && tsc && node --env-file=.env dist/index.js",
     "db:start": "docker-compose up -d --wait",
-    "db:stop": "docker-compose down"
+    "db:stop": "docker-compose down",
+    "db:generate": "node --env-file=.env node_modules/drizzle-kit/bin.cjs generate",
+    "db:migrate": "node --env-file=.env node_modules/drizzle-kit/bin.cjs migrate",
+    "db:push": "node --env-file=.env node_modules/drizzle-kit/bin.cjs push"
   },
   "keywords": [],
   "author": "",
