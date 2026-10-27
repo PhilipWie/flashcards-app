@@ -16,6 +16,11 @@
 > - Ein Lernmodus wo eine Karte angezeigt wird und der Nutzer angibt ob er es wusste oder nicht.
 > - Ein System wodurch Karten die der Nutzer wusste seltener dran kommen als welche die er nicht wusste.
 > - Der Fortschritt liegt in einer Datenbank auf dem Server und ist auf jedem Gerät verfügbar.
+> #### Technologien
+> - Node js mit TypeScript Backend
+> - React Frontend
+> - Drizzle ORM
+> - Postgre SQL Datenbank
 
 
 ## Anforderungen nach MoSCoW
