@@ -10,7 +10,7 @@ const router = Router();
 // db requests limit to 90 a min
 const dbCheckLimit = rateLimit({
     windowMs: 60_000,
-    limit: 90,
+    limit: 30,
     standardHeaders: true,
     legacyHeaders: true,
 });
