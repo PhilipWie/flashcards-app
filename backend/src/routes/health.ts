@@ -1,16 +1,10 @@
 import { Router } from 'express';
-import rateLimit from 'express-rate-limit'
+import { apiLimit} from "../middleware/rateLimit.js";
 import { sql } from 'drizzle-orm';
 import { db } from '../db/db.js';
 
 const router = Router();
 
-const dbCheckLimit = rateLimit({
-    windowMs: 60_000,
-    limit: 30,
-    standardHeaders: true,
-    legacyHeaders: true,
-});
 router.get('/', (req, res) => {
     res.status(200).json({
         status: 'ok',
@@ -19,7 +13,7 @@ router.get('/', (req, res) => {
     })
 })
 
-router.get('/db',dbCheckLimit, async (req, res) => {
+router.get('/db',apiLimit, async (req, res) => {
     try {
         await db.execute(sql`select 1`);
         res.status(200).json({ status: 'ok', database: 'up' });

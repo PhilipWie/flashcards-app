@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import rateLimit from 'express-rate-limit'
+import {authLimit} from "../middleware/rateLimit.js";
 import validator from 'validator'
 import argon2 from 'argon2'
 import { eq } from 'drizzle-orm';
@@ -8,16 +8,8 @@ import {users} from "../db/schema.js";
 import { signToken } from '../jwt.js';
 
 const router = Router();
-// db requests limit to 90 a min
-const dbCheckLimit = rateLimit({
-    windowMs: 60_000,
-    limit: 30,
-    standardHeaders: true,
-    legacyHeaders: true,
-});
-
 //login Endpoint
-router.post("/",dbCheckLimit, async (req, res) => {
+router.post("/",authLimit, async (req, res) => {
     //check for undefined and data which is not an object
     if (req.body == undefined || typeof req.body != "object") {
         return res.status(400).json({
