@@ -122,7 +122,9 @@ router.delete('/:id', apiLimit, async (req, res) => {
             })
         }
         const result = await db.delete(decks).where(and(eq(decks.id,deck_id), eq(decks.user_id,user_id))).returning();
-        if (result.length === 0){ return res.status(404).json("deck not found") }
+        if (result.length === 0) {
+            return res.status(404).json("deck not found")
+        }
         return res.status(200).json({
             message: `Deck ${deck_id} deleted`,
         })
