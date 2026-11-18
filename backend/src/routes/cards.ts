@@ -10,7 +10,7 @@ export const deckCardsRouter = Router({mergeParams: true});
 export const cardsRouter = Router();
 
 // Parses an value into a Number
-function parseId(value: unknown): number | null {
+export function parseId(value: unknown): number | null {
     if (typeof value !== 'string') return null;
     const id = Number(value);
     return Number.isInteger(id) && id > 0 ? id : null;

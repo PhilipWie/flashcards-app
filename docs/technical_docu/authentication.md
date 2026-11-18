@@ -1,6 +1,6 @@
 # Authentication
 
-**HOME** [README](../README.md)
+**HOME** [README](../../README.md)
 
 ## Registrierung
 
