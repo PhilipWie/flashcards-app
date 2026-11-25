@@ -6,9 +6,12 @@ import decksRouter from './routes/decks.js'
 import { deckCardsRouter, cardsRouter } from './routes/cards.js'
 import { deckReviewRouter, cardReviewRouter } from './routes/review.js'
 import requireAuth from './middleware/auth.js'
+import cors from 'cors'
 
 const app = express();
+app.use(cors({origin: process.env.FRONTEND_URL,}));
 app.use(express.json());
+
 // open Endpoints
 app.use("/api/health", healthRouter);
 app.use("/api/register", registerRouter);
