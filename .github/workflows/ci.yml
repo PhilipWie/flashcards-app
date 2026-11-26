@@ -1,0 +1,52 @@
+# CI: checks on every push / pull request to main that backend and frontend build
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      # get the repo code onto the runner
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          # path from repo root: working-directory does not apply to "uses"
+          cache-dependency-path: backend/package-lock.json
+
+      # install exactly what package-lock.json says
+      - run: npm ci
+
+      # compile TypeScript (tsc)
+      - run: npm run build
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      # ESLint
+      - run: npm run lint
+
+      # type check + Vite build
+      - run: npm run build
