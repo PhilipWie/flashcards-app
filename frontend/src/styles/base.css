@@ -1,0 +1,387 @@
+/*
+  Grundstil und Bausteine der Flashcards-App
+  ------------------------------------------
+  Nutzt nur die Variablen aus tokens.css.
+  Reihenfolge der Einbindung: erst tokens.css, dann base.css.
+*/
+
+/* ---------- Grundlagen ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  /* Zwei weiche Lichtflecken: dahinter wirkt das Glas erst "gläsern" */
+  background-image:
+    radial-gradient(40rem 30rem at 12% -5%, var(--color-bg-glow-1), transparent 70%),
+    radial-gradient(36rem 28rem at 95% 30%, var(--color-bg-glow-2), transparent 70%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 var(--space-3);
+  line-height: 1.2;
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.015em;
+}
+
+h1 { font-size: var(--text-2xl); }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+a {
+  color: var(--color-primary);
+  text-underline-offset: 3px;
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* Sichtbarer Fokus für Tastatur-Nutzer */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* ---------- Glas-Fläche (für Kopfzeile, Listen, Formulare) ---------- */
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-glass);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+}
+
+/* ---------- Seitenrahmen ---------- */
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-8);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-7);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: inherit;
+  text-decoration: none;
+}
+.brand svg { color: var(--color-accent); }
+
+.topbar__actions { display: flex; gap: var(--space-1); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px; /* gut antippbar auf dem Handy */
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn svg {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.btn--success {
+  background: var(--color-success);
+  color: var(--color-on-success);
+}
+.btn--success:hover:not(:disabled) {
+  background: var(--color-success-hover);
+}
+
+/* Glas-Button: für Nebenaktionen und "Nicht gewusst" */
+.btn--glass {
+  background: var(--color-surface-strong);
+  border-color: var(--color-border);
+  color: var(--color-text);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+}
+.btn--glass:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+/* Nur ein Icon, z. B. Bearbeiten/Löschen in Listen */
+.btn--icon {
+  min-width: 44px;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+.btn--icon:hover {
+  color: var(--color-primary);
+  background: var(--color-surface-strong);
+}
+
+/* ---------- Formularfelder ---------- */
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:focus-visible {
+  outline-offset: 0;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.field__error {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-error);
+}
+
+/* ---------- Anmelde- und Registrierungsformular ---------- */
+.auth {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+}
+
+.auth h1 { margin: 0; }
+.auth p { margin: 0; }
+
+.auth__form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.auth__form .btn { width: 100%; }
+
+.auth__footer {
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ---------- Fach-Anzeige (Leitner) ---------- */
+.box-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.box-badge::before {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--box-color, var(--box-1));
+}
+
+/* Verteilung der Karten auf die 5 Fächer als schmaler Balken */
+.box-bar {
+  display: flex;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-border-soft);
+}
+
+.box-bar span {
+  display: block;
+}
+
+/* ---------- Stapel in der Liste ---------- */
+.deck {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+.deck__name {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.deck__meta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.deck__actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.deck .box-bar {
+  grid-column: 1 / -1;
+}
+
+/* Auf schmalen Bildschirmen stehen die Aktionen unter dem Namen */
+@media (max-width: 34rem) {
+  .deck {
+    grid-template-columns: 1fr;
+    padding: var(--space-4);
+  }
+}
+
+/* ---------- Die Lernkarte ----------
+   Angelehnt an eine echte Karteikarte mit roter Linie oben.
+   Die Glasfläche bleibt stehen, beim Umdrehen dreht sich nur der Inhalt. */
+.flashcard {
+  position: relative;
+  display: grid;
+  min-height: 18rem;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* die rote Kopflinie der Karteikarte */
+.flashcard::before {
+  content: "";
+  position: absolute;
+  inset: 3.25rem 0 auto;
+  height: 2px;
+  background: var(--color-accent);
+  opacity: 0.85;
+}
+
+.flashcard__side {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.flashcard__face {
+  grid-area: 1 / 1; /* Vorder- und Rückseite liegen übereinander */
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-family: var(--font-card);
+  font-size: var(--text-xl);
+  line-height: 1.45;
+  backface-visibility: hidden;
+  transition: transform var(--duration-flip) var(--ease);
+}
+
+.flashcard__face--front {
+  transform: perspective(900px) rotateY(0deg);
+}
+
+.flashcard__face--back {
+  font-size: var(--text-lg);
+  transform: perspective(900px) rotateY(180deg);
+}
+
+.flashcard.is-flipped .flashcard__face--front {
+  transform: perspective(900px) rotateY(-180deg);
+}
+
+.flashcard.is-flipped .flashcard__face--back {
+  transform: perspective(900px) rotateY(0deg);
+}
+
+/* Wer Bewegung reduziert haben möchte, bekommt einfaches Überblenden */
+@media (prefers-reduced-motion: reduce) {
+  .flashcard__face {
+    transition: opacity var(--duration-fast) linear;
+    transform: none !important;
+  }
+  .flashcard__face--back,
+  .flashcard.is-flipped .flashcard__face--front {
+    opacity: 0;
+  }
+  .flashcard.is-flipped .flashcard__face--back {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 34rem) {
+  .flashcard { padding-inline: var(--space-5); }
+}
