@@ -1,11 +1,11 @@
-# CI: checks on every push / pull request to main that backend and frontend build
+# CI: checks on every push / pull request to main and develop that backend and frontend build
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main,develop]
   pull_request:
-    branches: [main]
+    branches: [main,develop]
 
 jobs:
   backend:
