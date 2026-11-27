@@ -1,26 +1,26 @@
 /*
-  Design-Tokens der Flashcards-App
-  --------------------------------
-  Hier stehen ALLE Farben, Schriften, Abstände und Rundungen an einer Stelle.
-  Komponenten verwenden nur diese Variablen, nie feste Werte.
-  Willst du z. B. das Rot ändern, änderst du es nur hier.
+  Design tokens of the flashcards app
+  -----------------------------------
+  ALL colors, fonts, spacing and radii live here in one place.
+  Components only use these variables, never hard-coded values.
+  To change e.g. the red, change it only here.
 */
 
 :root {
-  /* ---------- Rot-Skala (Grundpalette) ---------- */
+  /* ---------- Red scale (base palette) ---------- */
   --red-50: #fff5f5;
   --red-100: #ffe4e5;
   --red-200: #ffcacd;
   --red-300: #ffa4a9;
   --red-400: #f8777e;
-  --red-500: #f2545b; /* das typische "leichte Rot": Linien, Icons, Akzente */
-  --red-600: #d0343d; /* kräftiger: Buttons und Links (gut lesbar mit weißer Schrift) */
+  --red-500: #f2545b; /* the typical "light red": lines, icons, accents */
+  --red-600: #d0343d; /* stronger: buttons and links (readable with white text) */
   --red-700: #a92830;
   --red-800: #7d1f26;
 
-  /* ---------- Farben nach Bedeutung ---------- */
+  /* ---------- Semantic colors ---------- */
   --color-bg: #fff6f6;
-  --color-bg-glow-1: rgba(255, 164, 169, 0.55); /* rötliche Lichtflecken im Hintergrund */
+  --color-bg-glow-1: rgba(255, 164, 169, 0.55); /* reddish light spots in the background */
   --color-bg-glow-2: rgba(255, 202, 205, 0.7);
 
   --color-text: #2b1a1d;
@@ -28,32 +28,32 @@
 
   --color-primary: var(--red-600);
   --color-primary-hover: var(--red-700);
-  --color-on-primary: #ffffff; /* Schrift auf der Primärfarbe */
+  --color-on-primary: #ffffff; /* text on the primary color */
   --color-accent: var(--red-500);
 
-  --color-success: #1f7f54; /* "Gewusst" */
+  --color-success: #1f7f54; /* "knew it" */
   --color-success-hover: #186842;
   --color-on-success: #ffffff;
 
-  --color-error: var(--red-700); /* Fehlermeldungen */
+  --color-error: var(--red-700); /* error messages */
 
-  /* Glas-Flächen: halbdurchsichtiges Weiß + Unschärfe dahinter */
+  /* glass surfaces: semi-transparent white + blur behind */
   --color-surface: rgba(255, 255, 255, 0.55);
   --color-surface-strong: rgba(255, 255, 255, 0.78);
   --color-border: rgba(255, 255, 255, 0.8);
   --color-border-soft: rgba(208, 52, 61, 0.14);
   --color-focus: var(--red-600);
 
-  /* Leitner-Fächer 1 bis 5: von "noch unsicher" (rot) bis "sitzt" (grün) */
+  /* Leitner boxes 1 to 5: from "still unsure" (red) to "learned" (green) */
   --box-1: #f2545b;
   --box-2: #f0884a;
   --box-3: #e3b23c;
   --box-4: #8dbb4f;
   --box-5: #35a46c;
 
-  /* ---------- Schrift ---------- */
+  /* ---------- Typography ---------- */
   --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-card: "Literata", Georgia, "Times New Roman", serif; /* nur für Karteninhalte */
+  --font-card: "Literata", Georgia, "Times New Roman", serif; /* only for card content */
 
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -66,7 +66,7 @@
   --weight-medium: 500;
   --weight-bold: 700;
 
-  /* ---------- Abstände (4er-Raster) ---------- */
+  /* ---------- Spacing (4px grid) ---------- */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -76,20 +76,20 @@
   --space-7: 3rem;
   --space-8: 4rem;
 
-  /* ---------- Rundungen ---------- */
-  --radius-sm: 10px;  /* Eingabefelder, kleine Elemente */
-  --radius-md: 18px;  /* Listeneinträge */
-  --radius-lg: 30px;  /* die Lernkarte */
-  --radius-pill: 999px; /* Buttons, Fach-Anzeigen */
+  /* ---------- Radii ---------- */
+  --radius-sm: 10px;  /* input fields, small elements */
+  --radius-md: 18px;  /* list items */
+  --radius-lg: 30px;  /* the flashcard */
+  --radius-pill: 999px; /* buttons, box badges */
 
-  /* ---------- Glas-Effekt ---------- */
+  /* ---------- Glass effect ---------- */
   --glass-blur: 18px;
   --shadow-glass:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 18px 40px -18px rgba(125, 31, 38, 0.28);
   --shadow-lift: 0 10px 24px -12px rgba(125, 31, 38, 0.35);
 
-  /* ---------- Bewegung ---------- */
+  /* ---------- Motion ---------- */
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --duration-fast: 150ms;
   --duration-flip: 500ms;
@@ -97,11 +97,11 @@
   color-scheme: light;
 }
 
-/* ---------- Dunkles Design ----------
-   Greift automatisch, wenn das System auf "dunkel" steht,
-   außer der Nutzer hat in der App ausdrücklich "hell" gewählt.
-   Hinweis: Die App setzt data-theme immer (Standard "light"),
-   dieser Block greift also nur ohne JavaScript. */
+/* ---------- Dark theme ----------
+   Applies automatically when the system is set to "dark",
+   unless the user explicitly chose "light" in the app.
+   Note: the app always sets data-theme (default "light"),
+   so this block only applies without JavaScript. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --color-bg: #1c0f12;
@@ -130,7 +130,7 @@
   }
 }
 
-/* Dieselben Werte, wenn der Nutzer in der App "dunkel" gewählt hat */
+/* same values when the user chose "dark" in the app */
 :root[data-theme="dark"] {
   --color-bg: #1c0f12;
   --color-bg-glow-1: rgba(208, 52, 61, 0.35);

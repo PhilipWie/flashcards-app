@@ -1,11 +1,10 @@
 /*
-  Grundstil und Bausteine der Flashcards-App
-  ------------------------------------------
-  Nutzt nur die Variablen aus tokens.css.
-  Reihenfolge der Einbindung: erst tokens.css, dann base.css.
+  Base styles and building blocks of the flashcards app
+  -----------------------------------------------------
+  Uses only the variables from tokens.css.
+  Import order: tokens.css first, then base.css.
 */
-
-/* ---------- Grundlagen ---------- */
+/* ---------- Base ---------- */
 *,
 *::before,
 *::after {
@@ -20,7 +19,7 @@ body {
   line-height: 1.55;
   color: var(--color-text);
   background-color: var(--color-bg);
-  /* Zwei weiche Lichtflecken: dahinter wirkt das Glas erst "gläsern" */
+  /* two soft light spots: they make the glass look like glass */
   background-image:
     radial-gradient(40rem 30rem at 12% -5%, var(--color-bg-glow-1), transparent 70%),
     radial-gradient(36rem 28rem at 95% 30%, var(--color-bg-glow-2), transparent 70%);
@@ -54,13 +53,13 @@ a {
   color: var(--color-text-muted);
 }
 
-/* Sichtbarer Fokus für Tastatur-Nutzer */
+/* visible focus for keyboard users */
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 3px;
 }
 
-/* ---------- Glas-Fläche (für Kopfzeile, Listen, Formulare) ---------- */
+/* ---------- Glass surface (top bar, lists, forms) ---------- */
 .glass {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -69,7 +68,7 @@ a {
   backdrop-filter: blur(var(--glass-blur)) saturate(160%);
 }
 
-/* ---------- Seitenrahmen ---------- */
+/* ---------- Page frame ---------- */
 .page {
   max-width: 60rem;
   margin: 0 auto;
@@ -105,7 +104,7 @@ a {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 44px; /* gut antippbar auf dem Handy */
+  min-height: 44px; /* easy to tap on mobile */
   padding: var(--space-2) var(--space-5);
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
@@ -148,7 +147,7 @@ a {
   background: var(--color-success-hover);
 }
 
-/* Glas-Button: für Nebenaktionen und "Nicht gewusst" */
+/* glass button: secondary actions and "didn't know" */
 .btn--glass {
   background: var(--color-surface-strong);
   border-color: var(--color-border);
@@ -160,7 +159,7 @@ a {
   border-color: var(--color-accent);
 }
 
-/* Nur ein Icon, z. B. Bearbeiten/Löschen in Listen */
+/* icon only, e.g. edit/delete in lists */
 .btn--icon {
   min-width: 44px;
   padding: 0;
@@ -172,7 +171,7 @@ a {
   background: var(--color-surface-strong);
 }
 
-/* ---------- Formularfelder ---------- */
+/* ---------- Form fields ---------- */
 .field {
   display: grid;
   gap: var(--space-2);
@@ -212,7 +211,7 @@ a {
   color: var(--color-error);
 }
 
-/* ---------- Anmelde- und Registrierungsformular ---------- */
+/* ---------- Login and registration form ---------- */
 .auth {
   display: grid;
   gap: var(--space-5);
@@ -237,7 +236,7 @@ a {
   text-align: center;
 }
 
-/* ---------- Fach-Anzeige (Leitner) ---------- */
+/* ---------- Box badge (Leitner) ---------- */
 .box-badge {
   display: inline-flex;
   align-items: center;
@@ -257,7 +256,7 @@ a {
   background: var(--box-color, var(--box-1));
 }
 
-/* Verteilung der Karten auf die 5 Fächer als schmaler Balken */
+/* distribution of the cards across the 5 boxes as a thin bar */
 .box-bar {
   display: flex;
   height: 6px;
@@ -270,7 +269,7 @@ a {
   display: block;
 }
 
-/* ---------- Stapel in der Liste ---------- */
+/* ---------- Deck in the list ---------- */
 .deck {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -300,7 +299,7 @@ a {
   grid-column: 1 / -1;
 }
 
-/* Auf schmalen Bildschirmen stehen die Aktionen unter dem Namen */
+/* on narrow screens the actions move below the name */
 @media (max-width: 34rem) {
   .deck {
     grid-template-columns: 1fr;
@@ -308,9 +307,9 @@ a {
   }
 }
 
-/* ---------- Die Lernkarte ----------
-   Angelehnt an eine echte Karteikarte mit roter Linie oben.
-   Die Glasfläche bleibt stehen, beim Umdrehen dreht sich nur der Inhalt. */
+/* ---------- The flashcard ----------
+   Inspired by a real index card with a red line at the top.
+   The glass surface stays in place, only the content turns when flipping. */
 .flashcard {
   position: relative;
   display: grid;
@@ -320,7 +319,7 @@ a {
   overflow: hidden;
 }
 
-/* die rote Kopflinie der Karteikarte */
+/* the red header line of the index card */
 .flashcard::before {
   content: "";
   position: absolute;
@@ -339,7 +338,7 @@ a {
 }
 
 .flashcard__face {
-  grid-area: 1 / 1; /* Vorder- und Rückseite liegen übereinander */
+  grid-area: 1 / 1; /* front and back are stacked on top of each other */
   display: grid;
   place-items: center;
   text-align: center;
@@ -367,7 +366,7 @@ a {
   transform: perspective(900px) rotateY(0deg);
 }
 
-/* Wer Bewegung reduziert haben möchte, bekommt einfaches Überblenden */
+/* users who prefer reduced motion get a simple fade instead */
 @media (prefers-reduced-motion: reduce) {
   .flashcard__face {
     transition: opacity var(--duration-fast) linear;
