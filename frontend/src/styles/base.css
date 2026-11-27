@@ -1156,6 +1156,10 @@ button.flashcard {
   border-top: 1px solid var(--color-border-soft);
 }
 
+/* the grid gap sets the spacing, also outside a .panel (global p has a bottom margin) */
+.ai-result p,
+.answer-typed p { margin: 0; }
+
 .ai-result__verdict {
   font-weight: var(--weight-bold);
 }
