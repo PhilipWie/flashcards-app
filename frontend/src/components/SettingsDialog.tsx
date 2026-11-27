@@ -58,7 +58,7 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                 Antwort vor dem Umdrehen eintippen
             </label>
 
-            <h3 className="settings-heading">KI-Prüfung</h3>
+            <h3 className="settings-heading">KI</h3>
             <label className="switch">
                 <input
                     type="checkbox"
@@ -69,16 +69,17 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                     aria-describedby={`${id}-ai-hint`}
                 />
                 <span className="switch__track" aria-hidden="true" />
-                Eingetippte Antworten von der KI prüfen lassen
+                KI beim Lernen verwenden
             </label>
             <p id={`${id}-ai-hint`} className="text-muted settings-note">
-                Dafür werden Vorder- und Rückseite der Karte und deine Antwort an einen KI-Dienst (OpenRouter) geschickt.
-                Die KI macht nur einen Vorschlag, bewerten musst du selbst.
-                {!settings.typeAnswer && " Funktioniert nur, wenn „Antwort eintippen“ an ist."}
+                Die KI prüft eingetippte Antworten und beantwortet nach dem Umdrehen Fragen zur Karte. Dafür werden
+                Vorder- und Rückseite, deine Antwort und deine Fragen an einen KI-Dienst (OpenRouter) geschickt. Die KI
+                macht nur Vorschläge, bewerten musst du selbst.
+                {!settings.typeAnswer && " Die Prüfung braucht „Antwort eintippen“."}
             </p>
             {settings.aiEnabled && (
                 <fieldset className="settings-group">
-                    <legend className="settings-group__legend">Wann prüfen?</legend>
+                    <legend className="settings-group__legend">Wann soll die KI deine Antwort prüfen?</legend>
                     {AI_CHECK_MODES.map((option) => (
                         <label key={option.value} className="radio">
                             <input

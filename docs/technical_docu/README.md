@@ -49,19 +49,19 @@ flowchart LR
 frontend/src/
 ├── api/          Kommunikation mit dem Backend
 │   ├── client.ts     zentraler API-Client (fetch-Wrapper): Basis-URL, Token, Fehler
-│   └── auth.ts, decks.ts, cards.ts, review.ts, stats.ts   eine Funktion pro Endpunkt
+│   └── auth.ts, decks.ts, cards.ts, review.ts, chat.ts, stats.ts   eine Funktion pro Endpunkt
 ├── components/   Layout (Kopfzeile), ProtectedRoute, GuestRoute, Modal, ConfirmDialog, SettingsDialog
 ├── features/     Bausteine einzelner Seiten
 │   ├── decks/        DeckItem (Zeile der Deck-Liste)
 │   ├── cards/        CardForm, CardItem, BoxBar (Verteilung auf die Fächer)
-│   ├── learn/        Flashcard (Karteikarte), LearnSession (Ablauf einer Runde), AnswerInput (Antwort eintippen), AiResult (Ergebnis der KI-Prüfung), BoxFilter (Auswahl beim freien Üben)
+│   ├── learn/        Flashcard (Karteikarte), LearnSession (Ablauf einer Runde), AnswerInput (Antwort eintippen), AiResult (Ergebnis der KI-Prüfung), CardChat (Chat mit der KI), BoxFilter (Auswahl beim freien Üben)
 │   └── stats/        ActivityChart (Antworten pro Tag, ohne Chart-Bibliothek)
 ├── hooks/        useTheme (Hell/Dunkel), useApiError (Fehlermeldung, bei 401 abmelden), useSettings
 ├── lib/          Hilfsfunktionen ohne React: date.ts, leitner.ts, shuffle.ts, settings.ts (Einstellungen im localStorage)
 ├── pages/        eine Datei pro Seite (Login, Register, Decks, DeckDetail, Learn, Practice, Dashboard)
 ├── styles/       tokens.css (Design-Variablen), base.css (Bausteine)
 ├── test/         setup.ts für Vitest (Tests selbst liegen als *.test.ts neben den Dateien)
-└── types/        Typen für Deck, Card, Stats und Check (KI-Prüfung)
+└── types/        Typen für Deck, Card, Stats, Check (KI-Prüfung) und Chat
 ```
 
 ### Aufbau des Backends
@@ -72,7 +72,7 @@ backend/src/
 ├── app.ts        Express-App: Middleware und Routen
 ├── jwt.ts        Token erstellen und prüfen
 ├── db/           Verbindung (db.ts) und Schema (schema.ts)
-├── lib/          Fachlogik ohne HTTP: leitner.ts, stats.ts (Statistik), ai.ts (OpenRouter-Client), answerCheck.ts (KI-Prüfung)
+├── lib/          Fachlogik ohne HTTP: leitner.ts, stats.ts (Statistik), ai.ts (OpenRouter-Client), answerCheck.ts (KI-Prüfung), cardChat.ts (KI-Chat)
 ├── middleware/   auth.ts (requireAuth), rateLimit.ts
-└── routes/       ein Router pro Bereich (register, login, decks, cards, review, check, stats, health)
+└── routes/       ein Router pro Bereich (register, login, decks, cards, review, check, chat, stats, health)
 ```

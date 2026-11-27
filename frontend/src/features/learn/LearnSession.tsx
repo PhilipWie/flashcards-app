@@ -7,6 +7,7 @@ import { useApiError } from "../../hooks/useApiError";
 import { useSettings } from "../../hooks/useSettings";
 import AnswerInput from "./AnswerInput";
 import AiResult, { type CheckState } from "./AiResult";
+import CardChat from "./CardChat";
 import Flashcard from "./Flashcard";
 
 type LearnSessionProps = {
@@ -234,6 +235,16 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                     </button>
                 )}
             </div>
+
+            {/* only after flipping: before, the chat could give away the solution */}
+            {settings.aiEnabled && flipped && (
+                <CardChat
+                    key={`${card.id}-${index}`}
+                    cardId={card.id}
+                    answer={typedAnswer}
+                    check={check.status === "done" ? check.result : null}
+                />
+            )}
         </>
     );
 }

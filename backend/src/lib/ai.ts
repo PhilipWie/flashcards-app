@@ -26,11 +26,20 @@ type OpenRouterResponse = {
     choices?: { message?: { content?: unknown }; finish_reason?: string }[];
 };
 
+// one message of a conversation (no "system": instructions only come from the code)
+export type ChatTurn = { role: 'user' | 'assistant'; content: string };
+
+// the texts are placed inside tags: a "</answer>" in user input must not close the tag
+export function escapeTags(text: string): string {
+    return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+
 export type JsonRequest = {
     // instructions, never contains user input
     system: string;
-    // user input, clearly delimited inside the text
-    user: string;
+    // user input, clearly delimited inside the text (single question)
+    // or a whole conversation, e.g. for the card chat
+    user: string | ChatTurn[];
     // JSON schema the answer must follow
     schemaName: string;
     schema: Record<string, unknown>;
@@ -56,7 +65,7 @@ export async function completeJson({ system, user, schemaName, schema, maxTokens
                 model: process.env.OPENROUTER_MODEL?.trim() || DEFAULT_MODEL,
                 messages: [
                     { role: 'system', content: system },
-                    { role: 'user', content: user },
+                    ...(typeof user === 'string' ? [{ role: 'user', content: user }] : user),
                 ],
                 response_format: {
                     type: 'json_schema',

@@ -174,6 +174,14 @@ describe("LearnSession with AI check", () => {
         expect(screen.getByRole("button", { name: "Gewusst" })).toBeEnabled();
     });
 
+    it("offers the chat only after flipping", async () => {
+        const user = userEvent.setup();
+        renderSession();
+        expect(screen.queryByText("Frag die KI zu dieser Karte")).not.toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "Umdrehen" }));
+        expect(screen.getByText("Frag die KI zu dieser Karte")).toBeInTheDocument();
+    });
+
     it("can be switched off in the session and remembers it", async () => {
         const user = userEvent.setup();
         renderSession();
