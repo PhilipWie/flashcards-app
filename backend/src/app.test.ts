@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import app from "./app.js";
 import { signToken } from "./jwt.js";
@@ -63,5 +63,35 @@ describe("input validation (before any database query)", () => {
     it("rejects a registration with a too short password", async () => {
         const res = await request(app).post("/api/register").send({ email: "test@example.com", password: "123" });
         expect(res.status).toBe(400);
+    });
+});
+
+describe("POST /api/cards/:id/check", () => {
+    async function check(body: unknown) {
+        const token = await signToken(1);
+        return request(app).post("/api/cards/1/check").set("Authorization", `Bearer ${token}`).send(body as object);
+    }
+
+    it("needs a token", async () => {
+        const res = await request(app).post("/api/cards/1/check").send({ answer: "x" });
+        expect(res.status).toBe(401);
+    });
+
+    it.each([
+        ["no answer", {}],
+        ["an empty answer", { answer: "   " }],
+        ["a non-string answer", { answer: 42 }],
+        ["a too long answer", { answer: "x".repeat(501) }],
+    ])("rejects %s", async (_name, body) => {
+        const res = await check(body);
+        expect(res.status).toBe(400);
+    });
+
+    it("answers 503 without an OpenRouter key (before any database query)", async () => {
+        vi.stubEnv("OPENROUTER_API_KEY", "");
+        const res = await check({ answer: "dog" });
+        vi.unstubAllEnvs();
+        expect(res.status).toBe(503);
+        expect(res.body).toEqual({ message: "AI check not available" });
     });
 });

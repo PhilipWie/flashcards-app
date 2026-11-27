@@ -42,14 +42,16 @@ Die Meldungen sind auf Englisch und für Entwickler gedacht. Das Frontend sollte
 | 409 | Konflikt, z. B. E-Mail bereits registriert |
 | 429 | Zu viele Anfragen (Rate Limit) |
 | 500 | Interner Serverfehler (Details nur im Server-Log) |
+| 503 | KI-Prüfung nicht verfügbar (kein Key, Timeout, Fehler bei OpenRouter) |
 
 ### Rate Limits
-Pro IP-Adresse und Minute:
+Pro Minute, `authLimit` und `apiLimit` pro IP-Adresse, `aiLimit` pro Nutzer:
 
 | Limit | Anfragen/Min. | Gilt für |
 |-------|---------------|----------|
 | `authLimit` | 15 | Registrierung, Login |
-| `apiLimit` | 80 | Decks, Karten, Lernmodus, `GET /api/health/db` |
+| `apiLimit` | 80 | Decks, Karten, Lernmodus, Statistik, `GET /api/health/db` |
+| `aiLimit` | 20 | KI-Prüfung `POST /api/cards/:id/check` |
 
 Wird ein Limit überschritten, antwortet der Server mit `429 { "message": "too many requests, try again later" }`. Die Header `RateLimit-*` zeigen den aktuellen Stand.
 
@@ -73,6 +75,7 @@ Wird ein Limit überschritten, antwortet der Server mit `429 { "message": "too m
 | GET | `/api/decks/:deckId/review` | ja | Heute fällige Karten eines Decks |
 | POST | `/api/cards/:id/review` | ja | Antwort speichern (Leitner) |
 | GET | `/api/stats` | ja | Lernstatistik des Nutzers |
+| POST | `/api/cards/:id/check` | ja | Antwort von der KI prüfen lassen (nur Vorschlag) |
 
 IDs in Pfaden müssen positive ganze Zahlen sein, sonst `400`.
 
@@ -280,6 +283,30 @@ Speichert die Antwort und verschiebt die Karte. Die Antwort wird außerdem in de
 ```
 
 Fehler: `400` (z. B. `correct must be a boolean`, `practice must be a boolean`), `404 { "message": "Card not found" }`.
+
+---
+
+## KI-Prüfung
+
+### `POST /api/cards/:id/check`
+Lässt eine eingetippte Antwort von einem Sprachmodell prüfen. Nur ein **Vorschlag**: Die Karte wird nicht verändert, die Bewertung speichert weiterhin `POST /api/cards/:id/review`. Einrichtung, Datenschutz und Sicherheit: [KI-Anbindung](ai.md).
+
+| Feld | Typ | Regeln |
+|------|-----|--------|
+| `answer` | string | nicht leer, höchstens 500 Zeichen |
+
+**Antwort `200`**
+```json
+{ "verdict": "partial", "feedback": "Fast: Es fehlt, dass ..." }
+```
+
+| `verdict` | Bedeutung |
+|-----------|-----------|
+| `correct` | inhaltlich richtig (Rechtschreibung, Synonyme egal) |
+| `partial` | teilweise richtig |
+| `wrong` | falsch oder ohne Bezug |
+
+Fehler: `400` (z. B. `answer must be a non-empty string`), `404 { "message": "Card not found" }`, `429` (`aiLimit`), `503 { "message": "AI check not available" }`, wenn kein Key gesetzt ist oder OpenRouter nicht antwortet.
 
 ---
 

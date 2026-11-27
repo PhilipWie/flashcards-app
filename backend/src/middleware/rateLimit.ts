@@ -21,3 +21,14 @@ export const apiLimit = rateLimit({
     legacyHeaders: legacyHeaders,
     message: { message: err_msg },
 });
+
+// AI requests cost money: own, stricter limit per user (not per IP).
+// Must run after requireAuth, which sets req.userId.
+export const aiLimit = rateLimit({
+    windowMs: windowMs,
+    limit: 20,
+    standardHeaders: standardHeaders,
+    legacyHeaders: legacyHeaders,
+    keyGenerator: (req) => `user-${req.userId}`,
+    message: { message: err_msg },
+});
