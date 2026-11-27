@@ -51,7 +51,7 @@ Pro Minute, `authLimit` und `apiLimit` pro IP-Adresse, `aiLimit` pro Nutzer:
 |-------|---------------|----------|
 | `authLimit` | 15 | Registrierung, Login |
 | `apiLimit` | 80 | Decks, Karten, Lernmodus, Statistik, `GET /api/health/db` |
-| `aiLimit` | 20 | KI-Prüfung `POST /api/cards/:id/check` |
+| `aiLimit` | 20 | KI-Prüfung und KI-Chat (`/check`, `/chat`), gemeinsam |
 
 Wird ein Limit überschritten, antwortet der Server mit `429 { "message": "too many requests, try again later" }`. Die Header `RateLimit-*` zeigen den aktuellen Stand.
 
@@ -76,6 +76,7 @@ Wird ein Limit überschritten, antwortet der Server mit `429 { "message": "too m
 | POST | `/api/cards/:id/review` | ja | Antwort speichern (Leitner) |
 | GET | `/api/stats` | ja | Lernstatistik des Nutzers |
 | POST | `/api/cards/:id/check` | ja | Antwort von der KI prüfen lassen (nur Vorschlag) |
+| POST | `/api/cards/:id/chat` | ja | Frage an die KI zu einer Karte |
 
 IDs in Pfaden müssen positive ganze Zahlen sein, sonst `400`.
 
@@ -316,6 +317,23 @@ Lässt eine eingetippte Antwort von einem Sprachmodell prüfen. Nur ein **Vorsch
 | `wrong` | falsch oder ohne Bezug |
 
 Fehler: `400` (z. B. `answer must be a non-empty string`), `404 { "message": "Card not found" }`, `429` (`aiLimit`), `503 { "message": "AI check not available" }`, wenn kein Key gesetzt ist oder OpenRouter nicht antwortet.
+
+### `POST /api/cards/:id/chat`
+Frage an die KI zu einer Karte. **Es wird nichts gespeichert:** Das Frontend schickt bei jeder Frage den ganzen bisherigen Verlauf mit.
+
+| Feld | Typ | Regeln |
+|------|-----|--------|
+| `messages` | Array von `{ role, content }` | 1–10 Einträge, `role` nur `user` oder `assistant`, abwechselnd, beginnt und endet mit `user`. `content` nicht leer, höchstens 1000 Zeichen |
+| `answer` | string, optional | eingetippte Antwort, höchstens 500 Zeichen |
+| `check` | `{ verdict, feedback }`, optional | Ergebnis von `/check`, damit die KI es kennt |
+
+**Antwort `200`**
+```json
+{ "reply": "Ein JWT besteht aus drei Teilen: Header, Payload und Signatur. ..." }
+```
+`reply` ist normaler Text (höchstens 1500 Zeichen), ohne Formatierung.
+
+Fehler: `400` (z. B. `role must be user or assistant`), `404 { "message": "Card not found" }`, `429` (`aiLimit`), `503 { "message": "AI chat not available" }`.
 
 ---
 
