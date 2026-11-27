@@ -14,12 +14,15 @@ export default function LearnPage() {
     const validId = Number.isInteger(deckId) && deckId > 0;
 
     const [deckName, setDeckName] = useState<string | null>(null);
-    // the due cards are loaded once, the session works through this list
+    // the due cards are loaded once, the session works through this list.
+    // cards answered with "didn't know" are appended again at the end
     const [cards, setCards] = useState<Card[]>([]);
     const [index, setIndex] = useState(0);
     const [flipped, setFlipped] = useState(false);
-    const [known, setKnown] = useState(0);
-    const [unknown, setUnknown] = useState(0);
+    // number of different cards in this session (without repeats)
+    const [cardCount, setCardCount] = useState(0);
+    // ids of cards that were not known at least once
+    const [repeatedIds, setRepeatedIds] = useState<Set<number>>(() => new Set());
     const [loading, setLoading] = useState(validId);
     const [sending, setSending] = useState(false);
     const [notFound, setNotFound] = useState(!validId);
@@ -34,6 +37,7 @@ export default function LearnPage() {
                 if (ignore) return;
                 setDeckName(deck.name);
                 setCards(due);
+                setCardCount(due.length);
             })
             .catch((err) => {
                 if (ignore) return;
@@ -53,10 +57,13 @@ export default function LearnPage() {
         setError(null);
         setSending(true);
         try {
-            // the backend moves the card to the next box (or back to box 1)
-            await submitReview(card.id, correct);
-            if (correct) setKnown((n) => n + 1);
-            else setUnknown((n) => n + 1);
+            // the backend moves the card to the next box (or back to box 1, due today)
+            const updated = await submitReview(card.id, correct);
+            if (!correct) {
+                // repeat it at the end of this session, with the new box from the backend
+                setCards((prev) => [...prev, updated]);
+                setRepeatedIds((prev) => new Set(prev).add(card.id));
+            }
             setFlipped(false);
             setIndex((i) => i + 1);
         } catch (err) {
@@ -112,12 +119,14 @@ export default function LearnPage() {
                     ) : (
                         <ul className="learn-stats">
                             <li>
-                                <strong className="learn-stats__value learn-stats__value--known">{known}</strong>
-                                gewusst
+                                <strong className="learn-stats__value learn-stats__value--known">
+                                    {cardCount - repeatedIds.size}
+                                </strong>
+                                auf Anhieb gewusst
                             </li>
                             <li>
-                                <strong className="learn-stats__value">{unknown}</strong>
-                                nicht gewusst
+                                <strong className="learn-stats__value">{repeatedIds.size}</strong>
+                                wiederholt
                             </li>
                         </ul>
                     )}
@@ -140,6 +149,8 @@ export default function LearnPage() {
     }
 
     const card = cards[index];
+    // the card was already shown earlier in this session
+    const isRepeat = cards.findIndex((c) => c.id === card.id) < index;
 
     return (
         <div className="stack stack--narrow">
@@ -148,12 +159,14 @@ export default function LearnPage() {
             <section className="panel glass learn-progress" aria-label="Fortschritt">
                 <p className="learn-progress__text">
                     Karte {index + 1} von {total}
+                    {isRepeat && " · Wiederholung"}
                 </p>
                 <progress className="progress" max={total} value={index} aria-label="Fortschritt" />
             </section>
 
-            {/* key: a new card is mounted fresh, so it does not flip back visibly */}
-            <Flashcard key={card.id} card={card} flipped={flipped} onFlip={() => setFlipped((f) => !f)} />
+            {/* key: every position is mounted fresh, so the card does not flip back visibly,
+                also when the same card comes up twice in a row */}
+            <Flashcard key={`${card.id}-${index}`} card={card} flipped={flipped} onFlip={() => setFlipped((f) => !f)} />
 
             {error && (
                 <p className="notice notice--error" role="alert">
