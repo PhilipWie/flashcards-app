@@ -405,3 +405,386 @@ a {
 @media (max-width: 34rem) {
   .flashcard { padding-inline: var(--space-5); }
 }
+
+/* ======================================================================
+   App pages: deck list, deck detail, learn mode
+   Every area of a page sits in its own glass panel ("capsule").
+   ====================================================================== */
+
+/* only for screen readers, e.g. labels of single-field forms */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Page layout ---------- */
+.stack {
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* learn mode: narrower, the card is the focus */
+.stack--narrow {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.page-header h1 { margin: 0; }
+.page-header p { margin: var(--space-1) 0 0; }
+
+.back-link {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+.back-link:hover { text-decoration: underline; }
+.back-link svg { width: 1.1em; height: 1.1em; }
+
+/* ---------- Glass panel ---------- */
+.panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+.panel h1,
+.panel p { margin: 0; }
+
+.panel__title {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-4) 0;
+  text-align: center;
+}
+
+/* ---------- Extra button and notice variants ---------- */
+.btn--danger:hover:not(:disabled) {
+  color: var(--color-error);
+}
+
+.notice--error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+/* textareas share .input, but grow in height */
+textarea.input {
+  min-height: 5.5rem;
+  padding-block: var(--space-3);
+  resize: vertical;
+  line-height: 1.45;
+}
+
+/* ---------- Input + button in one row ---------- */
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.inline-form .input {
+  flex: 1 1 14rem;
+}
+
+/* ---------- Lists inside a panel ---------- */
+.list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* rows inside a panel: no own glass, only a soft hover */
+.list .deck {
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.list .deck:hover,
+.list .deck:focus-within {
+  background: var(--color-surface-strong);
+}
+
+.deck .inline-form {
+  grid-column: 1 / -1;
+}
+
+.deck__name {
+  overflow-wrap: anywhere;
+}
+
+.deck__link {
+  color: inherit;
+  text-decoration: none;
+}
+.deck__link:hover { color: var(--color-primary); }
+
+/* ---------- Deck detail: header panel ---------- */
+.deck-hero__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.deck-hero h1 {
+  font-size: var(--text-2xl);
+  overflow-wrap: anywhere;
+}
+
+.box-summary {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.box-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.box-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.box-legend__dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+
+/* ---------- Card form ---------- */
+.card-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.card-form__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.card-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* ---------- Card in the list ---------- */
+.card-item {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.card-item + .card-item {
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.card-item:hover,
+.card-item:focus-within {
+  background: var(--color-surface-strong);
+}
+
+.card-item__text {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  font-family: var(--font-card);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap; /* keep line breaks from the textarea */
+}
+
+.card-item__text p { margin: 0; }
+.card-item__back { color: var(--color-text-muted); }
+
+.card-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.card-item__due {
+  font-size: var(--text-sm);
+}
+
+.card-item__meta .deck__actions {
+  margin-left: auto;
+}
+
+/* ---------- Learn mode ---------- */
+.learn-progress {
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+}
+
+.learn-progress__text {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* native <progress>, styled as a thin bar */
+.progress {
+  width: 100%;
+  height: 6px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  appearance: none;
+  background: var(--color-border-soft);
+  color: var(--color-accent); /* Firefox fallback */
+}
+.progress::-webkit-progress-bar { background: var(--color-border-soft); }
+.progress::-webkit-progress-value {
+  background: var(--color-accent);
+  transition: width var(--duration-fast) var(--ease);
+}
+.progress::-moz-progress-bar { background: var(--color-accent); }
+
+/* the flashcard is a <button>: reset the browser button styles */
+button.flashcard {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.flashcard__box {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-5);
+}
+
+.flashcard__face {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.learn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.learn-actions .btn {
+  flex: 1 1 10rem;
+  max-width: 16rem;
+}
+
+.learn-done {
+  text-align: center;
+}
+
+.learn-stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-7);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-muted);
+}
+
+.learn-stats li {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.learn-stats__value {
+  font-size: var(--text-3xl);
+  color: var(--color-text);
+}
+
+.learn-stats__value--known { color: var(--color-success); }
+
+@media (max-width: 34rem) {
+  .card-form__fields,
+  .card-item__text {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .panel { padding: var(--space-4); }
+}
+
+/* ---------- Deck counts in the list ---------- */
+.deck__due {
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+}
+
+/* ---------- Confirm dialog (native <dialog>) ---------- */
+.dialog {
+  width: min(26rem, calc(100% - 2 * var(--space-4)));
+  padding: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+}
+
+/* a little more opaque than other glass: text must stay readable over the page */
+.dialog.glass {
+  background: var(--color-surface-strong);
+}
+
+.dialog::backdrop {
+  background: var(--color-backdrop);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.dialog__body {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.dialog__title {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.dialog__body p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}

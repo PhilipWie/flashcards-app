@@ -1,0 +1,33 @@
+import type { Card } from "../../types/Card";
+import { boxColorStyle } from "../../lib/leitner";
+
+type FlashcardProps = {
+    card: Card;
+    flipped: boolean;
+    onFlip: () => void;
+};
+
+// the index card from base.css (.flashcard), click turns it around
+export default function Flashcard({ card, flipped, onFlip }: FlashcardProps) {
+    return (
+        <button
+            type="button"
+            className={`flashcard glass${flipped ? " is-flipped" : ""}`}
+            onClick={onFlip}
+            // no aria-label: the visible side and its text are the accessible name
+            aria-pressed={flipped}
+        >
+            <span className="flashcard__side">{flipped ? "Rückseite" : "Vorderseite"}</span>
+            <span className="box-badge flashcard__box" style={boxColorStyle(card.box)}>
+                Fach {card.box}
+            </span>
+            {/* both faces are stacked, only the visible one is read out */}
+            <span className="flashcard__face flashcard__face--front" aria-hidden={flipped}>
+                {card.front}
+            </span>
+            <span className="flashcard__face flashcard__face--back" aria-hidden={!flipped}>
+                {card.back}
+            </span>
+        </button>
+    );
+}

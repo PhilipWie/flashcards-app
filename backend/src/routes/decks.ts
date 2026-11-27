@@ -1,19 +1,66 @@
 import { Router } from 'express';
 import { apiLimit } from "../middleware/rateLimit.js";
 import { db } from '../db/db.js';
-import {decks} from "../db/schema.js";
-import { eq } from 'drizzle-orm';
-import { and } from "drizzle-orm";
+import {cards, decks} from "../db/schema.js";
+import { and, count, eq, sql } from 'drizzle-orm';
 
 const router = Router();
-//GET: gets all decks of the logged in user
+
+// deck fields plus card counts, computed by the database.
+// used with a LEFT JOIN on cards, so decks without cards get 0 instead of being left out.
+// "due" uses CURRENT_DATE like GET /api/decks/:deckId/review
+const deckWithCounts = {
+    id: decks.id,
+    name: decks.name,
+    card_count: count(cards.id),
+    due_count: sql<number>`count(${cards.id}) filter (where ${cards.next_review} <= CURRENT_DATE)`.mapWith(Number),
+};
+
+//GET: gets all decks of the logged in user with card counts
 router.get('/', apiLimit,async (req, res) => {
     try {
         const user_id = Number(req.userId)
 
-        const res_decks = await db.select({id: decks.id,name: decks.name}).from(decks).where(eq(decks.user_id,user_id));
+        const res_decks = await db.select(deckWithCounts)
+            .from(decks)
+            .leftJoin(cards, eq(cards.deck_id, decks.id))
+            .where(eq(decks.user_id,user_id))
+            .groupBy(decks.id)
+            .orderBy(decks.id);
         return res.status(200).json({
             decks: res_decks
+        })
+    } catch (error: any) {
+        console.error(error)
+        return res.status(500).json({
+            message: 'Internal Server Error',
+        })
+    }
+});
+
+//GET: gets one deck of the logged in user with card counts
+router.get('/:id', apiLimit, async (req, res) => {
+    const deck_id = Number(req.params.id);
+    if (!Number.isInteger(deck_id) || deck_id <= 0) {
+        return res.status(400).json({
+            message: 'Deck id not valid',
+        })
+    }
+    try {
+        const user_id = Number(req.userId)
+        // user_id in the WHERE: decks of other users are "not found"
+        const result = await db.select(deckWithCounts)
+            .from(decks)
+            .leftJoin(cards, eq(cards.deck_id, decks.id))
+            .where(and(eq(decks.id, deck_id), eq(decks.user_id, user_id)))
+            .groupBy(decks.id);
+        if (result.length === 0) {
+            return res.status(404).json({
+                message: 'Deck not found',
+            })
+        }
+        return res.status(200).json({
+            deck: result[0]
         })
     } catch (error: any) {
         console.error(error)

@@ -1,10 +1,16 @@
 import { request } from "./client";
-import type { Deck } from "../types/Deck";
+import type { Deck, DeckSummary } from "../types/Deck";
 
-// all decks of the logged in user (user comes from the token)
-export async function getDecks(): Promise<Deck[]> {
-    const data = await request<{ decks: Deck[] }>("GET", "/api/decks");
+// all decks of the logged in user (user comes from the token), with card counts
+export async function getDecks(): Promise<DeckSummary[]> {
+    const data = await request<{ decks: DeckSummary[] }>("GET", "/api/decks");
     return data.decks;
+}
+
+// one deck with card counts, 404 if it doesn't exist or belongs to another user
+export async function getDeck(id: number): Promise<DeckSummary> {
+    const data = await request<{ deck: DeckSummary }>("GET", `/api/decks/${id}`);
+    return data.deck;
 }
 
 export async function createDeck(name: string): Promise<Deck> {

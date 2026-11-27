@@ -49,7 +49,12 @@ frontend/src/
 │   ├── client.ts     zentraler API-Client (fetch-Wrapper): Basis-URL, Token, Fehler
 │   └── auth.ts, decks.ts, cards.ts, review.ts   eine Funktion pro Endpunkt
 ├── components/   Layout (Kopfzeile), ProtectedRoute, GuestRoute
-├── hooks/        useTheme (Hell/Dunkel)
+├── features/     Bausteine einzelner Seiten
+│   ├── decks/        DeckItem (Zeile der Deck-Liste)
+│   ├── cards/        CardForm, CardItem, BoxBar (Verteilung auf die Fächer)
+│   └── learn/        Flashcard (Karteikarte zum Umdrehen)
+├── hooks/        useTheme (Hell/Dunkel), useApiError (Fehlermeldung, bei 401 abmelden)
+├── lib/          Hilfsfunktionen ohne React-Seite: date.ts, leitner.ts
 ├── pages/        eine Datei pro Seite (Login, Register, Decks, DeckDetail, Learn)
 ├── styles/       tokens.css (Design-Variablen), base.css (Bausteine)
 └── types/        Typen für Deck und Card
