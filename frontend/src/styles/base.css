@@ -211,6 +211,27 @@ a {
   color: var(--color-error);
 }
 
+.field__hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---------- Notice (e.g. "registration successful") ---------- */
+.notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface-strong);
+  font-size: var(--text-sm);
+}
+
+.notice--success {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
 /* ---------- Login and registration form ---------- */
 .auth {
   display: grid;
