@@ -1,6 +1,8 @@
 // Leitner system: 5 boxes, interval in days until the next review
-// Box 1: daily, Box 2: 2 days, Box 3: 4 days, Box 4: 8 days, Box 5: 16 days (learned)
-export const INTERVAL_DAYS = [1, 2, 4, 8, 16] as const;
+// Box 1: same day, Box 2: 2 days, Box 3: 4 days, Box 4: 8 days, Box 5: 16 days (learned)
+// Box 1 is only reached by new cards and wrong answers: those stay due today,
+// so they can be repeated right away instead of tomorrow.
+export const INTERVAL_DAYS = [0, 2, 4, 8, 16] as const;
 export const MAX_BOX = INTERVAL_DAYS.length;
 
 export type LeitnerResult = {

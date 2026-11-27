@@ -234,19 +234,19 @@ Die Karten werden nach dem Leitner-System wiederholt. Die Logik liegt komplett i
 
 | Fach | Nächste Wiederholung nach |
 |------|---------------------------|
-| 1 | 1 Tag |
+| 1 | sofort (heute erneut fällig) |
 | 2 | 2 Tagen |
 | 3 | 4 Tagen |
 | 4 | 8 Tagen |
 | 5 | 16 Tagen (gelernt) |
 
 - **Gewusst:** ein Fach höher (höchstens Fach 5)
-- **Nicht gewusst:** zurück in Fach 1
+- **Nicht gewusst:** zurück in Fach 1 und heute erneut fällig, damit die Karte direkt wiederholt werden kann. Der Lernmodus im Frontend hängt sie dafür ans Ende der laufenden Runde.
 - `next_review` = heute + Intervall des neuen Fachs. "Heute" berechnet die Datenbank (`CURRENT_DATE`), damit Abfrage und Speicherung dasselbe Datum nutzen.
 
 ```mermaid
 flowchart LR
-    F1["Fach 1<br/>1 Tag"] -- gewusst --> F2["Fach 2<br/>2 Tage"]
+    F1["Fach 1<br/>heute"] -- gewusst --> F2["Fach 2<br/>2 Tage"]
     F2 -- gewusst --> F3["Fach 3<br/>4 Tage"]
     F3 -- gewusst --> F4["Fach 4<br/>8 Tage"]
     F4 -- gewusst --> F5["Fach 5<br/>16 Tage"]
