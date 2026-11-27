@@ -1,30 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { ArrowLeft, Check, RotateCcw, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import type { Card } from "../types/Card";
 import { getDeck } from "../api/decks";
 import { getReviewCards, submitReview } from "../api/review";
 import { ApiError } from "../api/client";
 import { useApiError } from "../hooks/useApiError";
-import Flashcard from "../features/learn/Flashcard";
+import LearnSession from "../features/learn/LearnSession";
 
+// learn mode: due cards only, every answer is saved (Leitner)
 export default function LearnPage() {
     const { id } = useParams();
     const deckId = Number(id);
     const validId = Number.isInteger(deckId) && deckId > 0;
 
     const [deckName, setDeckName] = useState<string | null>(null);
-    // the due cards are loaded once, the session works through this list.
-    // cards answered with "didn't know" are appended again at the end
-    const [cards, setCards] = useState<Card[]>([]);
-    const [index, setIndex] = useState(0);
-    const [flipped, setFlipped] = useState(false);
-    // number of different cards in this session (without repeats)
-    const [cardCount, setCardCount] = useState(0);
-    // ids of cards that were not known at least once
-    const [repeatedIds, setRepeatedIds] = useState<Set<number>>(() => new Set());
+    const [dueCards, setDueCards] = useState<Card[]>([]);
     const [loading, setLoading] = useState(validId);
-    const [sending, setSending] = useState(false);
     const [notFound, setNotFound] = useState(!validId);
     const [error, setError] = useState<string | null>(null);
     const handleApiError = useApiError();
@@ -36,8 +28,7 @@ export default function LearnPage() {
             .then(([deck, due]) => {
                 if (ignore) return;
                 setDeckName(deck.name);
-                setCards(due);
-                setCardCount(due.length);
+                setDueCards(due);
             })
             .catch((err) => {
                 if (ignore) return;
@@ -52,25 +43,10 @@ export default function LearnPage() {
         };
     }, [deckId, validId, handleApiError]);
 
-    async function answer(correct: boolean) {
-        const card = cards[index];
-        setError(null);
-        setSending(true);
-        try {
-            // the backend moves the card to the next box (or back to box 1, due today)
-            const updated = await submitReview(card.id, correct);
-            if (!correct) {
-                // repeat it at the end of this session, with the new box from the backend
-                setCards((prev) => [...prev, updated]);
-                setRepeatedIds((prev) => new Set(prev).add(card.id));
-            }
-            setFlipped(false);
-            setIndex((i) => i + 1);
-        } catch (err) {
-            setError(handleApiError(err));
-        } finally {
-            setSending(false);
-        }
+    // the backend moves the card to the next box (or back to box 1, due today)
+    // and returns it, so a repeated card shows its new box
+    function saveAnswer(card: Card, correct: boolean): Promise<Card> {
+        return submitReview(card.id, correct);
     }
 
     const backLink = (
@@ -102,45 +78,39 @@ export default function LearnPage() {
         );
     }
 
-    const total = cards.length;
-    const finished = index >= total;
+    const deckActions = (
+        <>
+            <Link to={`/decks/${deckId}`} className="btn btn--glass">
+                Zum Stapel
+            </Link>
+            <Link to="/decks" className="btn btn--primary">
+                Alle Stapel
+            </Link>
+        </>
+    );
 
-    // nothing due today, or session done
-    if (finished) {
+    // nothing due today (or loading failed)
+    if (dueCards.length === 0) {
         return (
             <div className="stack stack--narrow">
                 {backLink}
                 <section className="panel glass learn-done" aria-labelledby="done-title">
-                    <h1 id="done-title">{total === 0 ? "Heute nichts fällig" : "Geschafft!"}</h1>
-                    {total === 0 ? (
-                        <p className="text-muted">
-                            In diesem Stapel ist heute keine Karte fällig. Schau morgen wieder vorbei.
-                        </p>
-                    ) : (
-                        <ul className="learn-stats">
-                            <li>
-                                <strong className="learn-stats__value learn-stats__value--known">
-                                    {cardCount - repeatedIds.size}
-                                </strong>
-                                auf Anhieb gewusst
-                            </li>
-                            <li>
-                                <strong className="learn-stats__value">{repeatedIds.size}</strong>
-                                wiederholt
-                            </li>
-                        </ul>
-                    )}
-                    {error && (
+                    <h1 id="done-title">{error ? "Laden fehlgeschlagen" : "Heute nichts fällig"}</h1>
+                    {error ? (
                         <p className="notice notice--error" role="alert">
                             {error}
+                        </p>
+                    ) : (
+                        <p className="text-muted">
+                            In diesem Stapel ist heute keine Karte fällig. Schau morgen wieder vorbei oder übe frei.
                         </p>
                     )}
                     <div className="learn-actions">
                         <Link to={`/decks/${deckId}`} className="btn btn--glass">
                             Zum Stapel
                         </Link>
-                        <Link to="/decks" className="btn btn--primary">
-                            Alle Stapel
+                        <Link to={`/decks/${deckId}/practice`} className="btn btn--primary">
+                            Frei üben
                         </Link>
                     </div>
                 </section>
@@ -148,51 +118,10 @@ export default function LearnPage() {
         );
     }
 
-    const card = cards[index];
-    // the card was already shown earlier in this session
-    const isRepeat = cards.findIndex((c) => c.id === card.id) < index;
-
     return (
         <div className="stack stack--narrow">
             {backLink}
-
-            <section className="panel glass learn-progress" aria-label="Fortschritt">
-                <p className="learn-progress__text">
-                    Karte {index + 1} von {total}
-                    {isRepeat && " · Wiederholung"}
-                </p>
-                <progress className="progress" max={total} value={index} aria-label="Fortschritt" />
-            </section>
-
-            {/* key: every position is mounted fresh, so the card does not flip back visibly,
-                also when the same card comes up twice in a row */}
-            <Flashcard key={`${card.id}-${index}`} card={card} flipped={flipped} onFlip={() => setFlipped((f) => !f)} />
-
-            {error && (
-                <p className="notice notice--error" role="alert">
-                    {error}
-                </p>
-            )}
-
-            <div className="learn-actions">
-                {flipped ? (
-                    <>
-                        <button type="button" className="btn btn--glass" disabled={sending} onClick={() => answer(false)}>
-                            <X aria-hidden="true" />
-                            Nicht gewusst
-                        </button>
-                        <button type="button" className="btn btn--success" disabled={sending} onClick={() => answer(true)}>
-                            <Check aria-hidden="true" />
-                            Gewusst
-                        </button>
-                    </>
-                ) : (
-                    <button type="button" className="btn btn--primary" onClick={() => setFlipped(true)}>
-                        <RotateCcw aria-hidden="true" />
-                        Umdrehen
-                    </button>
-                )}
-            </div>
+            <LearnSession initialCards={dueCards} onAnswer={saveAnswer} doneActions={deckActions} />
         </div>
     );
 }

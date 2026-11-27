@@ -788,3 +788,185 @@ button.flashcard {
   justify-content: flex-end;
   gap: var(--space-2);
 }
+
+/* ---------- Deck detail: action buttons ---------- */
+.deck-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ---------- Free practice: start screen ---------- */
+.box-filter {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.box-filter__group {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.box-filter__legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* small pill buttons, "pressed" = selected */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease);
+}
+
+.chip:hover {
+  border-color: var(--color-accent);
+}
+
+.chip[aria-pressed="true"],
+.chip--check:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.chip--check:has(input:checked) .text-muted {
+  color: inherit;
+  opacity: 0.8;
+}
+
+/* the checkbox is visually hidden, so show its focus on the chip */
+.chip--check:has(input:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.chip__dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--box-color, var(--box-1));
+  box-shadow: 0 0 0 2px var(--color-surface-strong);
+}
+
+/* ---------- Switch (checkbox with role="switch") ---------- */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-self: start;
+  cursor: pointer;
+}
+
+.switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.switch__track {
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-border-soft);
+  border: 1px solid var(--color-border-soft);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.switch__track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.5rem - 6px);
+  height: calc(1.5rem - 6px);
+  border-radius: 50%;
+  background: var(--color-surface-strong);
+  box-shadow: var(--shadow-lift);
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+.switch__input:checked + .switch__track {
+  background: var(--color-primary);
+}
+
+.switch__input:checked + .switch__track::after {
+  transform: translateX(1.25rem);
+  background: var(--color-on-primary);
+}
+
+.switch__input:focus-visible + .switch__track {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* ---------- Settings dialog ---------- */
+.settings-group {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.settings-group__legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-weight: var(--weight-medium);
+}
+
+.radio {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.radio input {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--color-primary);
+}
+
+.radio__label,
+.radio__hint {
+  display: block;
+}
+
+.radio__hint {
+  font-size: var(--text-sm);
+}
+
+.settings-note {
+  font-size: var(--text-sm);
+}
