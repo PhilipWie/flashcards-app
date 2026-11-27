@@ -16,7 +16,7 @@ erDiagram
     users {
         integer id PK "Identity"
         text email UK "NOT NULL"
-        text password_hash "NOT NULL, bcrypt-Hash"
+        text password_hash "NOT NULL, argon2id-Hash"
         timestamptz created_at "NOT NULL, Standard: now()"
     }
  
