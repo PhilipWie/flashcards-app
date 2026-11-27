@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { LogIn } from "lucide-react";
 import { login } from "../api/auth";
 import { ApiError } from "../api/client";
+import type { RegisteredState } from "./RegisterPage";
 
 export default function LoginPage() {
-    const [email, setEmail] = useState("");
+    // set by RegisterPage after a successful registration
+    const registered = useLocation().state as RegisteredState | null;
+    const [email, setEmail] = useState(registered?.email ?? "");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -40,6 +43,12 @@ export default function LoginPage() {
                 <h1 id="login-title">Anmelden</h1>
                 <p className="text-muted">Melde dich an, um mit deinen Stapeln weiterzulernen.</p>
             </div>
+
+            {registered?.registered && !error && (
+                <p className="notice notice--success" role="status">
+                    Registrierung erfolgreich. Du kannst dich jetzt anmelden.
+                </p>
+            )}
 
             <form className="auth__form" onSubmit={handleSubmit}>
                 <div className="field">
