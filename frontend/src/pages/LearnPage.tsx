@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { ArrowLeft, Check, RotateCcw, X } from "lucide-react";
 import type { Card } from "../types/Card";
-import { getDecks } from "../api/decks";
+import { getDeck } from "../api/decks";
 import { getReviewCards, submitReview } from "../api/review";
 import { ApiError } from "../api/client";
 import { useApiError } from "../hooks/useApiError";
@@ -29,12 +29,10 @@ export default function LearnPage() {
     useEffect(() => {
         if (!validId) return;
         let ignore = false;
-        Promise.all([getDecks(), getReviewCards(deckId)])
-            .then(([decks, due]) => {
+        Promise.all([getDeck(deckId), getReviewCards(deckId)])
+            .then(([deck, due]) => {
                 if (ignore) return;
-                const deck = decks.find((d) => d.id === deckId);
-                setDeckName(deck?.name ?? null);
-                setNotFound(deck === undefined);
+                setDeckName(deck.name);
                 setCards(due);
             })
             .catch((err) => {

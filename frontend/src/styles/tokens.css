@@ -43,6 +43,7 @@
   --color-border: rgba(255, 255, 255, 0.8);
   --color-border-soft: rgba(208, 52, 61, 0.14);
   --color-focus: var(--red-600);
+  --color-backdrop: rgba(43, 26, 29, 0.3); /* behind modal dialogs */
 
   /* Leitner boxes 1 to 5: from "still unsure" (red) to "learned" (green) */
   --box-1: #f2545b;
@@ -122,6 +123,7 @@
     --color-border: rgba(255, 202, 205, 0.14);
     --color-border-soft: rgba(255, 202, 205, 0.1);
     --color-focus: #ff8a90;
+  --color-backdrop: rgba(0, 0, 0, 0.5);
     --shadow-glass:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
       0 18px 40px -18px rgba(0, 0, 0, 0.6);
@@ -150,6 +152,7 @@
   --color-border: rgba(255, 202, 205, 0.14);
   --color-border-soft: rgba(255, 202, 205, 0.1);
   --color-focus: #ff8a90;
+  --color-backdrop: rgba(0, 0, 0, 0.5);
   --shadow-glass:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 18px 40px -18px rgba(0, 0, 0, 0.6);

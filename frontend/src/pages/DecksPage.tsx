@@ -1,13 +1,17 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
-import type { Deck } from "../types/Deck";
+import type { DeckSummary } from "../types/Deck";
 import { createDeck, deleteDeck, getDecks, updateDeck } from "../api/decks";
 import { useApiError } from "../hooks/useApiError";
 import DeckItem from "../features/decks/DeckItem";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { DECK_NAME_MAX } from "../features/decks/constants";
 
 export default function DecksPage() {
-    const [decks, setDecks] = useState<Deck[]>([]);
+    const [decks, setDecks] = useState<DeckSummary[]>([]);
+    // deck waiting for confirmation in the dialog, null = dialog closed
+    const [deckToDelete, setDeckToDelete] = useState<DeckSummary | null>(null);
+    const [deleting, setDeleting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [newName, setNewName] = useState("");
@@ -41,7 +45,8 @@ export default function DecksPage() {
         setCreating(true);
         try {
             const deck = await createDeck(name);
-            setDecks((prev) => [...prev, deck]);
+            // a new deck has no cards yet
+            setDecks((prev) => [...prev, { ...deck, card_count: 0, due_count: 0 }]);
             setNewName("");
         } catch (err) {
             setError(handleApiError(err));
@@ -55,7 +60,8 @@ export default function DecksPage() {
         setError(null);
         try {
             const updated = await updateDeck(id, name);
-            setDecks((prev) => prev.map((d) => (d.id === id ? updated : d)));
+            // PATCH only returns id and name, keep the counts
+            setDecks((prev) => prev.map((d) => (d.id === id ? { ...d, name: updated.name } : d)));
             return true;
         } catch (err) {
             setError(handleApiError(err));
@@ -63,14 +69,19 @@ export default function DecksPage() {
         }
     }
 
-    async function handleDelete(deck: Deck) {
-        if (!window.confirm(`Stapel "${deck.name}" mit allen Karten löschen?`)) return;
+    async function confirmDelete() {
+        if (!deckToDelete) return;
+        const deck = deckToDelete;
         setError(null);
+        setDeleting(true);
         try {
             await deleteDeck(deck.id);
             setDecks((prev) => prev.filter((d) => d.id !== deck.id));
         } catch (err) {
             setError(handleApiError(err));
+        } finally {
+            setDeleting(false);
+            setDeckToDelete(null);
         }
     }
 
@@ -125,11 +136,21 @@ export default function DecksPage() {
                 {decks.length > 0 && (
                     <ul className="list">
                         {decks.map((deck) => (
-                            <DeckItem key={deck.id} deck={deck} onRename={handleRename} onDelete={handleDelete} />
+                            <DeckItem key={deck.id} deck={deck} onRename={handleRename} onDelete={setDeckToDelete} />
                         ))}
                     </ul>
                 )}
             </section>
+
+            <ConfirmDialog
+                open={deckToDelete !== null}
+                title="Stapel löschen?"
+                message={`"${deckToDelete?.name ?? ""}" und alle ${deckToDelete?.card_count ?? 0} Karten darin werden gelöscht. Das lässt sich nicht rückgängig machen.`}
+                confirmLabel="Löschen"
+                busy={deleting}
+                onConfirm={confirmDelete}
+                onCancel={() => setDeckToDelete(null)}
+            />
         </div>
     );
 }

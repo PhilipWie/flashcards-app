@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { Check, GraduationCap, Pencil, Trash2, X } from "lucide-react";
-import type { Deck } from "../../types/Deck";
+import type { DeckSummary } from "../../types/Deck";
 import { DECK_NAME_MAX } from "./constants";
 
 type DeckItemProps = {
-    deck: Deck;
+    deck: DeckSummary;
     onRename: (id: number, name: string) => Promise<boolean>;
-    onDelete: (deck: Deck) => void;
+    onDelete: (deck: DeckSummary) => void;
 };
 
 // one row in the deck list, can switch into an inline rename form
@@ -76,11 +76,17 @@ export default function DeckItem({ deck, onRename, onDelete }: DeckItemProps) {
 
     return (
         <li className="deck">
-            <h3 className="deck__name">
-                <Link to={`/decks/${deck.id}`} className="deck__link">
-                    {deck.name}
-                </Link>
-            </h3>
+            <div>
+                <h3 className="deck__name">
+                    <Link to={`/decks/${deck.id}`} className="deck__link">
+                        {deck.name}
+                    </Link>
+                </h3>
+                <p className="deck__meta">
+                    {deck.card_count} {deck.card_count === 1 ? "Karte" : "Karten"}
+                    {deck.due_count > 0 && <span className="deck__due"> · {deck.due_count} fällig</span>}
+                </p>
+            </div>
             <div className="deck__actions">
                 <Link
                     to={`/decks/${deck.id}/learn`}

@@ -1,39 +1,38 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { ArrowLeft, GraduationCap } from "lucide-react";
 import type { Card } from "../types/Card";
-import type { Deck } from "../types/Deck";
-import { getDecks } from "../api/decks";
+import type { DeckSummary } from "../types/Deck";
+import { getDeck } from "../api/decks";
 import { createCard, deleteCard, getCards, updateCard } from "../api/cards";
 import { ApiError } from "../api/client";
 import { useApiError } from "../hooks/useApiError";
-import { isDue } from "../lib/date";
 import BoxBar from "../features/cards/BoxBar";
 import CardForm from "../features/cards/CardForm";
 import CardItem from "../features/cards/CardItem";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 export default function DeckDetailPage() {
     const { id } = useParams();
     const deckId = Number(id);
     const validId = Number.isInteger(deckId) && deckId > 0;
 
-    const [deck, setDeck] = useState<Deck | null>(null);
+    const [deck, setDeck] = useState<DeckSummary | null>(null);
     const [cards, setCards] = useState<Card[]>([]);
     const [loading, setLoading] = useState(validId);
     const [notFound, setNotFound] = useState(!validId);
     const [error, setError] = useState<string | null>(null);
+    const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
+    const [deleting, setDeleting] = useState(false);
     const handleApiError = useApiError();
 
     useEffect(() => {
         if (!validId) return;
         let ignore = false;
-        // there is no GET /api/decks/:id, so the name comes from the deck list
-        Promise.all([getDecks(), getCards(deckId)])
-            .then(([decks, deckCards]) => {
+        Promise.all([getDeck(deckId), getCards(deckId)])
+            .then(([deckData, deckCards]) => {
                 if (ignore) return;
-                const found = decks.find((d) => d.id === deckId) ?? null;
-                setDeck(found);
-                setNotFound(found === null);
+                setDeck(deckData);
                 setCards(deckCards);
             })
             .catch((err) => {
@@ -50,11 +49,22 @@ export default function DeckDetailPage() {
         };
     }, [deckId, validId, handleApiError]);
 
+    // card and due counts come from the backend (database date),
+    // so reload them after cards were added or deleted
+    const reloadCounts = useCallback(async () => {
+        try {
+            setDeck(await getDeck(deckId));
+        } catch (err) {
+            setError(handleApiError(err));
+        }
+    }, [deckId, handleApiError]);
+
     async function handleCreate(front: string, back: string): Promise<boolean> {
         setError(null);
         try {
             const card = await createCard(deckId, front, back);
             setCards((prev) => [...prev, card]);
+            void reloadCounts();
             return true;
         } catch (err) {
             setError(handleApiError(err));
@@ -74,14 +84,20 @@ export default function DeckDetailPage() {
         }
     }
 
-    async function handleDelete(card: Card) {
-        if (!window.confirm(`Karte "${card.front}" löschen?`)) return;
+    async function confirmDelete() {
+        if (!cardToDelete) return;
+        const card = cardToDelete;
         setError(null);
+        setDeleting(true);
         try {
             await deleteCard(card.id);
             setCards((prev) => prev.filter((c) => c.id !== card.id));
+            void reloadCounts();
         } catch (err) {
             setError(handleApiError(err));
+        } finally {
+            setDeleting(false);
+            setCardToDelete(null);
         }
     }
 
@@ -103,7 +119,7 @@ export default function DeckDetailPage() {
         );
     }
 
-    const dueCount = cards.filter((c) => isDue(c.next_review)).length;
+    const dueCount = deck?.due_count ?? 0;
 
     return (
         <div className="stack">
@@ -158,11 +174,21 @@ export default function DeckDetailPage() {
                 {cards.length > 0 && (
                     <ul className="list">
                         {cards.map((card) => (
-                            <CardItem key={card.id} card={card} onUpdate={handleUpdate} onDelete={handleDelete} />
+                            <CardItem key={card.id} card={card} onUpdate={handleUpdate} onDelete={setCardToDelete} />
                         ))}
                     </ul>
                 )}
             </section>
+
+            <ConfirmDialog
+                open={cardToDelete !== null}
+                title="Karte löschen?"
+                message={`"${cardToDelete?.front ?? ""}" wird gelöscht. Das lässt sich nicht rückgängig machen.`}
+                confirmLabel="Löschen"
+                busy={deleting}
+                onConfirm={confirmDelete}
+                onCancel={() => setCardToDelete(null)}
+            />
         </div>
     );
 }

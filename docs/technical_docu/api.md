@@ -62,6 +62,7 @@ Wird ein Limit überschritten, antwortet der Server mit `429 { "message": "too m
 | POST | `/api/register` | nein | Konto anlegen, siehe [Authentication](authentication.md) |
 | POST | `/api/login` | nein | Anmelden, liefert Token, siehe [JWT](jwt.md) |
 | GET | `/api/decks` | ja | Eigene Decks auflisten |
+| GET | `/api/decks/:id` | ja | Ein Deck mit Kartenanzahl |
 | POST | `/api/decks` | ja | Deck anlegen |
 | PATCH | `/api/decks/:id` | ja | Deck umbenennen |
 | DELETE | `/api/decks/:id` | ja | Deck mit allen Karten löschen |
@@ -104,15 +105,30 @@ Ein Deck (im Frontend "Stapel") ist ein Ordner für Karten.
 ```
 
 ### `GET /api/decks`
-Alle Decks des angemeldeten Nutzers.
+Alle Decks des angemeldeten Nutzers, sortiert nach ID, mit Anzahl der Karten und der heute fälligen Karten.
 
 **Antwort `200`**
 ```json
-{ "decks": [ { "id": 1, "name": "Webentwicklung" } ] }
+{ "decks": [ { "id": 1, "name": "Webentwicklung", "card_count": 12, "due_count": 4 } ] }
 ```
 
+| Feld | Bedeutung |
+|------|-----------|
+| `card_count` | Anzahl aller Karten im Deck |
+| `due_count` | Karten mit `next_review` ≤ heute, also genau die, die `GET /api/decks/:deckId/review` liefert. "Heute" berechnet die Datenbank (`CURRENT_DATE`) |
+
+### `GET /api/decks/:id`
+Ein Deck des angemeldeten Nutzers, mit denselben Feldern wie in der Liste.
+
+**Antwort `200`**
+```json
+{ "deck": { "id": 1, "name": "Webentwicklung", "card_count": 12, "due_count": 4 } }
+```
+
+Fehler: `400` (ungültige ID), `404 { "message": "Deck not found" }`.
+
 ### `POST /api/decks`
-Legt ein Deck an.
+Legt ein Deck an. Die Antwort enthält nur `id` und `name`, ein neues Deck hat noch keine Karten.
 
 | Feld | Typ | Regeln |
 |------|-----|--------|
