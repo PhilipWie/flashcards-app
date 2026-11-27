@@ -52,10 +52,10 @@ frontend/src/
 ├── features/     Bausteine einzelner Seiten
 │   ├── decks/        DeckItem (Zeile der Deck-Liste)
 │   ├── cards/        CardForm, CardItem, BoxBar (Verteilung auf die Fächer)
-│   └── learn/        Flashcard (Karteikarte zum Umdrehen)
+│   └── learn/        Flashcard (Karteikarte), LearnSession (Ablauf einer Runde), BoxFilter (Auswahl beim freien Üben)
 ├── hooks/        useTheme (Hell/Dunkel), useApiError (Fehlermeldung, bei 401 abmelden)
-├── lib/          Hilfsfunktionen ohne React-Seite: date.ts, leitner.ts
-├── pages/        eine Datei pro Seite (Login, Register, Decks, DeckDetail, Learn)
+├── lib/          Hilfsfunktionen ohne React: date.ts, leitner.ts, shuffle.ts
+├── pages/        eine Datei pro Seite (Login, Register, Decks, DeckDetail, Learn, Practice)
 ├── styles/       tokens.css (Design-Variablen), base.css (Bausteine)
 └── types/        Typen für Deck und Card
 ```

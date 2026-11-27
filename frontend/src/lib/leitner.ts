@@ -12,3 +12,8 @@ export function boxColorStyle(box: number): CSSProperties {
 export function countPerBox(cards: Card[]): number[] {
     return BOXES.map((box) => cards.filter((card) => card.box === box).length);
 }
+
+// only the cards whose box is in the given list (e.g. [1, 2] = "hard cards")
+export function filterByBoxes(cards: Card[], boxes: readonly number[]): Card[] {
+    return cards.filter((card) => boxes.includes(card.box));
+}

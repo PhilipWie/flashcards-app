@@ -8,6 +8,7 @@ import RegisterPage from "./pages/RegisterPage"
 import DecksPage from "./pages/DecksPage"
 import DeckDetailPage from "./pages/DeckDetailPage"
 import LearnPage from "./pages/LearnPage"
+import PracticePage from "./pages/PracticePage"
 
 // start page: decks if logged in, otherwise login
 function HomeRedirect() {
@@ -32,6 +33,7 @@ export default function App() {
             <Route path="/decks" element={<DecksPage />} />
             <Route path="/decks/:id" element={<DeckDetailPage />} />
             <Route path="/decks/:id/learn" element={<LearnPage />} />
+            <Route path="/decks/:id/practice" element={<PracticePage />} />
           </Route>
         </Route>
       </Routes>

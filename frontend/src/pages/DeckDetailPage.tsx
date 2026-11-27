@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { ArrowLeft, GraduationCap } from "lucide-react";
+import { ArrowLeft, Dumbbell, GraduationCap } from "lucide-react";
 import type { Card } from "../types/Card";
 import type { DeckSummary } from "../types/Deck";
 import { getDeck } from "../api/decks";
@@ -135,18 +135,31 @@ export default function DeckDetailPage() {
                                 : `${cards.length} ${cards.length === 1 ? "Karte" : "Karten"} · ${dueCount} heute fällig`}
                         </p>
                     </div>
-                    {dueCount > 0 ? (
-                        <Link to={`/decks/${deckId}/learn`} className="btn btn--primary">
-                            <GraduationCap aria-hidden="true" />
-                            Lernen
-                        </Link>
-                    ) : (
-                        // a link can't be disabled, so show a disabled button instead
-                        <button type="button" className="btn btn--primary" disabled>
-                            <GraduationCap aria-hidden="true" />
-                            Nichts fällig
-                        </button>
-                    )}
+                    <div className="deck-hero__actions">
+                        {/* a link can't be disabled, so show a disabled button instead */}
+                        {cards.length > 0 ? (
+                            <Link to={`/decks/${deckId}/practice`} className="btn btn--glass">
+                                <Dumbbell aria-hidden="true" />
+                                Frei üben
+                            </Link>
+                        ) : (
+                            <button type="button" className="btn btn--glass" disabled>
+                                <Dumbbell aria-hidden="true" />
+                                Frei üben
+                            </button>
+                        )}
+                        {dueCount > 0 ? (
+                            <Link to={`/decks/${deckId}/learn`} className="btn btn--primary">
+                                <GraduationCap aria-hidden="true" />
+                                Lernen
+                            </Link>
+                        ) : (
+                            <button type="button" className="btn btn--primary" disabled>
+                                <GraduationCap aria-hidden="true" />
+                                Nichts fällig
+                            </button>
+                        )}
+                    </div>
                 </div>
                 {cards.length > 0 && <BoxBar cards={cards} />}
             </section>
