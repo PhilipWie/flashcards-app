@@ -98,7 +98,8 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                 err instanceof ApiError && err.status === 503
                     ? "KI-Prüfung gerade nicht verfügbar. Bewerte deine Antwort selbst."
                     : handleApiError(err);
-            if (message !== null) setCheck({ status: "error", message });
+            // null: 401, the user is logged out and leaves the page. Never stay in "loading".
+            setCheck(message === null ? { status: "idle" } : { status: "error", message });
         }
     }
 
