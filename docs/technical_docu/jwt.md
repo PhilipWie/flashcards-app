@@ -96,10 +96,10 @@ Antwort (Status 200):
 { "message": "User logged in", "token": "eyJhbGciOiJIUzI1NiJ9..." }
 ```
 
-Token bei einer geschützten Route verwenden (sobald eine Route `requireAuth` nutzt):
+Token bei einer geschützten Route verwenden, z. B. die eigenen Decks abrufen (alle geschützten Routen: [API](api.md)):
 
 ```bash
-curl -i http://localhost:3000/api/<geschuetzte-route> \
+curl -i http://localhost:3000/api/decks \
   -H "Authorization: Bearer <token>"
 ```
 

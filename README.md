@@ -7,6 +7,7 @@
  **Detaillierte Projektidee & Anforderungen:** [Idee & Anforderungen](docs/anforderungen.md) <br>
  **Datenmodell:** [Datenmodell](docs/Datenmodell.md) <br>
  **Authentication:** [Authentication](docs/technical_docu/authentication.md)<br>
+ **Technische Dokumentation:** [Setup, API & Architektur](docs/technical_docu/README.md)<br>
 ***
 Author: [PhilipWie -> github](https://github.com/PhilipWie)
 
