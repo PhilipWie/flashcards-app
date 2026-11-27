@@ -1133,3 +1133,44 @@ button.flashcard {
   height: 0.75rem;
   border-radius: 50%;
 }
+
+/* ---------- AI check ---------- */
+.answer-input__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.answer-input__actions .btn {
+  flex: 1 1 10rem;
+  max-width: 16rem;
+}
+
+.ai-result {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.ai-result__verdict {
+  font-weight: var(--weight-bold);
+}
+
+.ai-result__verdict--correct { color: var(--color-success); }
+.ai-result__verdict--wrong { color: var(--color-error); }
+
+.ai-result__suggestion {
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}
+
+/* the button the AI suggests: highlighted, the user still clicks it */
+.btn.is-suggested {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.btn--success.is-suggested { outline-color: var(--color-success); }

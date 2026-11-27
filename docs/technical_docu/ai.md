@@ -32,6 +32,25 @@ sequenceDiagram
 | [lib/answerCheck.ts](../../backend/src/lib/answerCheck.ts) | Prompt, JSON-Schema und Prüfung der Modell-Antwort für die Antwortprüfung |
 | [routes/check.ts](../../backend/src/routes/check.ts) | Route `POST /api/cards/:id/check`, siehe [API](api.md#post-apicardsidcheck) |
 
+## Im Frontend
+
+Die KI-Prüfung braucht die eingetippte Antwort (Einstellung "Antwort vor dem Umdrehen eintippen").
+
+| Wo | Einstellung | Standard |
+|----|-------------|----------|
+| Einstellungen → KI-Prüfung | **Hauptschalter** "Eingetippte Antworten von der KI prüfen lassen", mit Datenschutzhinweis. Ist er aus, geht nie etwas an OpenRouter | aus |
+| Einstellungen → KI-Prüfung | **Wann prüfen?** "Mit Button" (nur nach Klick auf "Prüfen") oder "Automatisch" (beim Umdrehen) | Mit Button |
+| Lernsitzung, beim Eingabefeld | Schalter **"KI-Prüfung"** zum schnellen An- und Ausschalten, wird gemerkt | an |
+
+Alle drei Werte liegen im `localStorage` des Browsers ([settings.ts](../../frontend/src/lib/settings.ts)), nicht in der Datenbank.
+
+Ablauf in [LearnSession](../../frontend/src/features/learn/LearnSession.tsx):
+- Ohne eingetippte Antwort wird nicht geprüft.
+- "Prüfen" dreht die Karte um und startet die Prüfung. Das Ergebnis erscheint unter "Deine Antwort" ([AiResult](../../frontend/src/features/learn/AiResult.tsx)), Screenreader lesen es vor (`role="status"`).
+- Bei `correct` wird "Gewusst" hervorgehoben, bei `wrong` "Nicht gewusst", bei `partial` nichts. Klicken muss der Nutzer selbst.
+- Bei `503` (oder einem anderen Fehler) erscheint ein Hinweis, die Sitzung läuft mit Selbstbewertung weiter.
+- Wird die Antwort nach der Prüfung geändert, verfällt das Ergebnis. Ein spätes Ergebnis für eine frühere Karte wird ignoriert.
+
 ## Einrichten
 
 1. Bei OpenRouter einen API-Key anlegen.

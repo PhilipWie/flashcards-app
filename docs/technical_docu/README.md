@@ -54,14 +54,14 @@ frontend/src/
 ├── features/     Bausteine einzelner Seiten
 │   ├── decks/        DeckItem (Zeile der Deck-Liste)
 │   ├── cards/        CardForm, CardItem, BoxBar (Verteilung auf die Fächer)
-│   ├── learn/        Flashcard (Karteikarte), LearnSession (Ablauf einer Runde), AnswerInput (Antwort eintippen), BoxFilter (Auswahl beim freien Üben)
+│   ├── learn/        Flashcard (Karteikarte), LearnSession (Ablauf einer Runde), AnswerInput (Antwort eintippen), AiResult (Ergebnis der KI-Prüfung), BoxFilter (Auswahl beim freien Üben)
 │   └── stats/        ActivityChart (Antworten pro Tag, ohne Chart-Bibliothek)
 ├── hooks/        useTheme (Hell/Dunkel), useApiError (Fehlermeldung, bei 401 abmelden), useSettings
 ├── lib/          Hilfsfunktionen ohne React: date.ts, leitner.ts, shuffle.ts, settings.ts (Einstellungen im localStorage)
 ├── pages/        eine Datei pro Seite (Login, Register, Decks, DeckDetail, Learn, Practice, Dashboard)
 ├── styles/       tokens.css (Design-Variablen), base.css (Bausteine)
 ├── test/         setup.ts für Vitest (Tests selbst liegen als *.test.ts neben den Dateien)
-└── types/        Typen für Deck, Card und Stats
+└── types/        Typen für Deck, Card, Stats und Check (KI-Prüfung)
 ```
 
 ### Aufbau des Backends
