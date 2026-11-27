@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import type { Card } from "../../types/Card";
 import { boxColorStyle } from "../../lib/leitner";
 
@@ -5,12 +6,15 @@ type FlashcardProps = {
     card: Card;
     flipped: boolean;
     onFlip: () => void;
+    // lets LearnSession move the focus to the card (React 19: ref is a normal prop)
+    ref?: Ref<HTMLButtonElement>;
 };
 
 // the index card from base.css (.flashcard), click turns it around
-export default function Flashcard({ card, flipped, onFlip }: FlashcardProps) {
+export default function Flashcard({ card, flipped, onFlip, ref }: FlashcardProps) {
     return (
         <button
+            ref={ref}
             type="button"
             className={`flashcard glass${flipped ? " is-flipped" : ""}`}
             onClick={onFlip}

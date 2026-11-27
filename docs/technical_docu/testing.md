@@ -40,6 +40,7 @@ Die Test-Dateien im Backend sind vom `tsc`-Build ausgenommen und landen nicht in
 | `frontend/src/lib/*.test.ts` | Einstellungen (auch kaputte und manipulierte `localStorage`-Werte), Fächer filtern und zählen, Mischen, Datum |
 | `frontend/src/api/client.test.ts` | `request()` mit gefälschtem `fetch`: Header, Body, `204`, Fehler als `ApiError` |
 | `frontend/src/features/learn/BoxFilter.test.tsx` | Komponente mit [Testing Library](https://testing-library.com): Schnellauswahl, Fach-Schalter, Start-Button |
+| `frontend/src/features/learn/LearnSession.test.tsx` | Lernsitzung mit eingetippter Antwort: Enter dreht um, Antwort wird angezeigt, Feld ist bei der nächsten Karte leer und fokussiert |
 
 ## Grenzen
 

@@ -1,7 +1,9 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Check, RotateCcw, X } from "lucide-react";
 import type { Card } from "../../types/Card";
 import { useApiError } from "../../hooks/useApiError";
+import { useSettings } from "../../hooks/useSettings";
+import AnswerInput from "./AnswerInput";
 import Flashcard from "./Flashcard";
 
 type LearnSessionProps = {
@@ -27,7 +29,11 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
     const [repeatedIds, setRepeatedIds] = useState<Set<number>>(() => new Set());
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // typed answer for the current card (setting "Antwort eintippen")
+    const [typedAnswer, setTypedAnswer] = useState("");
+    const cardRef = useRef<HTMLButtonElement>(null);
     const handleApiError = useApiError();
+    const { settings } = useSettings();
 
     async function answer(correct: boolean) {
         const card = cards[index];
@@ -41,12 +47,21 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                 setRepeatedIds((prev) => new Set(prev).add(card.id));
             }
             setFlipped(false);
+            // the Flashcard key resets the card, but not this state
+            setTypedAnswer("");
             setIndex((i) => i + 1);
         } catch (err) {
             setError(handleApiError(err));
         } finally {
             setSending(false);
         }
+    }
+
+    // flip from the answer field: the field disappears, so move the focus to the card.
+    // Its accessible name is the back side, the answer buttons follow with Tab.
+    function flipFromInput() {
+        setFlipped(true);
+        cardRef.current?.focus();
     }
 
     const total = cards.length;
@@ -88,7 +103,20 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
 
             {/* key: every position is mounted fresh, so the card does not flip back visibly,
                 also when the same card comes up twice in a row */}
-            <Flashcard key={`${card.id}-${index}`} card={card} flipped={flipped} onFlip={() => setFlipped((f) => !f)} />
+            <Flashcard
+                key={`${card.id}-${index}`}
+                ref={cardRef}
+                card={card}
+                flipped={flipped}
+                onFlip={() => setFlipped((f) => !f)}
+            />
+
+            {settings.typeAnswer && flipped && (
+                <p className="panel glass answer-typed">
+                    <span className="answer-typed__label">Deine Antwort</span>
+                    {typedAnswer.trim() || <span className="text-muted">Keine Antwort eingegeben</span>}
+                </p>
+            )}
 
             {error && (
                 <p className="notice notice--error" role="alert">
@@ -108,6 +136,13 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                             Gewusst
                         </button>
                     </>
+                ) : settings.typeAnswer ? (
+                    <AnswerInput
+                        key={`${card.id}-${index}`}
+                        value={typedAnswer}
+                        onChange={setTypedAnswer}
+                        onSubmit={flipFromInput}
+                    />
                 ) : (
                     <button type="button" className="btn btn--primary" onClick={() => setFlipped(true)}>
                         <RotateCcw aria-hidden="true" />

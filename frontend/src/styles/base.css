@@ -731,6 +731,30 @@ button.flashcard {
 
 .learn-stats__value--known { color: var(--color-success); }
 
+/* typed answer: field before flipping, shown below the card after flipping */
+.answer-input {
+  flex: 1 1 100%;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.answer-input .field { width: 100%; }
+.answer-input .btn { width: 100%; }
+
+.answer-typed {
+  display: grid;
+  gap: var(--space-1);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.answer-typed__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+}
+
 @media (max-width: 34rem) {
   .card-form__fields,
   .card-item__text {
@@ -969,4 +993,13 @@ button.flashcard {
 
 .settings-note {
   font-size: var(--text-sm);
+}
+
+.settings-heading {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
 }

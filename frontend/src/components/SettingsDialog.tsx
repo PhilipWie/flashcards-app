@@ -32,8 +32,22 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                 Einstellungen
             </h2>
 
+            <h3 className="settings-heading">Lernen</h3>
+            <label className="switch">
+                <input
+                    type="checkbox"
+                    role="switch"
+                    className="switch__input"
+                    checked={settings.typeAnswer}
+                    onChange={(e) => updateSettings({ typeAnswer: e.target.checked })}
+                />
+                <span className="switch__track" aria-hidden="true" />
+                Antwort vor dem Umdrehen eintippen
+            </label>
+
+            <h3 className="settings-heading">Freies Üben</h3>
             <fieldset className="settings-group">
-                <legend className="settings-group__legend">Freies Üben: Wirkung auf den Lernfortschritt</legend>
+                <legend className="settings-group__legend">Wirkung auf den Lernfortschritt</legend>
                 {PRACTICE_EFFECTS.map((option) => (
                     <label key={option.value} className="radio">
                         <input
@@ -60,7 +74,7 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                     onChange={(e) => updateSettings({ shuffleByDefault: e.target.checked })}
                 />
                 <span className="switch__track" aria-hidden="true" />
-                Beim freien Üben standardmäßig mischen
+                Standardmäßig mischen
             </label>
 
             <p className="text-muted settings-note">Die Einstellungen gelten nur in diesem Browser.</p>

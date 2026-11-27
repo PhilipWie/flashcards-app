@@ -13,6 +13,8 @@ export type Settings = {
     shuffleByDefault: boolean;
     // last box selection on the free practice start screen
     practiceBoxes: number[];
+    // learn session: type the answer before flipping the card
+    typeAnswer: boolean;
 };
 
 const STORAGE_KEY = "flashcards_settings";
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS: Settings = {
     practiceEffect: "none",
     shuffleByDefault: true,
     practiceBoxes: [...BOXES],
+    typeAnswer: false,
 };
 
 // localStorage can be edited by anyone in the browser: treat it as untrusted input.
@@ -41,6 +44,7 @@ function parseSettings(raw: string | null): Settings {
         shuffleByDefault:
             typeof obj.shuffleByDefault === "boolean" ? obj.shuffleByDefault : DEFAULT_SETTINGS.shuffleByDefault,
         practiceBoxes: parseBoxes(obj.practiceBoxes),
+        typeAnswer: typeof obj.typeAnswer === "boolean" ? obj.typeAnswer : DEFAULT_SETTINGS.typeAnswer,
     };
 }
 
