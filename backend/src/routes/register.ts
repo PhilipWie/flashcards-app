@@ -46,7 +46,7 @@ router.post("/",authLimit, async (req, res) => {
         const password_hash = await hashPassword(req.body.password);
         await db.insert(users).values({email: trimmed_email, password_hash: password_hash})
     } catch (error: any) {
-        if (error.cause.code === '23505') {
+        if (error?.cause?.code === '23505') {
             return res.status(409).json({
                 message: 'Duplicate email detected try another email or login',
             })

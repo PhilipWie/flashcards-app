@@ -108,11 +108,6 @@ router.patch('/:id', apiLimit, async (req, res) => {
 // Delete Route: löscht das Deck des angemeldeten Users miit der mitgegebenen id
 router.delete('/:id', apiLimit, async (req, res) => {
     try {
-        if (typeof req.userId == "undefined"){
-            return res.status(401).json({
-                message: 'wrong format of input data',
-            })
-        }
         const user_id = Number(req.userId)
 
         const deck_id = Number(req.params.id);
