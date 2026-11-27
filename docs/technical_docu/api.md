@@ -72,6 +72,7 @@ Wird ein Limit überschritten, antwortet der Server mit `429 { "message": "too m
 | DELETE | `/api/cards/:id` | ja | Karte löschen |
 | GET | `/api/decks/:deckId/review` | ja | Heute fällige Karten eines Decks |
 | POST | `/api/cards/:id/review` | ja | Antwort speichern (Leitner) |
+| GET | `/api/stats` | ja | Lernstatistik des Nutzers |
 
 IDs in Pfaden müssen positive ganze Zahlen sein, sonst `400`.
 
@@ -266,18 +267,49 @@ Alle **heute fälligen** Karten eines Decks (`next_review` ≤ heute). Die Liste
 Fehler: `400`, `404 { "message": "Deck not found" }`.
 
 ### `POST /api/cards/:id/review`
-Speichert die Antwort und verschiebt die Karte.
+Speichert die Antwort und verschiebt die Karte. Die Antwort wird außerdem in der Lernhistorie (Tabelle `reviews`) gespeichert, beides in einer Transaktion.
 
 | Feld | Typ | Regeln |
 |------|-----|--------|
 | `correct` | boolean | `true` = gewusst, `false` = nicht gewusst |
+| `practice` | boolean, optional | Standard `false`. `true` = Antwort aus dem freien Üben: Die Karte wird verschoben, die Antwort zählt aber **nicht** in der Statistik |
 
 **Antwort `200`**: die Karte mit neuem Fach und neuem Datum
 ```json
 { "card": { "id": 7, "front": "...", "back": "...", "box": 3, "next_review": "2026-12-01" } }
 ```
 
-Fehler: `400` (z. B. `correct must be a boolean`), `404 { "message": "Card not found" }`.
+Fehler: `400` (z. B. `correct must be a boolean`, `practice must be a boolean`), `404 { "message": "Card not found" }`.
+
+---
+
+## Statistik
+
+### `GET /api/stats`
+Lernstatistik über alle Stapel des angemeldeten Nutzers.
+
+**Antwort `200`**
+```json
+{
+  "today": "2026-11-27",
+  "streak": 3,
+  "total": { "answers": 120, "correct": 90, "accuracy": 75 },
+  "period": { "days": 14, "answers": 40, "correct": 32, "accuracy": 80 },
+  "days": [ { "date": "2026-11-14", "correct": 0, "wrong": 0 }, "…", { "date": "2026-11-27", "correct": 5, "wrong": 1 } ],
+  "cards": { "total": 50, "due": 6, "learned": 12, "boxes": [10, 8, 12, 8, 12] }
+}
+```
+
+| Feld | Bedeutung |
+|------|-----------|
+| `streak` | Tage in Folge mit mindestens einer Antwort. Ist heute noch nichts beantwortet, zählt die Serie bis gestern, damit sie morgens nicht auf 0 fällt |
+| `total`, `period` | Antworten und davon gewusst, gesamt bzw. in den letzten `period.days` Tagen (inkl. heute). `accuracy` in Prozent (gerundet), `null` ohne Antworten |
+| `days` | die letzten `period.days` Tage, älteste zuerst, Tage ohne Antwort mit `0` |
+| `cards` | aktueller Stand: Karten gesamt, heute fällig (wie `due_count`), gelernt (Fach 5), `boxes` = Anzahl pro Fach (Index 0 = Fach 1) |
+
+**Tage und Zeitzone:** Antworten werden nach dem Kalendertag in deutscher Zeit (`Europe/Berlin`) gezählt, eine Antwort um 00:30 gehört also zum neuen Tag. Die Datenbank läuft in UTC, deshalb rechnet die Statistik die Zeitzone selbst um. `cards.due` nutzt wie der Lernmodus `CURRENT_DATE` der Datenbank.
+
+Gezählt werden nur Antworten im Lernmodus. Antworten vor Einführung der Statistik gibt es nicht (keine Historie vor der Migration `0001_reviews`).
 
 ---
 
@@ -315,4 +347,5 @@ curl -i -X POST http://localhost:3000/api/cards/1/review \
 
 ## Bekannte Einschränkungen
 
+- "Heute" für fällige Karten ist `CURRENT_DATE` der Datenbank, also UTC. Zwischen 0 und 1 Uhr (Sommerzeit: 2 Uhr) deutscher Zeit gilt dort noch der Vortag. Die Statistik rechnet dagegen schon in `Europe/Berlin`.
 - Die Fehlermeldungen sind nur auf Englisch und ohne festen Fehlercode. Geplant in Issue [#2](https://github.com/PhilipWie/flashcards-app/issues/2).

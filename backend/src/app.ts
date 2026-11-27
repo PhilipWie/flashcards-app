@@ -5,6 +5,7 @@ import loginRouter from './routes/login.js'
 import decksRouter from './routes/decks.js'
 import { deckCardsRouter, cardsRouter } from './routes/cards.js'
 import { deckReviewRouter, cardReviewRouter } from './routes/review.js'
+import statsRouter from './routes/stats.js'
 import requireAuth from './middleware/auth.js'
 import cors from 'cors'
 
@@ -22,4 +23,5 @@ app.use("/api/decks/:deckId/cards",requireAuth, deckCardsRouter);
 app.use("/api/decks/:deckId/review",requireAuth, deckReviewRouter);
 app.use("/api/cards",requireAuth, cardsRouter);
 app.use("/api/cards",requireAuth, cardReviewRouter);
+app.use("/api/stats",requireAuth, statsRouter);
 export default app;

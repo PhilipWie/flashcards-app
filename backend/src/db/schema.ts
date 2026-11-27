@@ -1,4 +1,4 @@
-import {pgTable, integer, text, timestamp, date, check} from "drizzle-orm/pg-core";
+import {pgTable, integer, text, timestamp, date, check, boolean, index} from "drizzle-orm/pg-core";
 import {sql} from "drizzle-orm";
 // Table users
 export const users = pgTable('users', {
@@ -29,4 +29,17 @@ export const cards = pgTable('cards', {
     created_at: timestamp({withTimezone: true}).defaultNow().notNull(),
 }, (t) => [
     check("cards_box_range", sql`${t.box} >= 1 AND ${t.box} <= 5`),
+])
+
+// Table reviews: one row per answer in learn mode (learning history for the statistics)
+export const reviews = pgTable('reviews', {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    card_id: integer()
+        .notNull()
+        .references(() => cards.id, { onDelete: 'cascade' }),
+    correct: boolean().notNull(),
+    reviewed_at: timestamp({withTimezone: true}).defaultNow().notNull(),
+}, (t) => [
+    // the stats query joins reviews -> cards -> decks of one user
+    index("reviews_card_id_idx").on(t.card_id),
 ])

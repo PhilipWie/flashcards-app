@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router";
-import { Layers, LogOut, Moon, Settings, Sun } from "lucide-react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router";
+import { LayoutDashboard, Layers, LogOut, Moon, Settings, Sun } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { getToken } from "../api/client";
 import { logout } from "../api/auth";
 import SettingsDialog from "./SettingsDialog";
 
-// frame around every page: top bar with brand, theme toggle, settings and logout
+// frame around every page: top bar with brand, theme toggle, dashboard, settings and logout
 export default function Layout() {
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
@@ -35,6 +35,12 @@ export default function Layout() {
                     >
                         {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
                     </button>
+                    {/* NavLink sets aria-current="page" while the dashboard is open */}
+                    {loggedIn && (
+                        <NavLink to="/dashboard" className="btn btn--icon" aria-label="Dashboard" title="Dashboard">
+                            <LayoutDashboard aria-hidden="true" />
+                        </NavLink>
+                    )}
                     {loggedIn && (
                         <button
                             type="button"
