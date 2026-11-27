@@ -138,14 +138,9 @@ Fehler: `400`, `404 { "message": "deck not found" }`.
 ### `DELETE /api/decks/:id`
 Löscht ein Deck. Alle Karten darin werden von der Datenbank mitgelöscht (`ON DELETE CASCADE`).
 
-**Antwort `200`**
-```json
-{ "message": "Deck 2 deleted" }
-```
+**Antwort `204`** ohne Body.
 
-Fehler: `400`, `404`.
-
-> **Bekannte Abweichung:** Der `404` liefert hier als Body den reinen String `"deck not found"` statt `{ "message": ... }`, und Erfolg ist `200` mit Meldung statt `204` wie beim Löschen von Karten. Siehe Issue [#2](https://github.com/PhilipWie/flashcards-app/issues/2).
+Fehler: `400`, `404 { "message": "Deck not found" }`.
 
 ---
 
@@ -183,8 +178,8 @@ Legt eine Karte im Deck an.
 
 | Feld | Typ | Regeln |
 |------|-----|--------|
-| `front` | string | wird getrimmt, nicht leer |
-| `back` | string | wird getrimmt, nicht leer |
+| `front` | string | wird getrimmt, 1 bis 1000 Zeichen |
+| `back` | string | wird getrimmt, 1 bis 1000 Zeichen |
 
 **Antwort `201`**
 ```json
@@ -198,8 +193,8 @@ Fehler: `400`, `404` (Deck nicht gefunden).
 
 | Feld | Typ | Regeln |
 |------|-----|--------|
-| `front` | string (optional) | wird getrimmt, nicht leer |
-| `back` | string (optional) | wird getrimmt, nicht leer |
+| `front` | string (optional) | wird getrimmt, 1 bis 1000 Zeichen |
+| `back` | string (optional) | wird getrimmt, 1 bis 1000 Zeichen |
 
 **Antwort `200`**
 ```json
@@ -304,5 +299,4 @@ curl -i -X POST http://localhost:3000/api/cards/1/review \
 
 ## Bekannte Einschränkungen
 
-- Für Vorder- und Rückseite von Karten gibt es keine Höchstlänge. Begrenzt wird nur die Größe des gesamten Request-Body (Standard von `express.json()`: 100 KB).
 - Die Fehlermeldungen sind nur auf Englisch und ohne festen Fehlercode. Geplant in Issue [#2](https://github.com/PhilipWie/flashcards-app/issues/2).

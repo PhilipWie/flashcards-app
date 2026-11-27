@@ -6,6 +6,9 @@ import {cards} from '../db/schema.js';
 import { eq, inArray } from 'drizzle-orm';
 import { and } from "drizzle-orm";
 
+// max length of a card side (front/back) after trimming
+const CARD_TEXT_MAX = 1000;
+
 export const deckCardsRouter = Router({mergeParams: true});
 export const cardsRouter = Router();
 
@@ -78,6 +81,11 @@ deckCardsRouter.post('/', apiLimit, async (req, res) => {
                 message: 'front and back must not be empty',
             });
         }
+        if (trimmedFront.length > CARD_TEXT_MAX || trimmedBack.length > CARD_TEXT_MAX) {
+            return res.status(400).json({
+                message: `front and back must be at most ${CARD_TEXT_MAX} characters`,
+            });
+        }
         const userId = Number(req.userId);
         const deck = await db.select({id: decks.id}).from(decks)
             .where(and(eq(decks.id, deckId), eq(decks.user_id, userId)));
@@ -128,6 +136,11 @@ cardsRouter.patch('/:id', apiLimit, async (req, res) => {
             if (typeof value !== 'string' || value.trim().length < 1) {
                 return res.status(400).json({
                     message: `${field} must be a non-empty string`,
+                });
+            }
+            if (value.trim().length > CARD_TEXT_MAX) {
+                return res.status(400).json({
+                    message: `${field} must be at most ${CARD_TEXT_MAX} characters`,
                 });
             }
             updates[field] = value.trim();
