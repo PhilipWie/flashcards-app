@@ -36,8 +36,9 @@ Die Test-Dateien im Backend sind vom `tsc`-Build ausgenommen und landen nicht in
 | Datei | Inhalt |
 |-------|--------|
 | `backend/src/lib/leitner.test.ts` | Leitner-Logik: Fach hoch, Fach 5 bleibt, "nicht gewusst" zurück in Fach 1 |
+| `backend/src/lib/answerCheck.test.ts` | KI-Prüfung mit gefälschtem OpenRouter (`vi.stubGlobal("fetch")`): Anfrage, Tags maskieren, Modell-Antwort prüfen, Fehler, Timeout, kein Key in Fehlermeldungen |
 | `backend/src/lib/stats.test.ts` | Statistik: Lernserie (Lücken, heute/gestern), Trefferquote, Tage auffüllen, Zeitzone und Sommerzeit |
-| `backend/src/app.test.ts` | Routen über HTTP mit [supertest](https://github.com/forwardemail/supertest): Health, `401` ohne oder mit ungültigem Token, `400` bei ungültigen Eingaben |
+| `backend/src/app.test.ts` | Routen über HTTP mit [supertest](https://github.com/forwardemail/supertest): Health, `401` ohne oder mit ungültigem Token, `400` bei ungültigen Eingaben, `503` für die KI-Prüfung ohne Key |
 | `frontend/src/lib/*.test.ts` | Einstellungen (auch kaputte und manipulierte `localStorage`-Werte), Fächer filtern und zählen, Mischen, Datum |
 | `frontend/src/api/client.test.ts` | `request()` mit gefälschtem `fetch`: Header, Body, `204`, Fehler als `ApiError` |
 | `frontend/src/features/learn/BoxFilter.test.tsx` | Komponente mit [Testing Library](https://testing-library.com): Schnellauswahl, Fach-Schalter, Start-Button |

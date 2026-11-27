@@ -10,6 +10,7 @@
 | [API](api.md) | Alle Endpunkte des Backends: Decks, Karten, Lernmodus, Health |
 | [Authentication](authentication.md) | Registrierung (`POST /api/register`) mit Beispielen |
 | [JWT](jwt.md) | Login, Token-Aufbau, geschützte Routen, Sicherheit |
+| [KI-Anbindung](ai.md) | OpenRouter einrichten, Antwortprüfung, Datenschutz und Sicherheit |
 | [Tests](testing.md) | Vitest in Backend und Frontend: ausführen, Aufbau, was getestet wird |
 | [Datenmodell](../Datenmodell.md) | Tabellen und Beziehungen der PostgreSQL-Datenbank |
 
@@ -71,7 +72,7 @@ backend/src/
 ├── app.ts        Express-App: Middleware und Routen
 ├── jwt.ts        Token erstellen und prüfen
 ├── db/           Verbindung (db.ts) und Schema (schema.ts)
-├── lib/          Fachlogik ohne HTTP: leitner.ts, stats.ts (Lernserie, Trefferquote, Tage)
+├── lib/          Fachlogik ohne HTTP: leitner.ts, stats.ts (Statistik), ai.ts (OpenRouter-Client), answerCheck.ts (KI-Prüfung)
 ├── middleware/   auth.ts (requireAuth), rateLimit.ts
-└── routes/       ein Router pro Bereich (register, login, decks, cards, review, stats, health)
+└── routes/       ein Router pro Bereich (register, login, decks, cards, review, check, stats, health)
 ```
