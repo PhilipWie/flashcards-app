@@ -96,11 +96,19 @@ cardReviewRouter.post('/:id/review', apiLimit, async (req, res) => {
                     box: cards.box,
                     next_review: cards.next_review,
                 });
+            // card deleted between the lookup above and this update: nothing to save
+            const card = result[0];
+            if (!card) return null;
             if (!practice) {
                 await tx.insert(reviews).values({ card_id: cardId, correct });
             }
-            return result[0];
+            return card;
         });
+        if (!updated) {
+            return res.status(404).json({
+                message: 'Card not found',
+            });
+        }
         return res.status(200).json({
             card: updated,
         });
