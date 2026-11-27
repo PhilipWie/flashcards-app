@@ -297,8 +297,17 @@ Lässt eine eingetippte Antwort von einem Sprachmodell prüfen. Nur ein **Vorsch
 
 **Antwort `200`**
 ```json
-{ "verdict": "partial", "feedback": "Fast: Es fehlt, dass ..." }
+{
+  "verdict": "partial",
+  "feedback": "Frontend und Backend stimmen, die Datenbank fehlt.",
+  "explanation": "Eine Client-Server-Webanwendung trennt Darstellung, Logik und Speicherung ..."
+}
 ```
+
+| Feld | Inhalt |
+|------|--------|
+| `feedback` | 1–2 Sätze zur eingetippten Antwort, höchstens 300 Zeichen |
+| `explanation` | 2–4 Sätze zur Lösung selbst (was der Begriff bedeutet, warum), höchstens 800 Zeichen. Kann leer sein |
 
 | `verdict` | Bedeutung |
 |-----------|-----------|

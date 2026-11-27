@@ -171,8 +171,8 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
 
             {settings.typeAnswer && flipped && (
                 <div className="panel glass answer-typed">
-                    <span className="answer-typed__label">Deine Antwort</span>
-                    {typedAnswer.trim() || <span className="text-muted">Keine Antwort eingegeben</span>}
+                    <p className="answer-typed__label">Deine Antwort</p>
+                    {typedAnswer.trim() ? <p>{typedAnswer.trim()}</p> : <p className="text-muted">Keine Antwort eingegeben</p>}
                     {check.status !== "idle" && <AiResult state={check} />}
                 </div>
             )}

@@ -21,19 +21,26 @@ const SUGGESTION_TEXT = {
 
 // Result of the AI check below the typed answer.
 // role="status": the result arrives later, screen readers announce it when it is there.
+// Block elements (div/p), so label and text are read as separate parts, not as one word.
 export default function AiResult({ state }: { state: CheckState }) {
     return (
         <div className="ai-result" role="status">
-            {state.status === "loading" && <span className="text-muted">KI prüft deine Antwort …</span>}
-            {state.status === "error" && <span className="text-muted">{state.message}</span>}
+            {state.status === "loading" && <p className="text-muted">KI prüft deine Antwort …</p>}
+            {state.status === "error" && <p className="text-muted">{state.message}</p>}
             {state.status === "done" && (
                 <>
-                    <span className={`ai-result__verdict ai-result__verdict--${state.result.verdict}`}>
+                    <p className={`ai-result__verdict ai-result__verdict--${state.result.verdict}`}>
                         KI: {VERDICT_TEXT[state.result.verdict]}
                         <span className="ai-result__suggestion"> · {SUGGESTION_TEXT[state.result.verdict]}</span>
-                    </span>
+                    </p>
                     {/* plain text from the model, React escapes it */}
-                    {state.result.feedback && <span>{state.result.feedback}</span>}
+                    {state.result.feedback && <p>{state.result.feedback}</p>}
+                    {state.result.explanation && (
+                        <div className="ai-result__explanation">
+                            <p className="ai-result__label">Erklärung</p>
+                            <p>{state.result.explanation}</p>
+                        </div>
+                    )}
                 </>
             )}
         </div>

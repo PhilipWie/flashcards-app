@@ -1156,6 +1156,10 @@ button.flashcard {
   border-top: 1px solid var(--color-border-soft);
 }
 
+/* the grid gap sets the spacing, also outside a .panel (global p has a bottom margin) */
+.ai-result p,
+.answer-typed p { margin: 0; }
+
 .ai-result__verdict {
   font-weight: var(--weight-bold);
 }
@@ -1174,3 +1178,15 @@ button.flashcard {
   outline-offset: 3px;
 }
 .btn--success.is-suggested { outline-color: var(--color-success); }
+
+.ai-result__explanation {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.ai-result__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+}

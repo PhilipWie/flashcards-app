@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AiUnavailableError } from './ai.js';
-import { buildUserMessage, checkAnswer, FEEDBACK_MAX, parseCheckResult } from './answerCheck.js';
+import { buildUserMessage, checkAnswer, EXPLANATION_MAX, FEEDBACK_MAX, parseCheckResult } from './answerCheck.js';
 
 // fake OpenRouter: no key, no network and no costs in tests
 function openRouterReply(body: unknown, status = 200) {
@@ -30,8 +30,20 @@ describe('buildUserMessage', () => {
 });
 
 describe('parseCheckResult', () => {
-    it('accepts a valid result and trims the feedback', () => {
-        expect(parseCheckResult({ verdict: 'partial', feedback: '  Fast.  ' })).toEqual({ verdict: 'partial', feedback: 'Fast.' });
+    it('accepts a valid result and trims the texts', () => {
+        expect(parseCheckResult({ verdict: 'partial', feedback: '  Fast.  ', explanation: ' Weil. ' })).toEqual({
+            verdict: 'partial',
+            feedback: 'Fast.',
+            explanation: 'Weil.',
+        });
+    });
+
+    it('accepts a result without explanation', () => {
+        expect(parseCheckResult({ verdict: 'correct', feedback: 'Ja.', explanation: 42 })).toEqual({
+            verdict: 'correct',
+            feedback: 'Ja.',
+            explanation: '',
+        });
     });
 
     it.each([
@@ -44,18 +56,25 @@ describe('parseCheckResult', () => {
         expect(parseCheckResult(value)).toBeNull();
     });
 
-    it('cuts long feedback', () => {
-        const result = parseCheckResult({ verdict: 'wrong', feedback: 'x'.repeat(1000) });
+    it('cuts long texts', () => {
+        const result = parseCheckResult({ verdict: 'wrong', feedback: 'x'.repeat(2000), explanation: 'y'.repeat(2000) });
         expect(result?.feedback).toHaveLength(FEEDBACK_MAX);
+        expect(result?.explanation).toHaveLength(EXPLANATION_MAX);
     });
 });
 
 describe('checkAnswer', () => {
     it('sends the request to OpenRouter and returns the result', async () => {
-        const fetchMock = openRouterReply(modelAnswer('{"verdict":"correct","feedback":"Richtig."}'));
+        const fetchMock = openRouterReply(
+            modelAnswer('{"verdict":"correct","feedback":"Richtig.","explanation":"Hund heißt auf Englisch dog."}'),
+        );
         vi.stubGlobal('fetch', fetchMock);
 
-        await expect(checkAnswer('Hund', 'dog', 'dog')).resolves.toEqual({ verdict: 'correct', feedback: 'Richtig.' });
+        await expect(checkAnswer('Hund', 'dog', 'dog')).resolves.toEqual({
+            verdict: 'correct',
+            feedback: 'Richtig.',
+            explanation: 'Hund heißt auf Englisch dog.',
+        });
 
         const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
         expect(url).toBe('https://openrouter.ai/api/v1/chat/completions');
@@ -63,6 +82,7 @@ describe('checkAnswer', () => {
         const body = JSON.parse(init.body as string);
         expect(body.model).toBe('anthropic/claude-haiku-5.5');
         expect(body.response_format.json_schema.strict).toBe(true);
+        expect(body.response_format.json_schema.schema.required).toEqual(['verdict', 'feedback', 'explanation']);
         // instructions and user data are separate messages
         expect(body.messages[0].role).toBe('system');
         expect(body.messages[0].content).not.toContain('dog');

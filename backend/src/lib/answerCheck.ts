@@ -2,12 +2,13 @@ import { AiUnavailableError, completeJson } from './ai.js';
 
 // same limit as the answer field in the frontend
 export const ANSWER_MAX = 500;
-// longer feedback from the model is cut
+// longer texts from the model are cut
 export const FEEDBACK_MAX = 300;
+export const EXPLANATION_MAX = 800;
 
 export const VERDICTS = ['correct', 'partial', 'wrong'] as const;
 export type Verdict = (typeof VERDICTS)[number];
-export type CheckResult = { verdict: Verdict; feedback: string };
+export type CheckResult = { verdict: Verdict; feedback: string; explanation: string };
 
 // Instructions only. Card and answer are sent separately as data (OWASP LLM01 prompt injection).
 const SYSTEM_PROMPT = `You grade a learner's answer to a flashcard.
@@ -19,15 +20,18 @@ Verdict:
 - "partial": the answer is partly right, but an important part is missing or wrong.
 - "wrong": the answer is wrong, unrelated or empty.
 
-Feedback: one or two short sentences in German, addressed to the learner with "du". Say what was missing or wrong. If the answer is correct, confirm it briefly.`;
+Feedback: one or two short sentences in German, addressed to the learner with "du". Only about the learner's answer: say what was missing or wrong. If the answer is correct, confirm it briefly.
+
+Explanation: two to four sentences in German that explain the solution itself: what the term or concept means and why the reference answer is right, with a short example if it helps. Base it on the reference answer and never contradict it. Do not repeat the feedback.`;
 
 const SCHEMA = {
     type: 'object',
     properties: {
         verdict: { type: 'string', enum: [...VERDICTS] },
         feedback: { type: 'string' },
+        explanation: { type: 'string' },
     },
-    required: ['verdict', 'feedback'],
+    required: ['verdict', 'feedback', 'explanation'],
     additionalProperties: false,
 };
 
@@ -47,10 +51,15 @@ export function buildUserMessage(front: string, back: string, answer: string): s
 // never trust the model output: only known verdicts, feedback as plain string with a max length
 export function parseCheckResult(value: unknown): CheckResult | null {
     if (typeof value !== 'object' || value === null) return null;
-    const { verdict, feedback } = value as Record<string, unknown>;
+    const { verdict, feedback, explanation } = value as Record<string, unknown>;
     if (typeof verdict !== 'string' || !(VERDICTS as readonly string[]).includes(verdict)) return null;
     if (typeof feedback !== 'string') return null;
-    return { verdict: verdict as Verdict, feedback: feedback.trim().slice(0, FEEDBACK_MAX) };
+    return {
+        verdict: verdict as Verdict,
+        feedback: feedback.trim().slice(0, FEEDBACK_MAX),
+        // nice to have: a missing explanation does not make the whole check fail
+        explanation: typeof explanation === 'string' ? explanation.trim().slice(0, EXPLANATION_MAX) : '',
+    };
 }
 
 // asks the model whether the answer matches the card. Throws AiUnavailableError on any problem.
@@ -61,7 +70,8 @@ export async function checkAnswer(front: string, back: string, answer: string): 
         schemaName: 'answer_check',
         schema: SCHEMA,
         // low reasoning budget is 1024 tokens (OpenRouter minimum), the rest is for the JSON
-        maxTokens: 2048,
+        // (feedback + explanation, about 1100 characters at most)
+        maxTokens: 2560,
     });
     const result = parseCheckResult(raw);
     if (!result) throw new AiUnavailableError('AI answer has an unexpected shape');

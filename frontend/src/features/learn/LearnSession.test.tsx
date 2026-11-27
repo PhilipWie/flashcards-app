@@ -103,7 +103,7 @@ describe("LearnSession with AI check", () => {
     });
 
     it("checks only after a click on Prüfen and highlights the suggestion", async () => {
-        checkMock.mockResolvedValue({ verdict: "correct", feedback: "Genau." });
+        checkMock.mockResolvedValue({ verdict: "correct", feedback: "Genau.", explanation: "Hund heißt auf Englisch dog." });
         const user = userEvent.setup();
         renderSession();
 
@@ -115,6 +115,7 @@ describe("LearnSession with AI check", () => {
         expect(checkMock).toHaveBeenCalledWith(1, "dog");
         expect(await screen.findByText(/KI: Richtig/)).toBeInTheDocument();
         expect(screen.getByText("Genau.")).toBeInTheDocument();
+        expect(screen.getByText("Hund heißt auf Englisch dog.")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Gewusst" })).toHaveClass("is-suggested");
         expect(screen.getByRole("button", { name: "Nicht gewusst" })).not.toHaveClass("is-suggested");
     });
@@ -128,7 +129,7 @@ describe("LearnSession with AI check", () => {
 
     it("checks on flip in automatic mode", async () => {
         updateSettings({ aiCheckMode: "auto" });
-        checkMock.mockResolvedValue({ verdict: "wrong", feedback: "Nein." });
+        checkMock.mockResolvedValue({ verdict: "wrong", feedback: "Nein.", explanation: "" });
         const user = userEvent.setup();
         renderSession();
 
@@ -138,6 +139,8 @@ describe("LearnSession with AI check", () => {
         expect(checkMock).toHaveBeenCalledWith(1, "cat");
         expect(await screen.findByText(/KI: Falsch/)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Nicht gewusst" })).toHaveClass("is-suggested");
+        // empty explanation: no heading
+        expect(screen.queryByText("Erklärung")).not.toBeInTheDocument();
     });
 
     it("does not check an empty answer in automatic mode", async () => {
@@ -149,7 +152,7 @@ describe("LearnSession with AI check", () => {
     });
 
     it("highlights nothing for a partly correct answer", async () => {
-        checkMock.mockResolvedValue({ verdict: "partial", feedback: "Fast." });
+        checkMock.mockResolvedValue({ verdict: "partial", feedback: "Fast.", explanation: "" });
         const user = userEvent.setup();
         renderSession();
         await user.type(screen.getByLabelText("Deine Antwort"), "do");
