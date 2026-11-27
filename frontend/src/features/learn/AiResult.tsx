@@ -34,6 +34,12 @@ export default function AiResult({ state }: { state: CheckState }) {
                     </span>
                     {/* plain text from the model, React escapes it */}
                     {state.result.feedback && <span>{state.result.feedback}</span>}
+                    {state.result.explanation && (
+                        <span className="ai-result__explanation">
+                            <span className="ai-result__label">Erklärung</span>
+                            {state.result.explanation}
+                        </span>
+                    )}
                 </>
             )}
         </div>
