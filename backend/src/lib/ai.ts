@@ -20,6 +20,12 @@ export function isAiConfigured(): boolean {
     return apiKey() !== undefined;
 }
 
+// the parts of the OpenRouter response we read, everything optional: nothing is trusted
+type OpenRouterResponse = {
+    error?: { code?: number };
+    choices?: { message?: { content?: unknown }; finish_reason?: string }[];
+};
+
 export type JsonRequest = {
     // instructions, never contains user input
     system: string;
@@ -74,7 +80,7 @@ export async function completeJson({ system, user, schemaName, schema, maxTokens
     }
 
     // OpenRouter can answer 200 and still report an error in the body
-    const data: any = await response.json().catch(() => null);
+    const data = (await response.json().catch(() => null)) as OpenRouterResponse | null;
     if (!response.ok || data?.error) {
         // log only the status code, not the provider message
         throw new AiUnavailableError(`OpenRouter error ${data?.error?.code ?? response.status}`);
