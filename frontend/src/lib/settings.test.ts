@@ -28,7 +28,7 @@ describe("reading settings from localStorage", () => {
     });
 
     it("replaces values with a wrong type by their default", async () => {
-        const raw = JSON.stringify({ practiceEffect: "<img src=x>", shuffleByDefault: "yes", practiceBoxes: "1,2", typeAnswer: 1 });
+        const raw = JSON.stringify({ practiceEffect: "<img src=x>", shuffleByDefault: "yes", practiceBoxes: "1,2", typeAnswer: 1, aiEnabled: "true", aiCheck: null, aiCheckMode: "always" });
         const { getSettings } = await loadWith(raw);
         expect(getSettings()).toEqual(DEFAULT_SETTINGS);
     });
@@ -50,6 +50,9 @@ describe("reading settings from localStorage", () => {
             shuffleByDefault: false,
             practiceBoxes: [4, 1],
             typeAnswer: true,
+            aiEnabled: true,
+            aiCheck: false,
+            aiCheckMode: "auto",
         });
         const { getSettings } = await loadWith(raw);
         expect(getSettings()).toEqual({
@@ -57,6 +60,9 @@ describe("reading settings from localStorage", () => {
             shuffleByDefault: false,
             practiceBoxes: [1, 4],
             typeAnswer: true,
+            aiEnabled: true,
+            aiCheck: false,
+            aiCheckMode: "auto",
         });
     });
 });

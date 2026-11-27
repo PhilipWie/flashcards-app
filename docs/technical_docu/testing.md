@@ -44,7 +44,7 @@ Die Test-Dateien im Backend sind vom `tsc`-Build ausgenommen und landen nicht in
 | `frontend/src/features/learn/BoxFilter.test.tsx` | Komponente mit [Testing Library](https://testing-library.com): Schnellauswahl, Fach-Schalter, Start-Button |
 | `frontend/src/features/stats/ActivityChart.test.tsx` | Diagramm: Text für Screenreader, heutiger Tag, Höhe der Balken |
 | `frontend/src/pages/DashboardPage.test.tsx` | Dashboard mit gefälschter API (`vi.mock`): Hinweise für neue Nutzer ohne Antworten und Karten |
-| `frontend/src/features/learn/LearnSession.test.tsx` | Lernsitzung mit eingetippter Antwort: Enter dreht um, Antwort wird angezeigt, Feld ist bei der nächsten Karte leer und fokussiert |
+| `frontend/src/features/learn/LearnSession.test.tsx` | Lernsitzung mit eingetippter Antwort: Enter dreht um, Antwort wird angezeigt, Feld ist bei der nächsten Karte leer und fokussiert. KI-Prüfung mit gefälschter API (`vi.mock`): Button- und Automatik-Modus, Hervorhebung, `partial`, Fallback bei `503`, Schalter in der Sitzung |
 
 ## Grenzen
 

@@ -1,9 +1,12 @@
 import { useRef, useState, type ReactNode } from "react";
 import { Check, RotateCcw, X } from "lucide-react";
 import type { Card } from "../../types/Card";
+import { checkAnswer } from "../../api/review";
+import { ApiError } from "../../api/client";
 import { useApiError } from "../../hooks/useApiError";
 import { useSettings } from "../../hooks/useSettings";
 import AnswerInput from "./AnswerInput";
+import AiResult, { type CheckState } from "./AiResult";
 import Flashcard from "./Flashcard";
 
 type LearnSessionProps = {
@@ -32,8 +35,17 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
     // typed answer for the current card (setting "Antwort eintippen")
     const [typedAnswer, setTypedAnswer] = useState("");
     const cardRef = useRef<HTMLButtonElement>(null);
+    // AI check of the typed answer (only a suggestion)
+    const [check, setCheck] = useState<CheckState>({ status: "idle" });
+    // position the running check belongs to: a late result for an earlier card is ignored
+    const checkFor = useRef<number | null>(null);
     const handleApiError = useApiError();
-    const { settings } = useSettings();
+    const { settings, updateSettings } = useSettings();
+
+    // AI can be used at all (both settings) / is switched on for this session
+    const aiAvailable = settings.typeAnswer && settings.aiEnabled;
+    const aiActive = aiAvailable && settings.aiCheck;
+    const autoCheck = aiActive && settings.aiCheckMode === "auto";
 
     async function answer(correct: boolean) {
         const card = cards[index];
@@ -49,6 +61,7 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
             setFlipped(false);
             // the Flashcard key resets the card, but not this state
             setTypedAnswer("");
+            resetCheck();
             setIndex((i) => i + 1);
         } catch (err) {
             setError(handleApiError(err));
@@ -57,11 +70,53 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
         }
     }
 
+    function resetCheck() {
+        checkFor.current = null;
+        setCheck({ status: "idle" });
+    }
+
+    function changeAnswer(value: string) {
+        setTypedAnswer(value);
+        // an old result does not belong to the changed answer
+        if (check.status !== "idle") resetCheck();
+    }
+
+    async function runCheck() {
+        const text = typedAnswer.trim();
+        // nothing to check, or already checked / checking
+        if (!aiActive || text === "" || check.status === "loading" || check.status === "done") return;
+        const position = index;
+        checkFor.current = position;
+        setCheck({ status: "loading" });
+        try {
+            const result = await checkAnswer(cards[position].id, text);
+            if (checkFor.current === position) setCheck({ status: "done", result });
+        } catch (err) {
+            if (checkFor.current !== position) return;
+            // 503: no key, timeout or OpenRouter error. The session goes on with self-grading.
+            const message =
+                err instanceof ApiError && err.status === 503
+                    ? "KI-Prüfung gerade nicht verfügbar. Bewerte deine Antwort selbst."
+                    : handleApiError(err);
+            if (message !== null) setCheck({ status: "error", message });
+        }
+    }
+
     // flip from the answer field: the field disappears, so move the focus to the card.
     // Its accessible name is the back side, the answer buttons follow with Tab.
-    function flipFromInput() {
+    function flipFromInput(withCheck: boolean) {
         setFlipped(true);
         cardRef.current?.focus();
+        if (withCheck) void runCheck();
+    }
+
+    function toggleCard() {
+        if (flipped) {
+            setFlipped(false);
+            return;
+        }
+        setFlipped(true);
+        if (autoCheck) void runCheck();
     }
 
     const total = cards.length;
@@ -88,6 +143,8 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
     }
 
     const card = cards[index];
+    // button the AI suggests ("partial": none, the user decides)
+    const suggested = check.status === "done" ? check.result.verdict : null;
     // the card was already shown earlier in this round
     const isRepeat = cards.findIndex((c) => c.id === card.id) < index;
 
@@ -108,14 +165,15 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                 ref={cardRef}
                 card={card}
                 flipped={flipped}
-                onFlip={() => setFlipped((f) => !f)}
+                onFlip={toggleCard}
             />
 
             {settings.typeAnswer && flipped && (
-                <p className="panel glass answer-typed">
+                <div className="panel glass answer-typed">
                     <span className="answer-typed__label">Deine Antwort</span>
                     {typedAnswer.trim() || <span className="text-muted">Keine Antwort eingegeben</span>}
-                </p>
+                    {check.status !== "idle" && <AiResult state={check} />}
+                </div>
             )}
 
             {error && (
@@ -127,11 +185,21 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
             <div className="learn-actions">
                 {flipped ? (
                     <>
-                        <button type="button" className="btn btn--glass" disabled={sending} onClick={() => answer(false)}>
+                        <button
+                            type="button"
+                            className={`btn btn--glass${suggested === "wrong" ? " is-suggested" : ""}`}
+                            disabled={sending}
+                            onClick={() => answer(false)}
+                        >
                             <X aria-hidden="true" />
                             Nicht gewusst
                         </button>
-                        <button type="button" className="btn btn--success" disabled={sending} onClick={() => answer(true)}>
+                        <button
+                            type="button"
+                            className={`btn btn--success${suggested === "correct" ? " is-suggested" : ""}`}
+                            disabled={sending}
+                            onClick={() => answer(true)}
+                        >
                             <Check aria-hidden="true" />
                             Gewusst
                         </button>
@@ -140,9 +208,24 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                     <AnswerInput
                         key={`${card.id}-${index}`}
                         value={typedAnswer}
-                        onChange={setTypedAnswer}
-                        onSubmit={flipFromInput}
-                    />
+                        onChange={changeAnswer}
+                        onSubmit={() => flipFromInput(autoCheck)}
+                        onCheck={aiActive && !autoCheck ? () => flipFromInput(true) : undefined}
+                    >
+                        {aiAvailable && (
+                            <label className="switch">
+                                <input
+                                    type="checkbox"
+                                    role="switch"
+                                    className="switch__input"
+                                    checked={settings.aiCheck}
+                                    onChange={(e) => updateSettings({ aiCheck: e.target.checked })}
+                                />
+                                <span className="switch__track" aria-hidden="true" />
+                                KI-Prüfung
+                            </label>
+                        )}
+                    </AnswerInput>
                 ) : (
                     <button type="button" className="btn btn--primary" onClick={() => setFlipped(true)}>
                         <RotateCcw aria-hidden="true" />

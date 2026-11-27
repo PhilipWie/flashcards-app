@@ -8,6 +8,11 @@ import { BOXES } from "./leitner";
 //   "reset-unknown": "didn't know" moves the card back to box 1 (due today)
 export type PracticeEffect = "none" | "reset-unknown";
 
+// when the AI checks a typed answer
+//   "button": only after a click on "Prüfen"
+//   "auto":   automatically when the card is flipped
+export type AiCheckMode = "button" | "auto";
+
 export type Settings = {
     practiceEffect: PracticeEffect;
     shuffleByDefault: boolean;
@@ -15,6 +20,11 @@ export type Settings = {
     practiceBoxes: number[];
     // learn session: type the answer before flipping the card
     typeAnswer: boolean;
+    // main switch: may card texts and answers be sent to the AI at all (privacy)
+    aiEnabled: boolean;
+    // quick switch in the learn session, only shown when aiEnabled is on
+    aiCheck: boolean;
+    aiCheckMode: AiCheckMode;
 };
 
 const STORAGE_KEY = "flashcards_settings";
@@ -24,6 +34,9 @@ export const DEFAULT_SETTINGS: Settings = {
     shuffleByDefault: true,
     practiceBoxes: [...BOXES],
     typeAnswer: false,
+    aiEnabled: false,
+    aiCheck: true,
+    aiCheckMode: "button",
 };
 
 // localStorage can be edited by anyone in the browser: treat it as untrusted input.
@@ -45,6 +58,9 @@ function parseSettings(raw: string | null): Settings {
             typeof obj.shuffleByDefault === "boolean" ? obj.shuffleByDefault : DEFAULT_SETTINGS.shuffleByDefault,
         practiceBoxes: parseBoxes(obj.practiceBoxes),
         typeAnswer: typeof obj.typeAnswer === "boolean" ? obj.typeAnswer : DEFAULT_SETTINGS.typeAnswer,
+        aiEnabled: typeof obj.aiEnabled === "boolean" ? obj.aiEnabled : DEFAULT_SETTINGS.aiEnabled,
+        aiCheck: typeof obj.aiCheck === "boolean" ? obj.aiCheck : DEFAULT_SETTINGS.aiCheck,
+        aiCheckMode: obj.aiCheckMode === "auto" ? "auto" : "button",
     };
 }
 
