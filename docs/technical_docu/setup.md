@@ -28,7 +28,13 @@ cd backend
 npm install
 ```
 
-Im Ordner `backend/` eine Datei `.env` anlegen:
+Die Vorlage kopieren und ausfüllen:
+
+```bash
+cp .env.example .env
+```
+
+In der `.env` mindestens `POSTGRES_PASSWORD` (auch in `DATABASE_URL`) und `JWT_SECRET` setzen. Die Variablen:
 
 | Variable | Beispiel | Beschreibung |
 |----------|----------|--------------|
@@ -80,7 +86,12 @@ cd frontend
 npm install
 ```
 
-Im Ordner `frontend/` eine Datei `.env` anlegen:
+Die Vorlage kopieren, die Werte passen für die lokale Entwicklung:
+
+```bash
+cp .env.example .env
+```
+
 
 | Variable | Beispiel | Beschreibung |
 |----------|----------|--------------|
