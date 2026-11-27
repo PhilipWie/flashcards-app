@@ -10,6 +10,7 @@
 | [API](api.md) | Alle Endpunkte des Backends: Decks, Karten, Lernmodus, Health |
 | [Authentication](authentication.md) | Registrierung (`POST /api/register`) mit Beispielen |
 | [JWT](jwt.md) | Login, Token-Aufbau, geschützte Routen, Sicherheit |
+| [Tests](testing.md) | Vitest in Backend und Frontend: ausführen, Aufbau, was getestet wird |
 | [Datenmodell](../Datenmodell.md) | Tabellen und Beziehungen der PostgreSQL-Datenbank |
 
 ## Architektur im Überblick
@@ -39,7 +40,7 @@ flowchart LR
 | Frontend | React 19, TypeScript, Vite, React Router, lucide-react | [frontend/](../../frontend) |
 | Backend | Node.js, Express 5, TypeScript, jose (JWT), argon2, validator | [backend/](../../backend) |
 | Datenbank | PostgreSQL 18 in Docker, Drizzle ORM für Schema und Migrationen | [backend/drizzle/](../../backend/drizzle) |
-| CI | GitHub Actions: Build (Backend, Frontend) und ESLint (Frontend) bei Push und Pull Request auf `main` und `develop` | [.github/workflows/ci.yml](../../.github/workflows/ci.yml) |
+| CI | GitHub Actions: Build und Tests (Backend, Frontend) und ESLint (Frontend) bei Push und Pull Request auf `main` und `develop` | [.github/workflows/ci.yml](../../.github/workflows/ci.yml) |
 
 ### Aufbau des Frontends
 
@@ -57,6 +58,7 @@ frontend/src/
 ├── lib/          Hilfsfunktionen ohne React: date.ts, leitner.ts, shuffle.ts, settings.ts (Einstellungen im localStorage)
 ├── pages/        eine Datei pro Seite (Login, Register, Decks, DeckDetail, Learn, Practice)
 ├── styles/       tokens.css (Design-Variablen), base.css (Bausteine)
+├── test/         setup.ts für Vitest (Tests selbst liegen als *.test.ts neben den Dateien)
 └── types/        Typen für Deck und Card
 ```
 

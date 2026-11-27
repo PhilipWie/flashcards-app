@@ -1,4 +1,4 @@
-# CI: checks on every push / pull request to main and develop that backend and frontend build
+# CI: checks on every push / pull request to main and develop that backend and frontend build and their tests pass
 name: CI
 
 on:
@@ -29,6 +29,9 @@ jobs:
       # compile TypeScript (tsc)
       - run: npm run build
 
+      # Vitest, runs without database
+      - run: npm run test:run
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -50,3 +53,6 @@ jobs:
 
       # type check + Vite build
       - run: npm run build
+
+      # Vitest (jsdom)
+      - run: npm run test:run

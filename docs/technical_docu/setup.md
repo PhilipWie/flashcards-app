@@ -114,6 +114,8 @@ Die App läuft unter http://localhost:5173. Änderungen an der `.env` werden ers
 | `npm run dev` | Datenbank starten, TypeScript kompilieren, Server starten |
 | `npm run build` | TypeScript nach `dist/` kompilieren |
 | `npm start` | kompilierten Server aus `dist/` starten |
+| `npm test` | Tests im Watch-Modus, siehe [Tests](testing.md) |
+| `npm run test:run` | Tests einmal ausführen |
 | `npm run db:start` | Datenbank-Container starten |
 | `npm run db:stop` | Datenbank-Container stoppen (Daten bleiben erhalten) |
 | `npm run db:generate` | nach Änderungen an `schema.ts` neue Migration erzeugen |
@@ -127,6 +129,8 @@ Die App läuft unter http://localhost:5173. Änderungen an der `.env` werden ers
 | `npm run dev` | Entwicklungsserver mit automatischem Neuladen |
 | `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
 | `npm run lint` | ESLint |
+| `npm test` | Tests im Watch-Modus, siehe [Tests](testing.md) |
+| `npm run test:run` | Tests einmal ausführen |
 | `npm run preview` | Produktions-Build lokal ansehen |
 
 ## Schema ändern
@@ -163,9 +167,9 @@ docker exec -it flashcards-db psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 
 ## Continuous Integration
 
-Bei jedem Push und Pull Request auf `main` oder `develop` baut GitHub Actions Backend und Frontend und führt ESLint im Frontend aus ([ci.yml](../../.github/workflows/ci.yml)). Vor einem Push lassen sich dieselben Prüfungen lokal ausführen:
+Bei jedem Push und Pull Request auf `main` oder `develop` baut GitHub Actions Backend und Frontend, führt die Tests aus und prüft das Frontend mit ESLint ([ci.yml](../../.github/workflows/ci.yml)). Vor einem Push lassen sich dieselben Prüfungen lokal ausführen:
 
 ```bash
-cd backend && npm ci && npm run build
-cd ../frontend && npm ci && npm run lint && npm run build
+cd backend && npm ci && npm run build && npm run test:run
+cd ../frontend && npm ci && npm run lint && npm run build && npm run test:run
 ```
