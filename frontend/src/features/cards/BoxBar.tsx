@@ -7,8 +7,17 @@ type BoxBarProps = {
 
 // thin bar: how the cards are spread across the 5 Leitner boxes
 export default function BoxBar({ cards }: BoxBarProps) {
-    const counts = countPerBox(cards);
-    const total = cards.length;
+    return <BoxCountsBar counts={countPerBox(cards)} />;
+}
+
+type BoxCountsBarProps = {
+    // index 0 = box 1
+    counts: number[];
+};
+
+// same bar from counts, e.g. from the statistics (no card list needed)
+export function BoxCountsBar({ counts }: BoxCountsBarProps) {
+    const total = counts.reduce((sum, n) => sum + n, 0);
 
     return (
         <div className="box-summary">

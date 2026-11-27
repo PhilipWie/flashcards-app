@@ -26,6 +26,11 @@ describe("requireAuth", () => {
         expect(res.status).toBe(401);
     });
 
+    it("protects the statistics", async () => {
+        const res = await request(app).get("/api/stats");
+        expect(res.status).toBe(401);
+    });
+
     it("rejects a token with a different scheme", async () => {
         const token = await signToken(1);
         const res = await request(app).get("/api/decks").set("Authorization", `Basic ${token}`);
@@ -38,6 +43,16 @@ describe("input validation (before any database query)", () => {
         const token = await signToken(1);
         const res = await request(app).get("/api/decks/abc").set("Authorization", `Bearer ${token}`);
         expect(res.status).toBe(400);
+    });
+
+    it("rejects a review with a non-boolean practice flag", async () => {
+        const token = await signToken(1);
+        const res = await request(app)
+            .post("/api/cards/1/review")
+            .set("Authorization", `Bearer ${token}`)
+            .send({ correct: true, practice: "yes" });
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: "practice must be a boolean" });
     });
 
     it("rejects a registration with an invalid email", async () => {

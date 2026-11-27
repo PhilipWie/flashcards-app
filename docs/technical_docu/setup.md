@@ -159,6 +159,7 @@ docker exec -it flashcards-db psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 |--------|---------|--------|
 | `npm error enoent Could not read package.json` | Befehl im Hauptordner ausgeführt | in `backend/` bzw. `frontend/` wechseln |
 | `500` bei jeder Anfrage, im Server-Log `relation "users" does not exist` | Migrationen fehlen | `npm run db:migrate` |
+| `500` beim Lernen oder auf dem Dashboard, im Server-Log `relation "reviews" does not exist` | neue Migration nach `git pull` nicht angewendet | `npm run db:migrate` |
 | `ECONNREFUSED` im Server-Log | Datenbank läuft nicht | `npm run db:start`, Docker muss laufen |
 | `password authentication failed` | `DATABASE_URL` passt nicht zu `POSTGRES_*` | Werte in der `.env` abgleichen |
 | Server startet nicht: `JWT_SECRET not set` | Secret fehlt oder ist kürzer als 32 Zeichen | `JWT_SECRET` in der `.env` setzen |

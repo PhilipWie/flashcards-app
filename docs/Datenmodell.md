@@ -1,5 +1,5 @@
 # Datenmodell
-Die Karteikarten app benutzt eine PostgreSQL-Datenbank mit drei Tabellen.
+Die Karteikarten app benutzt eine PostgreSQL-Datenbank mit vier Tabellen.
 Für die technische umsetzung der PostgreSQL Datenbank wurde eine [docker-compose.yml](../backend/docker-compose.yml) Datei erstellt <br>
 um die DB lokal zu deployen.
 Für die erstellung, konfiguration und wartbarkeit des Datenmodells wurde Drizzle ORM verwendet. 
@@ -12,6 +12,7 @@ Für die erstellung, konfiguration und wartbarkeit des Datenmodells wurde Drizzl
 erDiagram
     users ||--o{ decks : "besitzt"
     decks ||--o{ cards : "enthält"
+    cards ||--o{ reviews : "hat"
  
     users {
         integer id PK "Identity"
@@ -36,6 +37,13 @@ erDiagram
         date next_review "NOT NULL, Standard: CURRENT_DATE"
         timestamptz created_at "NOT NULL, Standard: now()"
     }
+
+    reviews {
+        integer id PK "Identity"
+        integer card_id FK "NOT NULL, ON DELETE CASCADE, Index"
+        boolean correct "NOT NULL"
+        timestamptz reviewed_at "NOT NULL, Standard: now()"
+    }
 ```
 *Diagramm erstellt mit Mermaid, mit Unterstützung von Claude (Anthropic Opus 5.5).
 
@@ -45,3 +53,4 @@ erDiagram
 - Ein Stapel enthält beliebig viele Karten, jede Karte liegt in genau einem Stapel.
 - Wird ein Nutzer gelöscht, werden seine Stapel und deren Karten automatisch mitgelöscht (cascade)
 - Karten haben keine eigene userid. Wem eine Karte gehört, ergibt sich über ihren Stapel.
+- Eine Karte hat beliebig viele Einträge in `reviews`, einen pro Antwort im Lernmodus (Lernhistorie für die Statistik). Wird die Karte gelöscht, verschwinden auch ihre Einträge. Die Zuordnung zum Nutzer läuft über Karte und Stapel.

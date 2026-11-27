@@ -1003,3 +1003,133 @@ button.flashcard {
   letter-spacing: 0.04em;
   color: var(--color-text-muted);
 }
+
+/* ---------- Dashboard ---------- */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.btn--icon[aria-current="page"] {
+  color: var(--color-primary);
+  background: var(--color-surface-strong);
+}
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat-tile {
+  align-content: start;
+  gap: var(--space-1);
+}
+
+.stat-tile__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-accent);
+}
+
+.stat-tile__value {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+}
+
+.stat-tile__of {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}
+
+.stat-tile__label {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.stat-tile__hint {
+  display: block;
+}
+
+.stat-note {
+  font-size: var(--text-sm);
+}
+
+.activity {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.activity__days {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity__day {
+  display: grid;
+  grid-template-rows: 8rem auto;
+  justify-items: center;
+  gap: var(--space-1);
+}
+
+/* the column fills the 8rem row from the bottom */
+.activity__bar {
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 1.75rem);
+  min-height: 2px;
+  overflow: hidden;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--color-border-soft);
+}
+
+.activity__part { flex-basis: 0; }
+.activity__part--correct { background: var(--color-success); }
+.activity__part--wrong { background: var(--color-accent); }
+
+.activity__label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.activity__day[aria-current="date"] .activity__label {
+  color: var(--color-text);
+  font-weight: var(--weight-bold);
+}
+
+.activity__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.activity__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.activity__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}

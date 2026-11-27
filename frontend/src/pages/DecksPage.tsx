@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Plus } from "lucide-react";
+import { Link } from "react-router";
+import { LayoutDashboard, Plus } from "lucide-react";
 import type { DeckSummary } from "../types/Deck";
 import { createDeck, deleteDeck, getDecks, updateDeck } from "../api/decks";
 import { useApiError } from "../hooks/useApiError";
@@ -94,6 +95,10 @@ export default function DecksPage() {
                         {loading ? "Wird geladen …" : `${decks.length} Stapel`}
                     </p>
                 </div>
+                <Link to="/dashboard" className="btn btn--glass">
+                    <LayoutDashboard aria-hidden="true" />
+                    Dashboard
+                </Link>
             </header>
 
             {error && (

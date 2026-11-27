@@ -69,8 +69,8 @@ export default function PracticePage() {
     // "Knew it" never changes anything, otherwise practicing ahead would skip the Leitner intervals.
     async function practiceAnswer(card: Card, correct: boolean): Promise<Card> {
         if (correct || settings.practiceEffect === "none") return card;
-        // back to box 1, due today (same endpoint as the learn mode)
-        const updated = await submitReview(card.id, false);
+        // back to box 1, due today (same endpoint as the learn mode, but not counted in the statistics)
+        const updated = await submitReview(card.id, false, true);
         // keep the box counts on the start screen up to date
         setAllCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
         return updated;

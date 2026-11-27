@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { and, eq, inArray, lte, sql } from 'drizzle-orm';
 import { apiLimit } from '../middleware/rateLimit.js';
 import { db } from '../db/db.js';
-import { cards, decks } from '../db/schema.js';
+import { cards, decks, reviews } from '../db/schema.js';
 import { nextLeitner } from '../lib/leitner.js';
 import { parseId } from './cards.js';
 
@@ -47,6 +47,8 @@ deckReviewRouter.get('/', apiLimit, async (req, res) => {
 });
 
 // POST /api/cards/:id/review: saves an answer and moves the card (Leitner)
+// body { correct: boolean, practice?: boolean }
+// practice: true (free practice) moves the card, but is not written to the learning history
 cardReviewRouter.post('/:id/review', apiLimit, async (req, res) => {
     try {
         const cardId = parseId(req.params.id);
@@ -60,10 +62,15 @@ cardReviewRouter.post('/:id/review', apiLimit, async (req, res) => {
                 message: 'wrong format of input data',
             });
         }
-        const { correct } = req.body;
+        const { correct, practice = false } = req.body;
         if (typeof correct !== 'boolean') {
             return res.status(400).json({
                 message: 'correct must be a boolean',
+            });
+        }
+        if (typeof practice !== 'boolean') {
+            return res.status(400).json({
+                message: 'practice must be a boolean',
             });
         }
         const userId = Number(req.userId);
@@ -76,19 +83,34 @@ cardReviewRouter.post('/:id/review', apiLimit, async (req, res) => {
             });
         }
         const { box, days } = nextLeitner(card[0]!.box, correct);
-        // date is calculated by the database, so "today" is the same as in the due query
-        const result = await db.update(cards)
-            .set({ box, next_review: sql`CURRENT_DATE + ${days}::int` })
-            .where(eq(cards.id, cardId))
-            .returning({
-                id: cards.id,
-                front: cards.front,
-                back: cards.back,
-                box: cards.box,
-                next_review: cards.next_review,
+        // one transaction: the card is only moved if the answer is also saved, and the other way round
+        const updated = await db.transaction(async (tx) => {
+            // date is calculated by the database, so "today" is the same as in the due query
+            const result = await tx.update(cards)
+                .set({ box, next_review: sql`CURRENT_DATE + ${days}::int` })
+                .where(eq(cards.id, cardId))
+                .returning({
+                    id: cards.id,
+                    front: cards.front,
+                    back: cards.back,
+                    box: cards.box,
+                    next_review: cards.next_review,
+                });
+            // card deleted between the lookup above and this update: nothing to save
+            const card = result[0];
+            if (!card) return null;
+            if (!practice) {
+                await tx.insert(reviews).values({ card_id: cardId, correct });
+            }
+            return card;
+        });
+        if (!updated) {
+            return res.status(404).json({
+                message: 'Card not found',
             });
+        }
         return res.status(200).json({
-            card: result[0],
+            card: updated,
         });
     } catch (err: any) {
         console.error(err);

@@ -36,10 +36,13 @@ Die Test-Dateien im Backend sind vom `tsc`-Build ausgenommen und landen nicht in
 | Datei | Inhalt |
 |-------|--------|
 | `backend/src/lib/leitner.test.ts` | Leitner-Logik: Fach hoch, Fach 5 bleibt, "nicht gewusst" zurück in Fach 1 |
+| `backend/src/lib/stats.test.ts` | Statistik: Lernserie (Lücken, heute/gestern), Trefferquote, Tage auffüllen, Zeitzone und Sommerzeit |
 | `backend/src/app.test.ts` | Routen über HTTP mit [supertest](https://github.com/forwardemail/supertest): Health, `401` ohne oder mit ungültigem Token, `400` bei ungültigen Eingaben |
 | `frontend/src/lib/*.test.ts` | Einstellungen (auch kaputte und manipulierte `localStorage`-Werte), Fächer filtern und zählen, Mischen, Datum |
 | `frontend/src/api/client.test.ts` | `request()` mit gefälschtem `fetch`: Header, Body, `204`, Fehler als `ApiError` |
 | `frontend/src/features/learn/BoxFilter.test.tsx` | Komponente mit [Testing Library](https://testing-library.com): Schnellauswahl, Fach-Schalter, Start-Button |
+| `frontend/src/features/stats/ActivityChart.test.tsx` | Diagramm: Text für Screenreader, heutiger Tag, Höhe der Balken |
+| `frontend/src/pages/DashboardPage.test.tsx` | Dashboard mit gefälschter API (`vi.mock`): Hinweise für neue Nutzer ohne Antworten und Karten |
 | `frontend/src/features/learn/LearnSession.test.tsx` | Lernsitzung mit eingetippter Antwort: Enter dreht um, Antwort wird angezeigt, Feld ist bei der nächsten Karte leer und fokussiert |
 
 ## Grenzen
