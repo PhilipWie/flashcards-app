@@ -19,6 +19,8 @@ type ModalProps = {
 // The open prop is the single source of truth, the dialog follows it.
 export default function Modal({ open, onClose, labelledBy, describedBy, initialFocusRef, preventClose = false, children }: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
+    // true if the mouse was pressed on the backdrop (not inside the content)
+    const pressedOnBackdrop = useRef(false);
 
     useEffect(() => {
         const dialog = dialogRef.current;
@@ -35,10 +37,17 @@ export default function Modal({ open, onClose, labelledBy, describedBy, initialF
         if (!preventClose) onClose();
     }
 
-    // a click on the dialog element itself is a click on the backdrop
-    // (the content sits in .dialog__body, which covers the whole box)
+    // A click on the dialog element itself is a click on the backdrop
+    // (the content sits in .dialog__body, which covers the whole box).
+    // Only close if the press also started there: selecting text inside and
+    // releasing the mouse outside must not close the dialog.
+    function handleMouseDown(e: MouseEvent<HTMLDialogElement>) {
+        pressedOnBackdrop.current = e.target === e.currentTarget;
+    }
+
     function handleClick(e: MouseEvent<HTMLDialogElement>) {
-        if (e.target === e.currentTarget) requestClose();
+        if (pressedOnBackdrop.current && e.target === e.currentTarget) requestClose();
+        pressedOnBackdrop.current = false;
     }
 
     return (
@@ -47,6 +56,7 @@ export default function Modal({ open, onClose, labelledBy, describedBy, initialF
             className="dialog glass"
             aria-labelledby={labelledBy}
             aria-describedby={describedBy}
+            onMouseDown={handleMouseDown}
             onClick={handleClick}
             // Escape: let React state close the dialog, not the browser
             onCancel={(e) => {

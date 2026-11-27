@@ -3,9 +3,10 @@ import { Dumbbell } from "lucide-react";
 import type { Card } from "../../types/Card";
 import { BOXES, boxColorStyle, countPerBox, filterByBoxes } from "../../lib/leitner";
 
-// quick picks, they only set the box toggles
+// quick picks, they only set the box toggles.
+// box 5 = learned (see docs/technical_docu/api.md), so 1–4 = not learned yet
 const PRESETS = [
-    { label: "Alle", boxes: [1, 2, 3, 4, 5] },
+    { label: "Alle", boxes: [...BOXES] },
     { label: "Noch nicht gelernt", boxes: [1, 2, 3, 4] },
     { label: "Schwierige", boxes: [1, 2] },
 ] as const;
