@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
-import { Layers, LogOut, Moon, Sun } from "lucide-react";
+import { Layers, LogOut, Moon, Settings, Sun } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { getToken } from "../api/client";
 import { logout } from "../api/auth";
+import SettingsDialog from "./SettingsDialog";
 
-// frame around every page: top bar with brand, theme toggle and logout
+// frame around every page: top bar with brand, theme toggle, settings and logout
 export default function Layout() {
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const loggedIn = getToken() !== null;
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     function handleLogout() {
         logout();
@@ -36,6 +39,17 @@ export default function Layout() {
                         <button
                             type="button"
                             className="btn btn--icon"
+                            onClick={() => setSettingsOpen(true)}
+                            aria-label="Einstellungen"
+                            title="Einstellungen"
+                        >
+                            <Settings aria-hidden="true" />
+                        </button>
+                    )}
+                    {loggedIn && (
+                        <button
+                            type="button"
+                            className="btn btn--icon"
                             onClick={handleLogout}
                             aria-label="Abmelden"
                             title="Abmelden"
@@ -48,6 +62,7 @@ export default function Layout() {
             <main>
                 <Outlet />
             </main>
+            {loggedIn && <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />}
         </div>
     );
 }

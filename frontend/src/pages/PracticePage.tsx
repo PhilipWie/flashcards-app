@@ -4,9 +4,11 @@ import { ArrowLeft } from "lucide-react";
 import type { Card } from "../types/Card";
 import { getDeck } from "../api/decks";
 import { getCards } from "../api/cards";
+import { submitReview } from "../api/review";
 import { ApiError } from "../api/client";
 import { useApiError } from "../hooks/useApiError";
-import { BOXES, filterByBoxes } from "../lib/leitner";
+import { useSettings } from "../hooks/useSettings";
+import { filterByBoxes } from "../lib/leitner";
 import { shuffle } from "../lib/shuffle";
 import BoxFilter from "../features/learn/BoxFilter";
 import LearnSession from "../features/learn/LearnSession";
@@ -23,8 +25,10 @@ export default function PracticePage() {
     const [notFound, setNotFound] = useState(!validId);
     const [error, setError] = useState<string | null>(null);
 
-    const [selectedBoxes, setSelectedBoxes] = useState<number[]>([...BOXES]);
-    const [shuffled, setShuffled] = useState(true);
+    const { settings, updateSettings } = useSettings();
+    // start values come from the settings, changes here are only for this round
+    const [selectedBoxes, setSelectedBoxes] = useState<number[]>(settings.practiceBoxes);
+    const [shuffled, setShuffled] = useState(settings.shuffleByDefault);
     // null = start screen, otherwise the cards of the running round
     const [sessionCards, setSessionCards] = useState<Card[] | null>(null);
     // new key for every round, so LearnSession starts fresh
@@ -54,14 +58,22 @@ export default function PracticePage() {
     }, [deckId, validId, handleApiError]);
 
     function start() {
+        // remember the selection for next time
+        updateSettings({ practiceBoxes: selectedBoxes });
         const selected = filterByBoxes(allCards, selectedBoxes);
         setSessionCards(shuffled ? shuffle(selected) : selected);
         setRound((r) => r + 1);
     }
 
-    // free practice doesn't save anything: box and due date stay as they are
-    async function practiceAnswer(card: Card): Promise<Card> {
-        return card;
+    // depends on the setting: by default nothing is saved.
+    // "Knew it" never changes anything, otherwise practicing ahead would skip the Leitner intervals.
+    async function practiceAnswer(card: Card, correct: boolean): Promise<Card> {
+        if (correct || settings.practiceEffect === "none") return card;
+        // back to box 1, due today (same endpoint as the learn mode)
+        const updated = await submitReview(card.id, false);
+        // keep the box counts on the start screen up to date
+        setAllCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+        return updated;
     }
 
     const backLink = (
@@ -122,7 +134,12 @@ export default function PracticePage() {
             <section className="panel glass" aria-labelledby="practice-title">
                 <div>
                     <h1 id="practice-title">Frei üben</h1>
-                    <p className="text-muted">Zählt nicht für den Lernfortschritt: Fächer und Fälligkeit bleiben unverändert.</p>
+                    <p className="text-muted">
+                        {settings.practiceEffect === "none"
+                            ? "Zählt nicht für den Lernfortschritt: Fächer und Fälligkeit bleiben unverändert."
+                            : "Nicht gewusste Karten gehen zurück in Fach 1. Gewusst ändert nichts."}{" "}
+                        Änderbar in den Einstellungen (Zahnrad oben).
+                    </p>
                 </div>
                 {error && (
                     <p className="notice notice--error" role="alert">

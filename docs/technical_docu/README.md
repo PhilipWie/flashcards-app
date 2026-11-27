@@ -48,13 +48,13 @@ frontend/src/
 ├── api/          Kommunikation mit dem Backend
 │   ├── client.ts     zentraler API-Client (fetch-Wrapper): Basis-URL, Token, Fehler
 │   └── auth.ts, decks.ts, cards.ts, review.ts   eine Funktion pro Endpunkt
-├── components/   Layout (Kopfzeile), ProtectedRoute, GuestRoute
+├── components/   Layout (Kopfzeile), ProtectedRoute, GuestRoute, Modal, ConfirmDialog, SettingsDialog
 ├── features/     Bausteine einzelner Seiten
 │   ├── decks/        DeckItem (Zeile der Deck-Liste)
 │   ├── cards/        CardForm, CardItem, BoxBar (Verteilung auf die Fächer)
 │   └── learn/        Flashcard (Karteikarte), LearnSession (Ablauf einer Runde), BoxFilter (Auswahl beim freien Üben)
-├── hooks/        useTheme (Hell/Dunkel), useApiError (Fehlermeldung, bei 401 abmelden)
-├── lib/          Hilfsfunktionen ohne React: date.ts, leitner.ts, shuffle.ts
+├── hooks/        useTheme (Hell/Dunkel), useApiError (Fehlermeldung, bei 401 abmelden), useSettings
+├── lib/          Hilfsfunktionen ohne React: date.ts, leitner.ts, shuffle.ts, settings.ts (Einstellungen im localStorage)
 ├── pages/        eine Datei pro Seite (Login, Register, Decks, DeckDetail, Learn, Practice)
 ├── styles/       tokens.css (Design-Variablen), base.css (Bausteine)
 └── types/        Typen für Deck und Card
