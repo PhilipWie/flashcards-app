@@ -48,8 +48,10 @@ export function parseChatRequest(body: unknown): Parsed<ChatRequest> {
         if (role !== 'user' && role !== 'assistant') {
             return { ok: false, message: 'role must be user or assistant' };
         }
-        if (typeof content !== 'string' || content.trim() === '' || content.length > CHAT_MESSAGE_MAX) {
-            return { ok: false, message: `content must be a non-empty string with at most ${CHAT_MESSAGE_MAX} characters` };
+        // assistant messages are earlier replies sent back by the client: they may be as long as a reply
+        const max = role === 'user' ? CHAT_MESSAGE_MAX : REPLY_MAX;
+        if (typeof content !== 'string' || content.trim() === '' || content.length > max) {
+            return { ok: false, message: `content must be a non-empty string with at most ${max} characters` };
         }
         // user and assistant take turns, starting and ending with the user
         if (role !== (i % 2 === 0 ? 'user' : 'assistant')) {
@@ -97,10 +99,11 @@ export function buildChatMessages(front: string, back: string, request: ChatRequ
 }
 
 // Safety net in case the model still formats its reply: keep the text, drop the markup.
+// "__" is kept on purpose: it is part of names like __init__ on programming cards.
 export function toPlainText(text: string): string {
     return text
         .replace(/^```.*$/gm, '')
-        .replace(/\*\*|__|`/g, '')
+        .replace(/\*\*|`/g, '')
         .replace(/^#{1,6}\s+/gm, '')
         .replace(/\n{3,}/g, '\n\n')
         .trim();

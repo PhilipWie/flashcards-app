@@ -29,6 +29,16 @@ describe('parseChatRequest', () => {
         });
     });
 
+    it('accepts an earlier reply of maximum length as assistant message', () => {
+        const reply = { role: 'assistant', content: 'x'.repeat(REPLY_MAX) };
+        expect(parseChatRequest({ messages: [question, reply, question] }).ok).toBe(true);
+    });
+
+    it('rejects an assistant message longer than a reply can be', () => {
+        const reply = { role: 'assistant', content: 'x'.repeat(REPLY_MAX + 1) };
+        expect(parseChatRequest({ messages: [question, reply, question] }).ok).toBe(false);
+    });
+
     it('works without answer and check', () => {
         const result = parseChatRequest({ messages: [question] });
         expect(result).toEqual({ ok: true, value: { messages: [question], answer: '', check: null } });
@@ -69,6 +79,10 @@ describe('buildChatMessages', () => {
 });
 
 describe('toPlainText / parseReply', () => {
+    it('keeps names with double underscores', () => {
+        expect(toPlainText('Die Methode __init__ legt das Objekt an.')).toBe('Die Methode __init__ legt das Objekt an.');
+    });
+
     it('removes formatting but keeps the text', () => {
         expect(toPlainText('## Titel\n**Wichtig:** nutze `const`.\n```js\nlet x = 1;\n```')).toBe('Titel\nWichtig: nutze const.\n\nlet x = 1;');
     });

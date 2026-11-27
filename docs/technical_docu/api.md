@@ -323,7 +323,7 @@ Frage an die KI zu einer Karte. **Es wird nichts gespeichert:** Das Frontend sch
 
 | Feld | Typ | Regeln |
 |------|-----|--------|
-| `messages` | Array von `{ role, content }` | 1–10 Einträge, `role` nur `user` oder `assistant`, abwechselnd, beginnt und endet mit `user`. `content` nicht leer, höchstens 1000 Zeichen |
+| `messages` | Array von `{ role, content }` | 1–10 Einträge, `role` nur `user` oder `assistant`, abwechselnd, beginnt und endet mit `user`. `content` nicht leer, bei `user` höchstens 1000, bei `assistant` (frühere Antworten) höchstens 1500 Zeichen |
 | `answer` | string, optional | eingetippte Antwort, höchstens 500 Zeichen |
 | `check` | `{ verdict, feedback }`, optional | Ergebnis von `/check`, damit die KI es kennt |
 
