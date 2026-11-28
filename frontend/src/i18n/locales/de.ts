@@ -1,6 +1,8 @@
 // German texts. This file defines the keys: en.ts must have exactly the same ones (checked by TypeScript).
 // Plurals: key_one / key_other, selected with { count } (i18next uses Intl.PluralRules).
 // Placeholders: {{name}}. React escapes the values, so user content (deck names, card texts) is safe.
+import type { ErrorTexts } from "../errorCodes";
+
 const de = {
     common: {
         back: "Zurück",
@@ -217,7 +219,7 @@ const de = {
     boxBar: {
         legend: "Fach {{box}}: {{count}}",
     },
-    // messages for the error codes of the backend (backend/src/lib/errors.ts)
+    // messages for the error codes of the backend, see ../errorCodes.ts
     errors: {
         INVALID_INPUT: "Die Eingabe ist ungültig.",
         INVALID_ID: "Diese Adresse ist ungültig.",
@@ -237,11 +239,9 @@ const de = {
         AI_UNAVAILABLE: "Die KI ist gerade nicht erreichbar.",
         TOO_MANY_REQUESTS: "Zu viele Anfragen. Bitte kurz warten und erneut versuchen.",
         INTERNAL_ERROR: "Auf dem Server ist ein Fehler aufgetreten. Bitte später erneut versuchen.",
-        // codes the frontend does not know (yet), e.g. after a backend update
         unknown: "Etwas ist schiefgelaufen (HTTP {{status}}).",
-        // fetch itself failed, e.g. backend not running
         network: "Server nicht erreichbar. Bitte später erneut versuchen.",
-    },
+    } satisfies ErrorTexts,
 };
 
 // same structure as de, every text a string (not the German literal)

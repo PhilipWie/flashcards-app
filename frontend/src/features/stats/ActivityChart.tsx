@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import type { DayCount } from "../../types/Stats";
@@ -24,9 +25,14 @@ function answersText(day: DayCount, t: TFunction): string {
 export default function ActivityChart({ days, today }: ActivityChartProps) {
     const max = Math.max(1, ...days.map((d) => d.correct + d.wrong));
     const { t, i18n } = useTranslation();
-    // weekday names in the UI language
-    const weekday = new Intl.DateTimeFormat(i18n.language, { weekday: "short" });
-    const longDate = new Intl.DateTimeFormat(i18n.language, { weekday: "long", day: "numeric", month: "long" });
+    // weekday names in the UI language, only created again when the language changes
+    const { weekday, longDate } = useMemo(
+        () => ({
+            weekday: new Intl.DateTimeFormat(i18n.language, { weekday: "short" }),
+            longDate: new Intl.DateTimeFormat(i18n.language, { weekday: "long", day: "numeric", month: "long" }),
+        }),
+        [i18n.language],
+    );
 
     return (
         <div className="activity">

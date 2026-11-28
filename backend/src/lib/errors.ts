@@ -1,6 +1,6 @@
 // Machine-readable error codes. Every error response is { code, message }:
 // the frontend translates the code, message is English text for developers and logs.
-// Keep in sync with docs/technical_docu/api.md and the frontend translations (errors.*).
+// Keep in sync with frontend/src/i18n/errorCodes.ts and docs/technical_docu/api.md.
 export const ERROR_CODES = [
     // body missing, not an object, or a field has the wrong type
     'INVALID_INPUT',

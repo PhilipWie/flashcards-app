@@ -13,11 +13,21 @@ export function isDue(nextReview: string): boolean {
     return nextReview <= todayIso();
 }
 
+// creating an Intl.DateTimeFormat is expensive: one per language, reused for every card
+const dateFormats = new Map<string, Intl.DateTimeFormat>();
+
+function dateFormat(locale: string): Intl.DateTimeFormat {
+    let format = dateFormats.get(locale);
+    if (!format) {
+        format = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
+        dateFormats.set(locale, format);
+    }
+    return format;
+}
+
 // "2026-12-01" -> "01.12.2026" (de) or "12/01/2026" (en), locale = current UI language
 // not new Date("2026-12-01"): that is parsed as UTC and can show the previous day
 export function formatDate(iso: string, locale: string): string {
     const [year, month, day] = iso.split("-").map(Number);
-    return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric" }).format(
-        new Date(year, month - 1, day),
-    );
+    return dateFormat(locale).format(new Date(year, month - 1, day));
 }
