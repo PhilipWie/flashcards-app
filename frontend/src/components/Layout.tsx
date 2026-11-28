@@ -18,7 +18,8 @@ export default function Layout() {
     const [settingsOpen, setSettingsOpen] = useState(false);
 
     function handleLogout() {
-        logout();
+        // the access token is removed right away, the backend call runs in the background
+        void logout();
         navigate("/login");
     }
 
