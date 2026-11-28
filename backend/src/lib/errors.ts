@@ -7,6 +7,10 @@ export const ERROR_CODES = [
     // id in the URL is not a positive integer
     'INVALID_ID',
     'UNAUTHORIZED',
+    // refresh cookie missing, expired, revoked or reused: log in again
+    'SESSION_EXPIRED',
+    // cookie route called from another origin or without the custom header (CSRF)
+    'FORBIDDEN_ORIGIN',
     // login: email or password wrong (on purpose not more specific)
     'INVALID_CREDENTIALS',
     'EMAIL_INVALID',

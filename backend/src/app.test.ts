@@ -125,3 +125,43 @@ describe("POST /api/cards/:id/chat", () => {
         expect(res.body.code).toBe("AI_UNAVAILABLE");
     });
 });
+
+describe("refresh cookie routes (/api/auth)", () => {
+    const origin = "http://localhost:5173";
+
+    it.each(["/api/auth/refresh", "/api/auth/logout"])("%s rejects another origin (CSRF)", async (path) => {
+        const res = await request(app).post(path).set("Origin", "https://evil.example").set("X-Requested-With", "flashcards");
+        expect(res.status).toBe(403);
+        expect(res.body.code).toBe("FORBIDDEN_ORIGIN");
+    });
+
+    it.each(["/api/auth/refresh", "/api/auth/logout"])("%s rejects a missing origin or custom header", async (path) => {
+        expect((await request(app).post(path).set("X-Requested-With", "flashcards")).status).toBe(403);
+        expect((await request(app).post(path).set("Origin", "null").set("X-Requested-With", "flashcards")).status).toBe(403);
+        expect((await request(app).post(path).set("Origin", origin)).status).toBe(403);
+    });
+
+    it("refresh without cookie answers 401 SESSION_EXPIRED (before any database query)", async () => {
+        const res = await request(app).post("/api/auth/refresh").set("Origin", origin).set("X-Requested-With", "flashcards");
+        expect(res.status).toBe(401);
+        expect(res.body.code).toBe("SESSION_EXPIRED");
+        expect(res.headers["cache-control"]).toBe("no-store");
+    });
+
+    it("logout without cookie still clears the cookie", async () => {
+        const res = await request(app).post("/api/auth/logout").set("Origin", origin).set("X-Requested-With", "flashcards");
+        expect(res.status).toBe(204);
+        const cookie = String(res.headers["set-cookie"]);
+        expect(cookie).toMatch(/^refresh_token=;/);
+        expect(cookie).toContain("Path=/api/auth");
+        expect(cookie).toContain("HttpOnly");
+        expect(cookie).toContain("Secure");
+        expect(cookie).toContain("SameSite=Strict");
+    });
+
+    it("CORS allows credentials only for the frontend origin", async () => {
+        const res = await request(app).get("/api/health").set("Origin", origin);
+        expect(res.headers["access-control-allow-origin"]).toBe(origin);
+        expect(res.headers["access-control-allow-credentials"]).toBe("true");
+    });
+});

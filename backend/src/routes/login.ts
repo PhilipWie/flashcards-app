@@ -7,6 +7,8 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db/db.js';
 import {users} from "../db/schema.js";
 import { signToken } from '../jwt.js';
+import { startSession } from '../lib/refreshTokens.js';
+import { setRefreshCookie } from '../lib/refreshCookie.js';
 
 const router = Router();
 //login Endpoint
@@ -43,6 +45,8 @@ router.post("/",authLimit, async (req, res) => {
                 return res.status(401).json(apiError('INVALID_CREDENTIALS', 'unauthorized'))
             }
             token = await signToken(result[0].user_id)
+            // refresh token as HttpOnly cookie, so the login lasts longer than the access token
+            setRefreshCookie(res, await startSession(result[0].user_id))
         }else{
             return res.status(401).json(apiError('INVALID_CREDENTIALS', 'unauthorized'))
         }
@@ -51,6 +55,8 @@ router.post("/",authLimit, async (req, res) => {
         console.error(error)
         return res.status(500).json(apiError('INTERNAL_ERROR', 'Internal Server Error'))
     }
+    // the response contains a token: never cache it
+    res.set('Cache-Control', 'no-store')
     return res.status(200).json({
         message: 'User logged in',
         token,

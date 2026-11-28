@@ -9,6 +9,7 @@ export default defineConfig({
         env: {
             JWT_SECRET: "test-secret-only-for-vitest-at-least-32-chars",
             DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+            FRONTEND_URL: "http://localhost:5173",
         },
     },
 });
