@@ -150,8 +150,14 @@ Wegen `SameSite=Strict` schickt der Browser das Cookie nur, wenn Frontend und Ba
 
 Bei getrennten Domains müsste das Backend unter derselben Domain laufen, z. B. über einen Reverse Proxy (`/api` auf dem Frontend-Host). `SameSite=None` würde den CSRF-Schutz des Cookies aufgeben und ist deshalb keine gute Lösung.
 
-### Logout während eines laufenden Refresh
-Klickt der Nutzer auf „Abmelden“, während ein Refresh noch unterwegs ist, speichert der Client das neue Access-Token **nicht** mehr. Erkannt wird das an einem Logout-Zähler im Tab und daran, dass das Token aus dem `localStorage` verschwunden ist (Logout in einem anderen Tab). Im Backend hat der Logout die ganze Anmeldung widerrufen, also ist auch das neue Refresh-Cookie wertlos.
+### Logout, Refresh und mehrere Tabs
+Refresh und Logout benutzen dieselbe Sperre über alle Tabs (Web Locks, `withRefreshLock`). So laufen sie nie gleichzeitig:
+
+- **Logout** löscht das Access-Token sofort, und die Seite wechselt zum Login. Der Logout-Aufruf an das Backend wartet dann auf einen laufenden Refresh und schickt danach das aktuelle Cookie. Dadurch wird auch ein gerade rotiertes Token widerrufen.
+- **Refresh** speichert das neue Access-Token nur, wenn das Token im `localStorage` noch dasselbe ist wie beim Start. Hat sich der Nutzer inzwischen in irgendeinem Tab ab- oder neu angemeldet, wird nichts überschrieben. Ist beim Start schon kein Token mehr da, fragt der Client das Backend gar nicht erst.
+- **Veraltete 401-Antworten:** `request()` merkt sich, mit welchem Token eine fehlgeschlagene Anfrage geschickt wurde. Das passiert in einer `WeakMap`, nicht am Fehlerobjekt, damit das Token nicht in Logs landet. Gehört ein 401 zu einer älteren Anmeldung, beendet `useApiError` die aktuelle nicht:
+  - neu angemeldet: nichts tun
+  - abgemeldet: nur zur Login-Seite, ohne den Hinweis „Sitzung abgelaufen“
 
 ## Beispiel (curl)
 

@@ -1,4 +1,4 @@
-import { postAuth, request, saveToken, removeToken } from "./client";
+import { postAuth, request, saveToken, removeToken, withRefreshLock } from "./client";
 
 // creates a new account, the user still has to log in afterwards
 export async function register(email: string, password: string): Promise<void> {
@@ -14,12 +14,14 @@ export async function login(email: string, password: string): Promise<void> {
 // The backend sets the refresh token as HttpOnly cookie, JavaScript never sees it.
 
 // Forgets the access token right away (the pages check it synchronously), then revokes the
-// refresh token in the backend. The access token itself can't be revoked: it stays valid
-// until it expires (15 min), but it is gone from this browser.
+// refresh token in the backend. The backend call waits for a running refresh (same lock),
+// so it always sends the current cookie and the rotated token is revoked too.
+// The access token itself can't be revoked: it stays valid until it expires (15 min),
+// but it is gone from this browser.
 export async function logout(): Promise<void> {
     removeToken();
     try {
-        await postAuth("/api/auth/logout");
+        await withRefreshLock(() => postAuth("/api/auth/logout"));
     } catch {
         // backend not reachable: the cookie expires on its own
     }

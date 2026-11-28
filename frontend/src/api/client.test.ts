@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, getToken, removeToken, request, saveToken } from "./client";
+import { ApiError, getToken, isStaleAuthError, removeToken, request, saveToken } from "./client";
+import { logout } from "./auth";
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -74,9 +75,11 @@ describe("request", () => {
     });
 });
 
+// 401 for an expired access token, and the paths fetch was called with (in order)
+const expired = () => jsonResponse(401, { code: "UNAUTHORIZED", message: "unauthorized" });
+const paths = () => fetchMock.mock.calls.map(([url]) => String(url).replace(/^.*?(\/api\/)/, "/api/"));
+
 describe("automatic refresh on 401", () => {
-    const expired = () => jsonResponse(401, { code: "UNAUTHORIZED", message: "unauthorized" });
-    const paths = () => fetchMock.mock.calls.map(([url]) => String(url).replace(/^.*?(\/api\/)/, "/api/"));
 
     it("renews the access token with the refresh cookie and retries the request once", async () => {
         saveToken("old");
@@ -160,5 +163,93 @@ describe("automatic refresh on 401", () => {
 
         await expect(request("POST", path, { email: "a", password: "b" })).rejects.toMatchObject({ status: 401 });
         expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps a new login from another tab that happened during the refresh", async () => {
+        saveToken("old");
+        fetchMock.mockResolvedValueOnce(expired()).mockImplementationOnce(async () => {
+            // other tab: logout and login again (maybe another user)
+            localStorage.setItem("flashcards_token", "other-login");
+            return jsonResponse(200, { token: "new" });
+        });
+
+        await expect(request("GET", "/api/decks")).rejects.toMatchObject({ status: 401 });
+        expect(getToken()).toBe("other-login");
+    });
+
+    it("does not call the backend when already logged out before the refresh", async () => {
+        saveToken("old");
+        fetchMock.mockImplementationOnce(async () => {
+            removeToken();
+            return expired();
+        });
+
+        await expect(request("GET", "/api/decks")).rejects.toMatchObject({ status: 401 });
+        expect(paths()).toEqual(["/api/decks"]);
+    });
+});
+
+describe("logout and refresh share one lock", () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("sends the logout only after a running refresh, so the rotated cookie gets revoked", async () => {
+        // jsdom has no Web Locks API: a minimal queue with the same behavior
+        let tail: Promise<unknown> = Promise.resolve();
+        vi.stubGlobal("navigator", {
+            ...navigator,
+            locks: {
+                request: (_name: string, fn: () => Promise<unknown>) => {
+                    const run = tail.then(fn);
+                    tail = run.catch(() => undefined);
+                    return run;
+                },
+            },
+        });
+        vi.stubGlobal("fetch", fetchMock);
+        saveToken("old");
+        let finishRefresh!: (res: Response) => void;
+        fetchMock.mockImplementation((url) => {
+            const path = String(url);
+            if (path.endsWith("/api/auth/refresh")) return new Promise<Response>((resolve) => (finishRefresh = resolve));
+            if (path.endsWith("/api/auth/logout")) return Promise.resolve(new Response(null, { status: 204 }));
+            return Promise.resolve(expired());
+        });
+
+        const pending = request("GET", "/api/decks").catch((e: unknown) => e);
+        await vi.waitFor(() => expect(paths()).toContain("/api/auth/refresh"));
+
+        const loggedOut = logout();
+        // token is gone right away, but the logout request waits for the refresh
+        expect(getToken()).toBeNull();
+        await Promise.resolve();
+        expect(paths()).not.toContain("/api/auth/logout");
+
+        finishRefresh(jsonResponse(200, { token: "new" }));
+        await loggedOut;
+        await pending;
+
+        expect(paths()).toEqual(["/api/decks", "/api/auth/refresh", "/api/auth/logout"]);
+        // the refresh result was not saved after the logout
+        expect(getToken()).toBeNull();
+    });
+});
+
+describe("isStaleAuthError", () => {
+    it("is false for a normal expired session, true after logout or a new login", async () => {
+        saveToken("old");
+        fetchMock.mockResolvedValue(jsonResponse(401, { code: "SESSION_EXPIRED", message: "x" }));
+        const err = (await request("GET", "/api/decks").catch((e: unknown) => e)) as ApiError;
+
+        expect(isStaleAuthError(err)).toBe(false);
+        saveToken("new-login");
+        expect(isStaleAuthError(err)).toBe(true);
+        removeToken();
+        expect(isStaleAuthError(err)).toBe(true);
+    });
+
+    it("is false for errors that did not come from request()", () => {
+        expect(isStaleAuthError(new ApiError(401, "x"))).toBe(false);
     });
 });

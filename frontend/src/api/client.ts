@@ -25,11 +25,7 @@ export function getToken(): string | null {
     return localStorage.getItem(token_storage_name);
 }
 
-// counts logouts in this tab: a refresh that started before a logout must not log the user in again
-let logoutCount = 0;
-
 export function removeToken() {
-    logoutCount++;
     localStorage.removeItem(token_storage_name);
 }
 
@@ -95,9 +91,10 @@ export function refreshAccessToken(failedToken: string | null): Promise<boolean>
     return refreshing;
 }
 
-// Only one tab refreshes at a time (Web Locks API). Without it, two tabs would send the same
-// refresh token, and the backend could take the second one for a stolen token.
-function withRefreshLock(fn: () => Promise<boolean>): Promise<boolean> {
+// Only one tab uses the refresh cookie at a time (Web Locks API): refresh and logout.
+// Without it, two tabs would send the same refresh token, and the backend could take the
+// second one for a stolen token. Logout uses it too, so it always sends the current cookie.
+export function withRefreshLock<T>(fn: () => Promise<T>): Promise<T> {
     if (typeof navigator !== "undefined" && navigator.locks) {
         return navigator.locks.request("flashcards-refresh", fn);
     }
@@ -105,10 +102,11 @@ function withRefreshLock(fn: () => Promise<boolean>): Promise<boolean> {
 }
 
 async function runRefresh(failedToken: string | null): Promise<boolean> {
-    // another tab refreshed while this one waited for the lock: use its token
     const current = getToken();
-    if (current !== null && current !== failedToken) return true;
-    const logoutsBefore = logoutCount;
+    // logged out (in this or another tab) before the refresh started: nothing to renew
+    if (current === null) return false;
+    // another tab refreshed while this one waited for the lock: use its token
+    if (current !== failedToken) return true;
     try {
         const res = await postAuth("/api/auth/refresh");
         if (!res.ok) return false;
@@ -116,10 +114,11 @@ async function runRefresh(failedToken: string | null): Promise<boolean> {
         if (typeof data !== "object" || data === null || typeof (data as { token?: unknown }).token !== "string") {
             return false;
         }
-        // logged out while the refresh was running (this tab: counter, other tab: token gone):
-        // don't save the new token, otherwise the user would be logged in again.
-        // The backend revoked the whole login on logout, so the new refresh cookie is useless too.
-        if (logoutCount !== logoutsBefore || (current !== null && getToken() === null)) return false;
+        // While this tab holds the lock, no other refresh can change the token. If it changed
+        // anyway, the user logged out (or out and in again, maybe as someone else) in some tab:
+        // don't save, otherwise the old login would come back or replace the new one.
+        // Logout waits for the lock, so it runs after this refresh and revokes the new cookie.
+        if (getToken() !== current) return false;
         saveToken((data as { token: string }).token);
         return true;
     } catch {
@@ -128,19 +127,32 @@ async function runRefresh(failedToken: string | null): Promise<boolean> {
     }
 }
 
+// token each failed request was sent with. A WeakMap instead of a field on ApiError,
+// so the token never ends up in logs or error messages.
+const sentTokens = new WeakMap<ApiError, string | null>();
+
+// true if a 401 belongs to an older session: since the request was sent, the user logged out
+// or logged in again (in some tab). Such a 401 must not end the current session.
+export function isStaleAuthError(err: ApiError): boolean {
+    return sentTokens.has(err) && sentTokens.get(err) !== getToken();
+}
+
 export async function request<T = unknown>(method: HttpMethod, path: string, body?: unknown): Promise<T> {
-    const sentToken = getToken();
+    let sentToken = getToken();
     let res = await send(method, path, body);
 
     // access token expired (15 min): renew it once with the refresh cookie and retry
     if (res.status === 401 && !NO_REFRESH_PATHS.some((p) => path.startsWith(p))) {
         if (await refreshAccessToken(sentToken)) {
+            sentToken = getToken();
             res = await send(method, path, body);
         }
     }
 
     if (!res.ok) {
-        throw await toApiError(res);
+        const err = await toApiError(res);
+        sentTokens.set(err, sentToken);
+        throw err;
     }
     // 204 No Content has no body, res.json() would throw
     if (res.status === 204) {
