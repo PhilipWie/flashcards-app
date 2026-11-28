@@ -1,11 +1,11 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useTranslation } from "react-i18next";
 import i18n, { detectLanguage } from ".";
 import { apiErrorMessage } from "./apiErrors";
 import { ApiError } from "../api/client";
-import LanguageSelect from "../components/LanguageSelect";
+import LanguageSwitch from "../components/LanguageSwitch";
 
 afterEach(() => {
     vi.unstubAllGlobals();
@@ -67,7 +67,17 @@ describe("apiErrorMessage", () => {
     });
 });
 
-describe("LanguageSelect", () => {
+describe("LanguageSwitch", () => {
+    beforeAll(() => {
+        // jsdom has no showModal()/close(): just toggle the open attribute
+        HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+            this.open = true;
+        };
+        HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+            this.open = false;
+        };
+    });
+
     function Title() {
         const { t } = useTranslation();
         return <h1>{t("decks.title")}</h1>;
@@ -77,18 +87,20 @@ describe("LanguageSelect", () => {
         const user = userEvent.setup();
         render(
             <>
-                <LanguageSelect />
+                <LanguageSwitch />
                 <Title />
             </>,
         );
-        const select = screen.getByRole("combobox", { name: "Sprache" });
-        expect(select).toHaveValue("de");
-        expect(screen.getByRole("heading")).toHaveTextContent("Deine Stapel");
+        // the button names the current language
+        await user.click(screen.getByRole("button", { name: "Sprache: Deutsch" }));
+        expect(screen.getByRole("radio", { name: "Deutsch" })).toBeChecked();
+        expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Deine Stapel");
 
-        await user.selectOptions(select, "en");
+        await user.click(screen.getByRole("radio", { name: "English" }));
 
-        expect(screen.getByRole("heading")).toHaveTextContent("Your decks");
-        expect(screen.getByRole("combobox", { name: "Language" })).toHaveValue("en");
+        expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Your decks");
+        expect(screen.getByRole("radio", { name: "English" })).toBeChecked();
+        expect(screen.getByRole("button", { name: "Language: English" })).toBeInTheDocument();
         expect(document.documentElement.lang).toBe("en");
         expect(localStorage.getItem("flashcards_language")).toBe("en");
     });

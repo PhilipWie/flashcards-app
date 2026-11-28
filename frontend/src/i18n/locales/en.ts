@@ -30,6 +30,11 @@ const en: Translation = {
         settings: "Settings",
         logout: "Log out",
         language: "Language",
+        languageButton: "Language: {{language}}",
+    },
+    languageDialog: {
+        legend: "Language of the interface",
+        browserOnly: "The language only applies in this browser.",
     },
     auth: {
         email: "Email",

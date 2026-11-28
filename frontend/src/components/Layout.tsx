@@ -6,7 +6,7 @@ import { useTheme } from "../hooks/useTheme";
 import { getToken } from "../api/client";
 import { logout } from "../api/auth";
 import SettingsDialog from "./SettingsDialog";
-import LanguageSelect from "./LanguageSelect";
+import LanguageSwitch from "./LanguageSwitch";
 
 // frame around every page: top bar with brand, language, theme toggle, dashboard, settings and logout
 export default function Layout() {
@@ -29,7 +29,7 @@ export default function Layout() {
                     <Layers aria-hidden="true" /> flashcards
                 </Link>
                 <div className="topbar__actions">
-                    <LanguageSelect />
+                    <LanguageSwitch />
                     <button
                         type="button"
                         className="btn btn--icon"

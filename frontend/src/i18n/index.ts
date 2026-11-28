@@ -5,8 +5,9 @@ import en from "./locales/en";
 
 export const LANGUAGES = [
     // label in its own language, so everyone finds theirs
-    { code: "de", label: "Deutsch" },
-    { code: "en", label: "English" },
+    // short: shown in the top bar button
+    { code: "de", label: "Deutsch", short: "DE" },
+    { code: "en", label: "English", short: "EN" },
 ] as const;
 
 export type Language = (typeof LANGUAGES)[number]["code"];

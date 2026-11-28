@@ -33,6 +33,11 @@ const de = {
         settings: "Einstellungen",
         logout: "Abmelden",
         language: "Sprache",
+        languageButton: "Sprache: {{language}}",
+    },
+    languageDialog: {
+        legend: "Sprache der Oberfläche",
+        browserOnly: "Die Sprache gilt nur in diesem Browser.",
     },
     auth: {
         email: "E-Mail",
