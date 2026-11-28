@@ -51,7 +51,7 @@ frontend/src/
 ├── api/          Kommunikation mit dem Backend
 │   ├── client.ts     zentraler API-Client (fetch-Wrapper): Basis-URL, Token, Fehler
 │   └── auth.ts, decks.ts, cards.ts, review.ts, chat.ts, stats.ts   eine Funktion pro Endpunkt
-├── components/   Layout (Kopfzeile), LanguageSwitch (Sprachauswahl), ProtectedRoute, GuestRoute, Modal, ConfirmDialog, SettingsDialog
+├── components/   Layout (Kopfzeile), LanguageSwitch / LanguageOptions (Sprachauswahl), ProtectedRoute, GuestRoute, Modal, ConfirmDialog, SettingsDialog
 ├── features/     Bausteine einzelner Seiten
 │   ├── decks/        DeckItem (Zeile der Deck-Liste)
 │   ├── cards/        CardForm, CardItem, BoxBar (Verteilung auf die Fächer)

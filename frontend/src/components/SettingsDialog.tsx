@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSettings } from "../hooks/useSettings";
 import type { AiCheckMode, PracticeEffect } from "../lib/settings";
 import Modal from "./Modal";
+import LanguageOptions from "./LanguageOptions";
 
 type SettingsDialogProps = {
     open: boolean;
@@ -24,6 +25,9 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
             <h2 id={`${id}-title`} className="dialog__title">
                 {t("settings.title")}
             </h2>
+
+            <h3 className="settings-heading">{t("layout.language")}</h3>
+            <LanguageOptions />
 
             <h3 className="settings-heading">{t("settings.learnHeading")}</h3>
             <label className="switch">

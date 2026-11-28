@@ -8,7 +8,8 @@ import { logout } from "../api/auth";
 import SettingsDialog from "./SettingsDialog";
 import LanguageSwitch from "./LanguageSwitch";
 
-// frame around every page: top bar with brand, language, theme toggle, dashboard, settings and logout
+// frame around every page: top bar with brand, theme toggle, dashboard, settings and logout.
+// Guests get a language button here, logged in users find the language in the settings.
 export default function Layout() {
     const { theme, toggleTheme } = useTheme();
     const { t } = useTranslation();
@@ -29,7 +30,7 @@ export default function Layout() {
                     <Layers aria-hidden="true" /> flashcards
                 </Link>
                 <div className="topbar__actions">
-                    <LanguageSwitch />
+                    {!loggedIn && <LanguageSwitch />}
                     <button
                         type="button"
                         className="btn btn--icon"

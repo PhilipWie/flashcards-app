@@ -5,7 +5,11 @@ import { useTranslation } from "react-i18next";
 import i18n, { detectLanguage } from ".";
 import { apiErrorMessage } from "./apiErrors";
 import { ApiError } from "../api/client";
+import { MemoryRouter } from "react-router";
 import LanguageSwitch from "../components/LanguageSwitch";
+import Layout from "../components/Layout";
+import SettingsDialog from "../components/SettingsDialog";
+import { saveToken } from "../api/client";
 
 afterEach(() => {
     vi.unstubAllGlobals();
@@ -103,5 +107,35 @@ describe("LanguageSwitch", () => {
         expect(screen.getByRole("button", { name: "Language: English" })).toBeInTheDocument();
         expect(document.documentElement.lang).toBe("en");
         expect(localStorage.getItem("flashcards_language")).toBe("en");
+    });
+
+    it("is in the top bar only for guests, logged in users find it in the settings", async () => {
+        const { unmount } = render(
+            <MemoryRouter>
+                <Layout />
+            </MemoryRouter>,
+        );
+        expect(screen.getByRole("button", { name: "Sprache: Deutsch" })).toBeInTheDocument();
+        unmount();
+
+        saveToken("abc.def.ghi");
+        render(
+            <MemoryRouter>
+                <Layout />
+            </MemoryRouter>,
+        );
+        expect(screen.queryByRole("button", { name: /^Sprache:/ })).not.toBeInTheDocument();
+    });
+
+    it("can be changed in the settings", async () => {
+        const user = userEvent.setup();
+        render(<SettingsDialog open onClose={() => {}} />);
+
+        expect(screen.getByRole("radio", { name: "Deutsch" })).toBeChecked();
+        await user.click(screen.getByRole("radio", { name: "English" }));
+
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument();
+        expect(screen.getByRole("radio", { name: "English" })).toBeChecked();
+        expect(document.documentElement.lang).toBe("en");
     });
 });

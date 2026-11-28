@@ -1,12 +1,13 @@
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Languages } from "lucide-react";
-import { changeLanguage, LANGUAGES } from "../i18n";
+import { LANGUAGES } from "../i18n";
+import LanguageOptions from "./LanguageOptions";
 import Modal from "./Modal";
 
-// Language switch in the top bar: icon button with the current language code,
-// opens a small dialog with the same radio style as the settings.
-// Also shown when logged out (login and register).
+// Language switch in the top bar, only for guests (login, register):
+// icon button with the current language code, opens a small dialog.
+// Logged in users change the language in the settings instead.
 export default function LanguageSwitch() {
     const { t, i18n } = useTranslation();
     const [open, setOpen] = useState(false);
@@ -33,25 +34,7 @@ export default function LanguageSwitch() {
                 <h2 id={`${id}-title`} className="dialog__title">
                     {t("layout.language")}
                 </h2>
-                <fieldset className="settings-group">
-                    <legend className="settings-group__legend">{t("languageDialog.legend")}</legend>
-                    {LANGUAGES.map((language) => (
-                        <label key={language.code} className="radio">
-                            <input
-                                type="radio"
-                                name={`${id}-language`}
-                                value={language.code}
-                                checked={current.code === language.code}
-                                // changes apply immediately, like in the settings
-                                onChange={() => changeLanguage(language.code)}
-                            />
-                            {/* lang: a screen reader reads "English" with English pronunciation */}
-                            <span className="radio__label" lang={language.code}>
-                                {language.label}
-                            </span>
-                        </label>
-                    ))}
-                </fieldset>
+                <LanguageOptions />
                 <p className="text-muted settings-note">{t("languageDialog.browserOnly")}</p>
                 <div className="dialog__actions">
                     <button type="button" className="btn btn--primary" onClick={() => setOpen(false)}>
