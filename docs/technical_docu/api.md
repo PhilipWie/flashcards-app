@@ -7,7 +7,7 @@ Das Backend stellt eine JSON-API unter `http://localhost:3000/api` bereit (Port 
 ## Allgemeines
 
 ### Authentifizierung
-Alle Endpunkte außer Health, Registrierung und Login sind geschützt (Middleware `requireAuth`). Der Client schickt das Token aus dem Login im Header mit:
+Alle Endpunkte außer Health, Registrierung, Login und `/api/auth/*` sind geschützt (Middleware `requireAuth`). Der Client schickt das Access-Token aus dem Login im Header mit:
 
 ```
 Authorization: Bearer <token>
@@ -15,6 +15,7 @@ Authorization: Bearer <token>
 
 Fehlt das Token, ist es ungültig oder abgelaufen, antwortet der Server mit `401 { "code": "UNAUTHORIZED", "message": "unauthorized" }`.
 Der Nutzer ergibt sich immer aus dem Token. Jeder Nutzer sieht und ändert nur seine eigenen Decks und Karten. Fremde Decks oder Karten liefern `404`, als gäbe es sie nicht.
+Das Access-Token gilt 15 Minuten. Danach holt der Client mit dem Refresh-Cookie über `POST /api/auth/refresh` ein neues (siehe [Anmeldung verlängern](#anmeldung-verlängern)).
 Details: [JWT](jwt.md)
 
 ### Request-Body
@@ -44,6 +45,8 @@ Jeder Fehler wird gleich beantwortet: ein fester, maschinenlesbarer `code` und e
 | `ANSWER_INVALID` | 400 | KI-Prüfung: Antwort leer oder länger als 500 Zeichen |
 | `CHAT_INVALID` | 400 | KI-Chat: Verlauf oder Kontext ungültig |
 | `UNAUTHORIZED` | 401 | Token fehlt, ist ungültig oder abgelaufen |
+| `SESSION_EXPIRED` | 401 | Refresh-Cookie fehlt, ist abgelaufen, widerrufen oder wurde wiederverwendet: neu anmelden |
+| `FORBIDDEN_ORIGIN` | 403 | Cookie-Route von fremdem `Origin` oder ohne Header `X-Requested-With` aufgerufen (CSRF-Schutz) |
 | `INVALID_CREDENTIALS` | 401 | Login: E-Mail oder Passwort falsch (bewusst nicht genauer) |
 | `DECK_NOT_FOUND` | 404 | Deck gibt es nicht oder es gehört einem anderen Nutzer |
 | `CARD_NOT_FOUND` | 404 | Karte gibt es nicht oder sie gehört einem anderen Nutzer |
@@ -63,6 +66,7 @@ Jeder Fehler wird gleich beantwortet: ein fester, maschinenlesbarer `code` und e
 | 204 | Erfolgreich gelöscht, kein Body |
 | 400 | Ungültige Eingabe (falscher Typ, leer, zu lang, ungültige ID) |
 | 401 | Nicht angemeldet oder Token ungültig |
+| 403 | Anfrage von fremdem Origin (nur `/api/auth/*`) |
 | 404 | Nicht gefunden oder gehört einem anderen Nutzer |
 | 409 | Konflikt, z. B. E-Mail bereits registriert |
 | 429 | Zu viele Anfragen (Rate Limit) |
@@ -70,11 +74,12 @@ Jeder Fehler wird gleich beantwortet: ein fester, maschinenlesbarer `code` und e
 | 503 | KI-Prüfung nicht verfügbar (kein Key, Timeout, Fehler bei OpenRouter) |
 
 ### Rate Limits
-Pro Minute, `authLimit` und `apiLimit` pro IP-Adresse, `aiLimit` pro Nutzer:
+Pro Minute, `authLimit`, `refreshLimit` und `apiLimit` pro IP-Adresse, `aiLimit` pro Nutzer:
 
 | Limit | Anfragen/Min. | Gilt für |
 |-------|---------------|----------|
 | `authLimit` | 15 | Registrierung, Login |
+| `refreshLimit` | 30 | `/api/auth/refresh` und `/api/auth/logout`, eigener Zähler |
 | `apiLimit` | 80 | Decks, Karten, Lernmodus, Statistik, `GET /api/health/db` |
 | `aiLimit` | 20 | KI-Prüfung und KI-Chat (`/check`, `/chat`), gemeinsam |
 
@@ -87,7 +92,9 @@ Wird ein Limit überschritten, antwortet der Server mit `429 { "code": "TOO_MANY
 | GET | `/api/health` | nein | Server läuft |
 | GET | `/api/health/db` | nein | Datenbank erreichbar |
 | POST | `/api/register` | nein | Konto anlegen, siehe [Authentication](authentication.md) |
-| POST | `/api/login` | nein | Anmelden, liefert Token, siehe [JWT](jwt.md) |
+| POST | `/api/login` | nein | Anmelden, liefert Access-Token und setzt das Refresh-Cookie, siehe [JWT](jwt.md) |
+| POST | `/api/auth/refresh` | Cookie | Neues Access-Token, Refresh-Cookie wird rotiert |
+| POST | `/api/auth/logout` | Cookie | Anmeldung beenden, Refresh-Cookie löschen |
 | GET | `/api/decks` | ja | Eigene Decks auflisten |
 | GET | `/api/decks/:id` | ja | Ein Deck mit Kartenanzahl |
 | POST | `/api/decks` | ja | Deck anlegen |
@@ -104,6 +111,31 @@ Wird ein Limit überschritten, antwortet der Server mit `429 { "code": "TOO_MANY
 | POST | `/api/cards/:id/chat` | ja | Frage an die KI zu einer Karte |
 
 IDs in Pfaden müssen positive ganze Zahlen sein, sonst `400`.
+
+---
+
+## Anmeldung verlängern
+
+Beide Routen lesen nur das Cookie `refresh_token` (`HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/api/auth`). Sie brauchen kein Access-Token, aber zum Schutz vor CSRF:
+
+- Header `Origin` gleich `FRONTEND_URL`
+- Header `X-Requested-With: flashcards`
+
+Fehlt eins davon: `403 FORBIDDEN_ORIGIN`. Der Browser schickt das Cookie nur mit `credentials: "include"`.
+
+### `POST /api/auth/refresh`
+Tauscht das Refresh-Cookie gegen ein neues Access-Token und ein neues Refresh-Cookie (Rotation). Antwort mit `Cache-Control: no-store`.
+
+```json
+{ "token": "eyJhbGciOiJIUzI1NiJ9..." }
+```
+
+Fehler: `401 SESSION_EXPIRED`, wenn das Cookie fehlt, abgelaufen ist (1 Tag ohne Nutzung, höchstens 7 Tage ab Login), beim Logout widerrufen wurde oder ein schon ersetztes Token erneut benutzt wird. Im letzten Fall werden alle Tokens dieser Anmeldung widerrufen. Ausnahme: innerhalb von 20 Sekunden nach der Rotation gilt die zweite Anfrage als parallel (z. B. zweiter Tab). Das Cookie wird bei `401` gelöscht.
+
+### `POST /api/auth/logout`
+Widerruft alle Refresh-Tokens dieser Anmeldung und löscht das Cookie. Andere Geräte bleiben angemeldet. Antwortet immer `204`, auch ohne Cookie.
+
+Das Access-Token kann nicht widerrufen werden. Der Client löscht es selbst, gültig wäre es noch bis zu 15 Minuten.
 
 ---
 
