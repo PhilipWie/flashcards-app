@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { LogIn } from "lucide-react";
 import { login } from "../api/auth";
-import { ApiError } from "../api/client";
+import { apiErrorMessage } from "../i18n/apiErrors";
 import type { RegisteredState } from "./RegisterPage";
 
 export default function LoginPage() {
@@ -13,6 +14,7 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         // stop the browser from reloading the page
@@ -23,15 +25,8 @@ export default function LoginPage() {
             await login(email, password);
             navigate("/decks");
         } catch (err) {
-            if (err instanceof ApiError && err.status === 401) {
-                // backend only says "unauthorized", on purpose not more specific
-                setError("E-Mail oder Passwort ist falsch.");
-            } else if (err instanceof ApiError) {
-                setError(err.message);
-            } else {
-                // fetch itself failed, e.g. backend not running
-                setError("Server nicht erreichbar. Bitte später erneut versuchen.");
-            }
+            // 401: INVALID_CREDENTIALS, on purpose not more specific (no hint which part was wrong)
+            setError(apiErrorMessage(err, t));
         } finally {
             setLoading(false);
         }
@@ -40,25 +35,25 @@ export default function LoginPage() {
     return (
         <section className="auth glass" aria-labelledby="login-title">
             <div>
-                <h1 id="login-title">Anmelden</h1>
-                <p className="text-muted">Melde dich an, um mit deinen Stapeln weiterzulernen.</p>
+                <h1 id="login-title">{t("login.title")}</h1>
+                <p className="text-muted">{t("login.intro")}</p>
             </div>
 
             {registered?.registered && !error && (
                 <p className="notice notice--success" role="status">
-                    Registrierung erfolgreich. Du kannst dich jetzt anmelden.
+                    {t("login.registered")}
                 </p>
             )}
 
             <form className="auth__form" onSubmit={handleSubmit}>
                 <div className="field">
-                    <label htmlFor="email">E-Mail</label>
+                    <label htmlFor="email">{t("auth.email")}</label>
                     <input
                         id="email"
                         className="input"
                         type="email"
                         autoComplete="email"
-                        placeholder="name@beispiel.de"
+                        placeholder={t("auth.emailPlaceholder")}
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -68,7 +63,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="field">
-                    <label htmlFor="password">Passwort</label>
+                    <label htmlFor="password">{t("auth.password")}</label>
                     <input
                         id="password"
                         className="input"
@@ -90,12 +85,12 @@ export default function LoginPage() {
 
                 <button type="submit" className="btn btn--primary" disabled={loading}>
                     <LogIn aria-hidden="true" />
-                    {loading ? "Anmelden …" : "Anmelden"}
+                    {loading ? t("login.submitting") : t("login.submit")}
                 </button>
             </form>
 
             <p className="auth__footer text-muted">
-                Noch kein Konto? <Link to="/register">Registrieren</Link>
+                {t("login.noAccount")} <Link to="/register">{t("login.toRegister")}</Link>
             </p>
         </section>
     );

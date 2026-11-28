@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, RotateCcw, X } from "lucide-react";
 import type { Card } from "../../types/Card";
 import { checkAnswer } from "../../api/review";
@@ -42,6 +43,7 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
     const checkFor = useRef<number | null>(null);
     const handleApiError = useApiError();
     const { settings, updateSettings } = useSettings();
+    const { t } = useTranslation();
 
     // AI can be used at all (both settings) / is switched on for this session
     const aiAvailable = settings.typeAnswer && settings.aiEnabled;
@@ -97,7 +99,7 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
             // 503: no key, timeout or OpenRouter error. The session goes on with self-grading.
             const message =
                 err instanceof ApiError && err.status === 503
-                    ? "KI-Prüfung gerade nicht verfügbar. Bewerte deine Antwort selbst."
+                    ? t("session.aiUnavailable")
                     : handleApiError(err);
             // null: 401, the user is logged out and leaves the page. Never stay in "loading".
             setCheck(message === null ? { status: "idle" } : { status: "error", message });
@@ -126,17 +128,17 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
     if (index >= total) {
         return (
             <section className="panel glass learn-done" aria-labelledby="done-title">
-                <h1 id="done-title">Geschafft!</h1>
+                <h1 id="done-title">{t("session.doneTitle")}</h1>
                 <ul className="learn-stats">
                     <li>
                         <strong className="learn-stats__value learn-stats__value--known">
                             {initialCards.length - repeatedIds.size}
                         </strong>
-                        auf Anhieb gewusst
+                        {t("session.knownFirst")}
                     </li>
                     <li>
                         <strong className="learn-stats__value">{repeatedIds.size}</strong>
-                        wiederholt
+                        {t("session.repeated")}
                     </li>
                 </ul>
                 <div className="learn-actions">{doneActions}</div>
@@ -152,12 +154,12 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
 
     return (
         <>
-            <section className="panel glass learn-progress" aria-label="Fortschritt">
+            <section className="panel glass learn-progress" aria-label={t("session.progress")}>
                 <p className="learn-progress__text">
-                    Karte {index + 1} von {total}
-                    {isRepeat && " · Wiederholung"}
+                    {t("session.position", { current: index + 1, total })}
+                    {isRepeat && ` · ${t("session.repeat")}`}
                 </p>
-                <progress className="progress" max={total} value={index} aria-label="Fortschritt" />
+                <progress className="progress" max={total} value={index} aria-label={t("session.progress")} />
             </section>
 
             {/* key: every position is mounted fresh, so the card does not flip back visibly,
@@ -172,8 +174,8 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
 
             {settings.typeAnswer && flipped && (
                 <div className="panel glass answer-typed">
-                    <p className="answer-typed__label">Deine Antwort</p>
-                    {typedAnswer.trim() ? <p>{typedAnswer.trim()}</p> : <p className="text-muted">Keine Antwort eingegeben</p>}
+                    <p className="answer-typed__label">{t("session.yourAnswer")}</p>
+                    {typedAnswer.trim() ? <p>{typedAnswer.trim()}</p> : <p className="text-muted">{t("session.noAnswer")}</p>}
                     {check.status !== "idle" && <AiResult state={check} />}
                 </div>
             )}
@@ -194,7 +196,7 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                             onClick={() => answer(false)}
                         >
                             <X aria-hidden="true" />
-                            Nicht gewusst
+                            {t("session.didntKnow")}
                         </button>
                         <button
                             type="button"
@@ -203,7 +205,7 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                             onClick={() => answer(true)}
                         >
                             <Check aria-hidden="true" />
-                            Gewusst
+                            {t("session.knew")}
                         </button>
                     </>
                 ) : settings.typeAnswer ? (
@@ -224,14 +226,14 @@ export default function LearnSession({ initialCards, onAnswer, doneActions }: Le
                                     onChange={(e) => updateSettings({ aiCheck: e.target.checked })}
                                 />
                                 <span className="switch__track" aria-hidden="true" />
-                                KI-Prüfung
+                                {t("session.aiSwitch")}
                             </label>
                         )}
                     </AnswerInput>
                 ) : (
                     <button type="button" className="btn btn--primary" onClick={() => setFlipped(true)}>
                         <RotateCcw aria-hidden="true" />
-                        Umdrehen
+                        {t("session.flip")}
                     </button>
                 )}
             </div>

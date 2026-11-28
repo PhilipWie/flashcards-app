@@ -27,7 +27,7 @@ Test-Dateien liegen direkt neben der getesteten Datei und heißen `name.test.ts`
 | Projekt | Konfiguration | Umgebung |
 |---------|---------------|----------|
 | Backend | [vitest.config.ts](../../backend/vitest.config.ts) | Node.js. `JWT_SECRET` und `DATABASE_URL` sind Platzhalter, die Datenbank wird nie erreicht |
-| Frontend | `test`-Abschnitt in [vite.config.ts](../../frontend/vite.config.ts) | jsdom (simulierter Browser mit DOM und `localStorage`), Setup in [src/test/setup.ts](../../frontend/src/test/setup.ts) |
+| Frontend | `test`-Abschnitt in [vite.config.ts](../../frontend/vite.config.ts) | jsdom (simulierter Browser mit DOM und `localStorage`), Setup in [src/test/setup.ts](../../frontend/src/test/setup.ts), stellt die Sprache vor jedem Test auf Deutsch |
 
 Die Test-Dateien im Backend sind vom `tsc`-Build ausgenommen und landen nicht in `dist/`.
 
@@ -39,9 +39,10 @@ Die Test-Dateien im Backend sind vom `tsc`-Build ausgenommen und landen nicht in
 | `backend/src/lib/answerCheck.test.ts` | KI-Prüfung mit gefälschtem OpenRouter (`vi.stubGlobal("fetch")`): Anfrage, Tags maskieren, Modell-Antwort prüfen, Fehler, Timeout, kein Key in Fehlermeldungen |
 | `backend/src/lib/cardChat.test.ts` | KI-Chat: Prüfung des Verlaufs (keine `system`-Nachricht, abwechselnde Rollen, Längen), maskierte Kartendaten, Formatierung entfernen, Anfrage mit gefälschtem `fetch` |
 | `backend/src/lib/stats.test.ts` | Statistik: Lernserie (Lücken, heute/gestern), Trefferquote, Tage auffüllen, Zeitzone und Sommerzeit |
-| `backend/src/app.test.ts` | Routen über HTTP mit [supertest](https://github.com/forwardemail/supertest): Health, `401` ohne oder mit ungültigem Token, `400` bei ungültigen Eingaben, `503` für die KI-Prüfung ohne Key |
+| `backend/src/app.test.ts` | Routen über HTTP mit [supertest](https://github.com/forwardemail/supertest): Health, `401` ohne oder mit ungültigem Token, `400` bei ungültigen Eingaben, `503` für die KI-Prüfung ohne Key, jeweils mit dem richtigen Fehler-`code` |
 | `frontend/src/lib/*.test.ts` | Einstellungen (auch kaputte und manipulierte `localStorage`-Werte), Fächer filtern und zählen, Mischen, Datum |
-| `frontend/src/api/client.test.ts` | `request()` mit gefälschtem `fetch`: Header, Body, `204`, Fehler als `ApiError` |
+| `frontend/src/api/client.test.ts` | `request()` mit gefälschtem `fetch`: Header, Body, `204`, Fehler als `ApiError` mit `code` |
+| `frontend/src/i18n/i18n.test.tsx` | Mehrsprachigkeit: Sprache erkennen (gespeichert, Browser, Fallback Englisch), Fehlercodes übersetzen, Umschalten ändert Texte, `<html lang>` und `localStorage` |
 | `frontend/src/features/learn/BoxFilter.test.tsx` | Komponente mit [Testing Library](https://testing-library.com): Schnellauswahl, Fach-Schalter, Start-Button |
 | `frontend/src/features/stats/ActivityChart.test.tsx` | Diagramm: Text für Screenreader, heutiger Tag, Höhe der Balken |
 | `frontend/src/pages/DashboardPage.test.tsx` | Dashboard mit gefälschter API (`vi.mock`): Hinweise für neue Nutzer ohne Antworten und Karten |

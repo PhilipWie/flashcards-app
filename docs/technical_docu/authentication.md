@@ -30,15 +30,15 @@ curl -i -X POST http://localhost:3000/api/register \
 | Status | Bedeutung                                   |
 |--------|---------------------------------------------|
 | 201    | Nutzer wurde angelegt                       |
-| 400    | Validierungsfehler (`message` nennt Grund)  |
+| 400    | Validierungsfehler (`code` nennt Grund)     |
 | 409    | E-Mail ist bereits registriert              |
 | 429    | Rate Limit überschritten (15 Anfragen/Min.) |
 | 500    | Interner Serverfehler                       |
 
-Fehlerantworten haben die Form:
+Fehlerantworten haben die Form (alle Codes: [API, Fehlerformat](api.md#fehlerformat)):
 
 ```json
-{ "message": "email is not in a correct format" }
+{ "code": "EMAIL_INVALID", "message": "email is not in a correct format" }
 ```
 
 ### Fehlerfälle testen

@@ -2,14 +2,17 @@ const api_url = import.meta.env.VITE_API_URL
 const token_storage_name = "flashcards_token"
 type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 
-// error with HTTP status, so the UI can react to e.g. 401 or 409
+// error with HTTP status and the backend's error code (e.g. "EMAIL_TAKEN"),
+// so the UI can react to it and show a translated message
 export class ApiError extends Error {
     status: number;
+    code: string | undefined;
 
-    constructor(status: number, message: string) {
+    constructor(status: number, message: string, code?: string) {
         super(message);
         this.name = "ApiError";
         this.status = status;
+        this.code = code;
     }
 }
 
@@ -45,17 +48,21 @@ export async function request<T = unknown>(method: HttpMethod, path: string, bod
     });
 
     if (!res.ok) {
-        // fallback, if the backend sends no { message }
+        // fallback, if the backend sends no { code, message }
         let message = `HTTP Error: ${res.status}`;
+        let code: string | undefined;
         try {
             const data = await res.json();
             if (data && typeof data.message === "string") {
                 message = data.message;
             }
+            if (data && typeof data.code === "string") {
+                code = data.code;
+            }
         } catch {
             // body was empty or not JSON
         }
-        throw new ApiError(res.status, message);
+        throw new ApiError(res.status, message, code);
     }
     // 204 No Content has no body, res.json() would throw
     if (res.status === 204) {

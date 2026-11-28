@@ -1,23 +1,26 @@
 import { useId, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, Plus, X } from "lucide-react";
 import { CARD_TEXT_MAX } from "./constants";
 
 type CardFormProps = {
     initialFront?: string;
     initialBack?: string;
-    submitLabel: "Anlegen" | "Speichern";
+    // "create": new card ("Anlegen"), "edit": existing card ("Speichern")
+    variant: "create" | "edit";
     // returns true on success: a new card form is cleared then
     onSubmit: (front: string, back: string) => Promise<boolean>;
     onCancel?: () => void;
 };
 
 // used for "new card" and for editing a card inline
-export default function CardForm({ initialFront = "", initialBack = "", submitLabel, onSubmit, onCancel }: CardFormProps) {
+export default function CardForm({ initialFront = "", initialBack = "", variant, onSubmit, onCancel }: CardFormProps) {
     const [front, setFront] = useState(initialFront);
     const [back, setBack] = useState(initialBack);
     const [saving, setSaving] = useState(false);
     // unique ids, the form can be on the page several times
     const id = useId();
+    const { t } = useTranslation();
 
     const isEmpty = front.trim() === "" || back.trim() === "";
 
@@ -37,12 +40,12 @@ export default function CardForm({ initialFront = "", initialBack = "", submitLa
         <form className="card-form" onSubmit={handleSubmit} onKeyDown={(e) => e.key === "Escape" && onCancel?.()}>
             <div className="card-form__fields">
                 <div className="field">
-                    <label htmlFor={`${id}-front`}>Vorderseite</label>
+                    <label htmlFor={`${id}-front`}>{t("card.front")}</label>
                     <textarea
                         id={`${id}-front`}
                         className="input"
                         rows={3}
-                        placeholder="Frage"
+                        placeholder={t("card.frontPlaceholder")}
                         maxLength={CARD_TEXT_MAX}
                         required
                         autoFocus={!!onCancel}
@@ -51,12 +54,12 @@ export default function CardForm({ initialFront = "", initialBack = "", submitLa
                     />
                 </div>
                 <div className="field">
-                    <label htmlFor={`${id}-back`}>Rückseite</label>
+                    <label htmlFor={`${id}-back`}>{t("card.back")}</label>
                     <textarea
                         id={`${id}-back`}
                         className="input"
                         rows={3}
-                        placeholder="Antwort"
+                        placeholder={t("card.backPlaceholder")}
                         maxLength={CARD_TEXT_MAX}
                         required
                         value={back}
@@ -68,12 +71,12 @@ export default function CardForm({ initialFront = "", initialBack = "", submitLa
                 {onCancel && (
                     <button type="button" className="btn btn--glass" onClick={onCancel}>
                         <X aria-hidden="true" />
-                        Abbrechen
+                        {t("common.cancel")}
                     </button>
                 )}
                 <button type="submit" className="btn btn--primary" disabled={saving || isEmpty}>
-                    {submitLabel === "Anlegen" ? <Plus aria-hidden="true" /> : <Check aria-hidden="true" />}
-                    {submitLabel}
+                    {variant === "create" ? <Plus aria-hidden="true" /> : <Check aria-hidden="true" />}
+                    {variant === "create" ? t("common.create") : t("common.save")}
                 </button>
             </div>
         </form>

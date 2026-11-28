@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { count, eq, sql } from 'drizzle-orm';
 import { apiLimit } from '../middleware/rateLimit.js';
+import { apiError } from '../lib/errors.js';
 import { db } from '../db/db.js';
 import { cards, decks, reviews } from '../db/schema.js';
 import { MAX_BOX } from '../lib/leitner.js';
@@ -67,9 +68,7 @@ router.get('/', apiLimit, async (req, res) => {
         });
     } catch (err: any) {
         console.error(err);
-        return res.status(500).json({
-            message: 'Internal Server Error',
-        });
+        return res.status(500).json(apiError('INTERNAL_ERROR', 'Internal Server Error'));
     }
 });
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import { Trans, useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Card } from "../types/Card";
 import { getDeck } from "../api/decks";
@@ -34,6 +35,7 @@ export default function PracticePage() {
     // new key for every round, so LearnSession starts fresh
     const [round, setRound] = useState(0);
     const handleApiError = useApiError();
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (!validId) return;
@@ -78,7 +80,7 @@ export default function PracticePage() {
 
     const backLink = (
         <Link to={validId && !notFound ? `/decks/${deckId}` : "/decks"} className="back-link">
-            <ArrowLeft aria-hidden="true" /> {deckName ?? "Zurück"}
+            <ArrowLeft aria-hidden="true" /> {deckName ?? t("common.back")}
         </Link>
     );
 
@@ -87,8 +89,8 @@ export default function PracticePage() {
             <div className="stack stack--narrow">
                 {backLink}
                 <section className="panel glass">
-                    <h1>Stapel nicht gefunden</h1>
-                    <p className="text-muted">Diesen Stapel gibt es nicht oder er gehört einem anderen Konto.</p>
+                    <h1>{t("common.deckNotFound")}</h1>
+                    <p className="text-muted">{t("common.deckNotFoundText")}</p>
                 </section>
             </div>
         );
@@ -99,7 +101,7 @@ export default function PracticePage() {
             <div className="stack stack--narrow">
                 {backLink}
                 <p className="text-muted" role="status">
-                    Karten werden geladen …
+                    {t("common.cardsLoading")}
                 </p>
             </div>
         );
@@ -116,10 +118,10 @@ export default function PracticePage() {
                     doneActions={
                         <>
                             <Link to={`/decks/${deckId}`} className="btn btn--glass">
-                                Zum Stapel
+                                {t("common.toDeck")}
                             </Link>
                             <button type="button" className="btn btn--primary" onClick={() => setSessionCards(null)}>
-                                Nochmal üben
+                                {t("practice.again")}
                             </button>
                         </>
                     }
@@ -133,12 +135,10 @@ export default function PracticePage() {
             {backLink}
             <section className="panel glass" aria-labelledby="practice-title">
                 <div>
-                    <h1 id="practice-title">Frei üben</h1>
+                    <h1 id="practice-title">{t("practice.title")}</h1>
                     <p className="text-muted">
-                        {settings.practiceEffect === "none"
-                            ? "Zählt nicht für den Lernfortschritt: Fächer und Fälligkeit bleiben unverändert."
-                            : "Nicht gewusste Karten gehen zurück in Fach 1. Gewusst ändert nichts."}{" "}
-                        Änderbar in den Einstellungen (Zahnrad oben).
+                        {settings.practiceEffect === "none" ? t("practice.effectNone") : t("practice.effectReset")}{" "}
+                        {t("practice.settingsHint")}
                     </p>
                 </div>
                 {error && (
@@ -148,7 +148,7 @@ export default function PracticePage() {
                 )}
                 {error ? null : allCards.length === 0 ? (
                     <p className="empty text-muted">
-                        Dieser Stapel hat noch keine Karten. <Link to={`/decks/${deckId}`}>Karten anlegen</Link>
+                        <Trans i18nKey="practice.noCards" components={{ link: <Link to={`/decks/${deckId}`} /> }} />
                     </p>
                 ) : (
                     <BoxFilter

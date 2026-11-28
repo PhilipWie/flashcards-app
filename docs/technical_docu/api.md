@@ -13,7 +13,7 @@ Alle Endpunkte außer Health, Registrierung und Login sind geschützt (Middlewar
 Authorization: Bearer <token>
 ```
 
-Fehlt das Token, ist es ungültig oder abgelaufen, antwortet der Server mit `401 { "message": "unauthorized" }`.
+Fehlt das Token, ist es ungültig oder abgelaufen, antwortet der Server mit `401 { "code": "UNAUTHORIZED", "message": "unauthorized" }`.
 Der Nutzer ergibt sich immer aus dem Token. Jeder Nutzer sieht und ändert nur seine eigenen Decks und Karten. Fremde Decks oder Karten liefern `404`, als gäbe es sie nicht.
 Details: [JWT](jwt.md)
 
@@ -21,13 +21,38 @@ Details: [JWT](jwt.md)
 Requests mit Body senden JSON mit dem Header `Content-Type: application/json`.
 
 ### Fehlerformat
-Fehler werden als JSON mit einer Meldung beantwortet:
+Jeder Fehler wird gleich beantwortet: ein fester, maschinenlesbarer `code` und eine Meldung:
 
 ```json
-{ "message": "Deck not found" }
+{ "code": "DECK_NOT_FOUND", "message": "Deck not found" }
 ```
 
-Die Meldungen sind auf Englisch und für Entwickler gedacht. Das Frontend sollte sich am Statuscode orientieren.
+- `code` ändert sich nicht und ist für das Frontend gedacht. Es übersetzt den Code in die gewählte Sprache (siehe [Mehrsprachigkeit](i18n.md)).
+- `message` ist englischer Text für Entwickler und Logs. Er kann sich ändern und wird dem Nutzer nicht angezeigt.
+- Die Liste der Codes steht in [backend/src/lib/errors.ts](../../backend/src/lib/errors.ts), die Antworten baut `apiError(code, message)`.
+
+| Code | Status | Bedeutung |
+|------|--------|-----------|
+| `INVALID_INPUT` | 400 | Body fehlt, ist kein Objekt, oder ein Feld hat den falschen Typ |
+| `INVALID_ID` | 400 | ID in der URL ist keine positive ganze Zahl |
+| `EMAIL_INVALID` | 400 | E-Mail zu kurz, zu lang oder im falschen Format |
+| `PASSWORD_INVALID` | 400 | Passwort nicht 6–500 Zeichen lang |
+| `DECK_NAME_INVALID` | 400 | Deckname kein String oder nicht 1–60 Zeichen lang |
+| `CARD_TEXT_EMPTY` | 400 | Vorder- oder Rückseite leer |
+| `CARD_TEXT_TOO_LONG` | 400 | Vorder- oder Rückseite länger als 1000 Zeichen |
+| `NO_CHANGES` | 400 | `PATCH` einer Karte ohne `front` und `back` |
+| `ANSWER_INVALID` | 400 | KI-Prüfung: Antwort leer oder länger als 500 Zeichen |
+| `CHAT_INVALID` | 400 | KI-Chat: Verlauf oder Kontext ungültig |
+| `UNAUTHORIZED` | 401 | Token fehlt, ist ungültig oder abgelaufen |
+| `INVALID_CREDENTIALS` | 401 | Login: E-Mail oder Passwort falsch (bewusst nicht genauer) |
+| `DECK_NOT_FOUND` | 404 | Deck gibt es nicht oder es gehört einem anderen Nutzer |
+| `CARD_NOT_FOUND` | 404 | Karte gibt es nicht oder sie gehört einem anderen Nutzer |
+| `EMAIL_TAKEN` | 409 | E-Mail bereits registriert |
+| `TOO_MANY_REQUESTS` | 429 | Rate Limit überschritten |
+| `INTERNAL_ERROR` | 500 | Interner Fehler, Details nur im Server-Log |
+| `AI_UNAVAILABLE` | 503 | KI-Prüfung oder KI-Chat nicht verfügbar |
+
+`GET /api/health/db` ist kein Fehler im Sinne dieser Liste: Es meldet `503 { "status": "error", "database": "down" }`.
 
 ### Statuscodes
 
@@ -53,7 +78,7 @@ Pro Minute, `authLimit` und `apiLimit` pro IP-Adresse, `aiLimit` pro Nutzer:
 | `apiLimit` | 80 | Decks, Karten, Lernmodus, Statistik, `GET /api/health/db` |
 | `aiLimit` | 20 | KI-Prüfung und KI-Chat (`/check`, `/chat`), gemeinsam |
 
-Wird ein Limit überschritten, antwortet der Server mit `429 { "message": "too many requests, try again later" }`. Die Header `RateLimit-*` zeigen den aktuellen Stand.
+Wird ein Limit überschritten, antwortet der Server mit `429 { "code": "TOO_MANY_REQUESTS", "message": "too many requests, try again later" }`. Die Header `RateLimit-*` zeigen den aktuellen Stand.
 
 ### Übersicht
 
@@ -130,7 +155,7 @@ Ein Deck des angemeldeten Nutzers, mit denselben Feldern wie in der Liste.
 { "deck": { "id": 1, "name": "Webentwicklung", "card_count": 12, "due_count": 4 } }
 ```
 
-Fehler: `400` (ungültige ID), `404 { "message": "Deck not found" }`.
+Fehler: `400` (ungültige ID), `404 { "code": "DECK_NOT_FOUND", "message": "Deck not found" }`.
 
 ### `POST /api/decks`
 Legt ein Deck an. Die Antwort enthält nur `id` und `name`, ein neues Deck hat noch keine Karten.
@@ -154,14 +179,14 @@ Benennt ein Deck um. Body und Regeln wie bei `POST`.
 { "deck": { "id": 2, "name": "Datenbanken 2" } }
 ```
 
-Fehler: `400`, `404 { "message": "deck not found" }`.
+Fehler: `400`, `404 { "code": "DECK_NOT_FOUND", "message": "deck not found" }`.
 
 ### `DELETE /api/decks/:id`
 Löscht ein Deck. Alle Karten darin werden von der Datenbank mitgelöscht (`ON DELETE CASCADE`).
 
 **Antwort `204`** ohne Body.
 
-Fehler: `400`, `404 { "message": "Deck not found" }`.
+Fehler: `400`, `404 { "code": "DECK_NOT_FOUND", "message": "Deck not found" }`.
 
 ---
 
@@ -192,7 +217,7 @@ Alle Karten eines Decks, unabhängig von der Fälligkeit.
 { "cards": [ { "id": 7, "front": "...", "back": "...", "box": 1, "next_review": "2026-11-27" } ] }
 ```
 
-Fehler: `400` (ungültige Deck-ID), `404 { "message": "Deck not found" }`.
+Fehler: `400` (ungültige Deck-ID), `404 { "code": "DECK_NOT_FOUND", "message": "Deck not found" }`.
 
 ### `POST /api/decks/:deckId/cards`
 Legt eine Karte im Deck an.
@@ -222,7 +247,7 @@ Fehler: `400`, `404` (Deck nicht gefunden).
 { "card": { "id": 8, "front": "...", "back": "...", "box": 1, "next_review": "2026-11-27" } }
 ```
 
-Fehler: `400` (z. B. `no changes given`), `404 { "message": "Card not found" }`.
+Fehler: `400` (z. B. `no changes given`), `404 { "code": "CARD_NOT_FOUND", "message": "Card not found" }`.
 
 ### `DELETE /api/cards/:id`
 Löscht eine Karte.
@@ -268,7 +293,7 @@ Alle **heute fälligen** Karten eines Decks (`next_review` ≤ heute). Die Liste
 { "cards": [ { "id": 7, "front": "...", "back": "...", "box": 2, "next_review": "2026-11-25" } ] }
 ```
 
-Fehler: `400`, `404 { "message": "Deck not found" }`.
+Fehler: `400`, `404 { "code": "DECK_NOT_FOUND", "message": "Deck not found" }`.
 
 ### `POST /api/cards/:id/review`
 Speichert die Antwort und verschiebt die Karte. Die Antwort wird außerdem in der Lernhistorie (Tabelle `reviews`) gespeichert, beides in einer Transaktion.
@@ -283,7 +308,7 @@ Speichert die Antwort und verschiebt die Karte. Die Antwort wird außerdem in de
 { "card": { "id": 7, "front": "...", "back": "...", "box": 3, "next_review": "2026-12-01" } }
 ```
 
-Fehler: `400` (z. B. `correct must be a boolean`, `practice must be a boolean`), `404 { "message": "Card not found" }`.
+Fehler: `400` (z. B. `correct must be a boolean`, `practice must be a boolean`), `404 { "code": "CARD_NOT_FOUND", "message": "Card not found" }`.
 
 ---
 
@@ -316,7 +341,7 @@ Lässt eine eingetippte Antwort von einem Sprachmodell prüfen. Nur ein **Vorsch
 | `partial` | teilweise richtig |
 | `wrong` | falsch oder ohne Bezug |
 
-Fehler: `400` (z. B. `answer must be a non-empty string`), `404 { "message": "Card not found" }`, `429` (`aiLimit`), `503 { "message": "AI check not available" }`, wenn kein Key gesetzt ist oder OpenRouter nicht antwortet.
+Fehler: `400` (z. B. `answer must be a non-empty string`), `404 { "code": "CARD_NOT_FOUND", "message": "Card not found" }`, `429` (`aiLimit`), `503 { "code": "AI_UNAVAILABLE", "message": "AI check not available" }`, wenn kein Key gesetzt ist oder OpenRouter nicht antwortet.
 
 ### `POST /api/cards/:id/chat`
 Frage an die KI zu einer Karte. **Es wird nichts gespeichert:** Das Frontend schickt bei jeder Frage den ganzen bisherigen Verlauf mit.
@@ -333,7 +358,7 @@ Frage an die KI zu einer Karte. **Es wird nichts gespeichert:** Das Frontend sch
 ```
 `reply` ist normaler Text (höchstens 1500 Zeichen), ohne Formatierung.
 
-Fehler: `400` (z. B. `role must be user or assistant`), `404 { "message": "Card not found" }`, `429` (`aiLimit`), `503 { "message": "AI chat not available" }`.
+Fehler: `400` (z. B. `role must be user or assistant`), `404 { "code": "CARD_NOT_FOUND", "message": "Card not found" }`, `429` (`aiLimit`), `503 { "code": "AI_UNAVAILABLE", "message": "AI chat not available" }`.
 
 ---
 
@@ -402,4 +427,3 @@ curl -i -X POST http://localhost:3000/api/cards/1/review \
 ## Bekannte Einschränkungen
 
 - "Heute" für fällige Karten ist `CURRENT_DATE` der Datenbank, also UTC. Zwischen 0 und 1 Uhr (Sommerzeit: 2 Uhr) deutscher Zeit gilt dort noch der Vortag. Die Statistik rechnet dagegen schon in `Europe/Berlin`.
-- Die Fehlermeldungen sind nur auf Englisch und ohne festen Fehlercode. Geplant in Issue [#2](https://github.com/PhilipWie/flashcards-app/issues/2).

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Check, GraduationCap, Pencil, Trash2, X } from "lucide-react";
 import type { DeckSummary } from "../../types/Deck";
 import { DECK_NAME_MAX } from "./constants";
@@ -15,6 +16,7 @@ export default function DeckItem({ deck, onRename, onDelete }: DeckItemProps) {
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(deck.name);
     const [saving, setSaving] = useState(false);
+    const { t } = useTranslation();
 
     function startEditing() {
         setName(deck.name);
@@ -44,7 +46,7 @@ export default function DeckItem({ deck, onRename, onDelete }: DeckItemProps) {
                     onKeyDown={(e) => e.key === "Escape" && setEditing(false)}
                 >
                     <label htmlFor={`deck-name-${deck.id}`} className="visually-hidden">
-                        Neuer Name für {deck.name}
+                        {t("decks.renameLabel", { name: deck.name })}
                     </label>
                     <input
                         id={`deck-name-${deck.id}`}
@@ -56,15 +58,15 @@ export default function DeckItem({ deck, onRename, onDelete }: DeckItemProps) {
                         onChange={(e) => setName(e.target.value)}
                     />
                     <div className="deck__actions">
-                        <button type="submit" className="btn btn--icon" disabled={saving} aria-label="Speichern" title="Speichern">
+                        <button type="submit" className="btn btn--icon" disabled={saving} aria-label={t("common.save")} title={t("common.save")}>
                             <Check aria-hidden="true" />
                         </button>
                         <button
                             type="button"
                             className="btn btn--icon"
                             onClick={() => setEditing(false)}
-                            aria-label="Abbrechen"
-                            title="Abbrechen"
+                            aria-label={t("common.cancel")}
+                            title={t("common.cancel")}
                         >
                             <X aria-hidden="true" />
                         </button>
@@ -83,16 +85,16 @@ export default function DeckItem({ deck, onRename, onDelete }: DeckItemProps) {
                     </Link>
                 </h3>
                 <p className="deck__meta">
-                    {deck.card_count} {deck.card_count === 1 ? "Karte" : "Karten"}
-                    {deck.due_count > 0 && <span className="deck__due"> · {deck.due_count} fällig</span>}
+                    {t("common.cards", { count: deck.card_count })}
+                    {deck.due_count > 0 && <span className="deck__due"> · {t("decks.due", { count: deck.due_count })}</span>}
                 </p>
             </div>
             <div className="deck__actions">
                 <Link
                     to={`/decks/${deck.id}/learn`}
                     className="btn btn--icon"
-                    aria-label={`${deck.name} lernen`}
-                    title="Lernen"
+                    aria-label={t("decks.learnLabel", { name: deck.name })}
+                    title={t("common.learn")}
                 >
                     <GraduationCap aria-hidden="true" />
                 </Link>
@@ -100,8 +102,8 @@ export default function DeckItem({ deck, onRename, onDelete }: DeckItemProps) {
                     type="button"
                     className="btn btn--icon"
                     onClick={startEditing}
-                    aria-label={`${deck.name} umbenennen`}
-                    title="Umbenennen"
+                    aria-label={t("decks.renameAria", { name: deck.name })}
+                    title={t("common.rename")}
                 >
                     <Pencil aria-hidden="true" />
                 </button>
@@ -109,8 +111,8 @@ export default function DeckItem({ deck, onRename, onDelete }: DeckItemProps) {
                     type="button"
                     className="btn btn--icon btn--danger"
                     onClick={() => onDelete(deck)}
-                    aria-label={`${deck.name} löschen`}
-                    title="Löschen"
+                    aria-label={t("decks.deleteAria", { name: deck.name })}
+                    title={t("common.delete")}
                 >
                     <Trash2 aria-hidden="true" />
                 </button>

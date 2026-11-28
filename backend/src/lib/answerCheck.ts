@@ -20,9 +20,9 @@ Verdict:
 - "partial": the answer is partly right, but an important part is missing or wrong.
 - "wrong": the answer is wrong, unrelated or empty.
 
-Feedback: one or two short sentences in German, addressed to the learner with "du". Only about the learner's answer: say what was missing or wrong. If the answer is correct, confirm it briefly.
+Feedback: one or two short sentences in the users language prompt, addressed to the learner with "du". Only about the learner's answer: say what was missing or wrong. If the answer is correct, confirm it briefly.
 
-Explanation: two to four sentences in German that explain the solution itself: what the term or concept means and why the reference answer is right, with a short example if it helps. Base it on the reference answer and never contradict it. Do not repeat the feedback.`;
+Explanation: two to five sentences based on the difficulty of the topic. in the users language prompt, that explain the solution itself: what the term or concept means and why the reference answer is right, with a short example if it helps. Base it on the reference answer and never contradict it. Do not repeat the feedback.`;
 
 const SCHEMA = {
     type: 'object',

@@ -1,4 +1,5 @@
 import { useId, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
 
 type ConfirmDialogProps = {
@@ -17,6 +18,7 @@ export default function ConfirmDialog({ open, title, message, confirmLabel, busy
     const cancelRef = useRef<HTMLButtonElement>(null);
     const titleId = useId();
     const messageId = useId();
+    const { t } = useTranslation();
 
     return (
         <Modal
@@ -36,10 +38,10 @@ export default function ConfirmDialog({ open, title, message, confirmLabel, busy
             </p>
             <div className="dialog__actions">
                 <button ref={cancelRef} type="button" className="btn btn--glass" onClick={onCancel} disabled={busy}>
-                    Abbrechen
+                    {t("common.cancel")}
                 </button>
                 <button type="button" className="btn btn--primary" onClick={onConfirm} disabled={busy}>
-                    {busy ? `${confirmLabel} …` : confirmLabel}
+                    {busy ? t("common.busy", { label: confirmLabel }) : confirmLabel}
                 </button>
             </div>
         </Modal>

@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { MessageCircle, Send } from "lucide-react";
 import type { ChatMessage } from "../../types/Chat";
 import type { CheckResult } from "../../types/Check";
@@ -23,6 +24,7 @@ export default function CardChat({ cardId, answer, check }: CardChatProps) {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const handleApiError = useApiError();
+    const { t } = useTranslation();
 
     // one more question needs room for the question and the reply
     const full = messages.length + 2 > CHAT_MESSAGES_MAX;
@@ -49,7 +51,7 @@ export default function CardChat({ cardId, answer, check }: CardChatProps) {
             setInput(text);
             const message =
                 err instanceof ApiError && err.status === 503
-                    ? "Die KI ist gerade nicht erreichbar. Versuch es später noch einmal."
+                    ? t("chat.unavailable")
                     : handleApiError(err);
             setError(message);
         } finally {
@@ -61,22 +63,22 @@ export default function CardChat({ cardId, answer, check }: CardChatProps) {
         <details className="panel glass card-chat">
             <summary className="card-chat__summary">
                 <MessageCircle aria-hidden="true" />
-                Frag die KI zu dieser Karte
+                {t("chat.summary")}
             </summary>
 
             {/* role="log": new messages are read out by screen readers */}
-            <ol className="card-chat__log" role="log" aria-label="Chatverlauf">
+            <ol className="card-chat__log" role="log" aria-label={t("chat.log")}>
                 {messages.map((m, i) => (
                     <li key={i} className={`card-chat__msg card-chat__msg--${m.role}`}>
-                        <span className="card-chat__who">{m.role === "user" ? "Du" : "KI"}</span>
+                        <span className="card-chat__who">{m.role === "user" ? t("chat.you") : t("chat.ai")}</span>
                         {/* plain text, React escapes it */}
                         <p>{m.content}</p>
                     </li>
                 ))}
                 {sending && (
                     <li className="card-chat__msg card-chat__msg--assistant">
-                        <span className="card-chat__who">KI</span>
-                        <p className="text-muted">schreibt …</p>
+                        <span className="card-chat__who">{t("chat.ai")}</span>
+                        <p className="text-muted">{t("chat.typing")}</p>
                     </li>
                 )}
             </ol>
@@ -88,16 +90,16 @@ export default function CardChat({ cardId, answer, check }: CardChatProps) {
             )}
 
             {full ? (
-                <p className="text-muted">Der Chat zu dieser Karte ist voll. Bei der nächsten Karte geht es neu los.</p>
+                <p className="text-muted">{t("chat.full")}</p>
             ) : (
                 <form className="card-chat__form" onSubmit={send}>
                     <label htmlFor={id} className="visually-hidden">
-                        Frage an die KI
+                        {t("chat.label")}
                     </label>
                     <input
                         id={id}
                         className="input"
-                        placeholder="z. B. Gib mir ein weiteres Beispiel"
+                        placeholder={t("chat.placeholder")}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         maxLength={CHAT_MESSAGE_MAX}
@@ -105,12 +107,12 @@ export default function CardChat({ cardId, answer, check }: CardChatProps) {
                     />
                     <button type="submit" className="btn btn--primary" disabled={sending || input.trim() === ""}>
                         <Send aria-hidden="true" />
-                        Senden
+                        {t("chat.send")}
                     </button>
                 </form>
             )}
 
-            <p className="text-muted card-chat__note">Die KI kann sich irren. Der Chat wird nicht gespeichert.</p>
+            <p className="text-muted card-chat__note">{t("chat.note")}</p>
         </details>
     );
 }

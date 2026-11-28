@@ -1018,6 +1018,16 @@ button.flashcard {
   background: var(--color-surface-strong);
 }
 
+/* language switch in the top bar: icon button plus the short language code */
+.btn--icon.lang-switch {
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+}
+.lang-switch__code {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
 .stat-tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));

@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { UserPlus } from "lucide-react";
 import { register } from "../api/auth";
-import { ApiError } from "../api/client";
+import { apiErrorMessage } from "../i18n/apiErrors";
 
 // same limits as the backend (register.ts)
 const PASSWORD_MIN = 6;
@@ -18,6 +19,7 @@ export default function RegisterPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         // stop the browser from reloading the page
@@ -30,15 +32,8 @@ export default function RegisterPage() {
             const state: RegisteredState = { registered: true, email: email.trim().toLowerCase() };
             navigate("/login", { state });
         } catch (err) {
-            if (err instanceof ApiError && err.status === 409) {
-                setError("Diese E-Mail ist bereits registriert. Melde dich stattdessen an.");
-            } else if (err instanceof ApiError) {
-                // 400: validation message from the backend
-                setError(err.message);
-            } else {
-                // fetch itself failed, e.g. backend not running
-                setError("Server nicht erreichbar. Bitte später erneut versuchen.");
-            }
+            // e.g. 409 EMAIL_TAKEN or 400 EMAIL_INVALID (the browser accepts "a@b", the backend does not)
+            setError(apiErrorMessage(err, t));
         } finally {
             setLoading(false);
         }
@@ -47,19 +42,19 @@ export default function RegisterPage() {
     return (
         <section className="auth glass" aria-labelledby="register-title">
             <div>
-                <h1 id="register-title">Registrieren</h1>
-                <p className="text-muted">Lege ein Konto an, um deine eigenen Stapel zu speichern.</p>
+                <h1 id="register-title">{t("register.title")}</h1>
+                <p className="text-muted">{t("register.intro")}</p>
             </div>
 
             <form className="auth__form" onSubmit={handleSubmit}>
                 <div className="field">
-                    <label htmlFor="email">E-Mail</label>
+                    <label htmlFor="email">{t("auth.email")}</label>
                     <input
                         id="email"
                         className="input"
                         type="email"
                         autoComplete="email"
-                        placeholder="name@beispiel.de"
+                        placeholder={t("auth.emailPlaceholder")}
                         required
                         maxLength={EMAIL_MAX}
                         value={email}
@@ -70,7 +65,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="field">
-                    <label htmlFor="password">Passwort</label>
+                    <label htmlFor="password">{t("auth.password")}</label>
                     <input
                         id="password"
                         className="input"
@@ -85,7 +80,7 @@ export default function RegisterPage() {
                         aria-describedby={error ? "register-error" : "password-hint"}
                     />
                     <p className="field__hint" id="password-hint">
-                        Mindestens {PASSWORD_MIN} Zeichen.
+                        {t("register.passwordHint", { min: PASSWORD_MIN })}
                     </p>
                 </div>
 
@@ -97,12 +92,12 @@ export default function RegisterPage() {
 
                 <button type="submit" className="btn btn--primary" disabled={loading}>
                     <UserPlus aria-hidden="true" />
-                    {loading ? "Konto wird angelegt …" : "Konto anlegen"}
+                    {loading ? t("register.submitting") : t("register.submit")}
                 </button>
             </form>
 
             <p className="auth__footer text-muted">
-                Schon ein Konto? <Link to="/login">Anmelden</Link>
+                {t("register.hasAccount")} <Link to="/login">{t("register.toLogin")}</Link>
             </p>
         </section>
     );

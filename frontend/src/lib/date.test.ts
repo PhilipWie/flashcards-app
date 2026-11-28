@@ -22,7 +22,8 @@ describe("date helpers", () => {
         expect(isDue("2026-11-28")).toBe(false);
     });
 
-    it("formatDate shows the German format without shifting the day", () => {
-        expect(formatDate("2026-12-01")).toBe("01.12.2026");
+    it("formatDate uses the format of the language without shifting the day", () => {
+        expect(formatDate("2026-12-01", "de")).toBe("01.12.2026");
+        expect(formatDate("2026-12-01", "en")).toBe("12/01/2026");
     });
 });

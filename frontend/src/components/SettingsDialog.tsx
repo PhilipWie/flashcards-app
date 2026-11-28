@@ -1,51 +1,35 @@
 import { useId } from "react";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "../hooks/useSettings";
 import type { AiCheckMode, PracticeEffect } from "../lib/settings";
 import Modal from "./Modal";
+import LanguageOptions from "./LanguageOptions";
 
 type SettingsDialogProps = {
     open: boolean;
     onClose: () => void;
 };
 
-const PRACTICE_EFFECTS: { value: PracticeEffect; label: string; hint: string }[] = [
-    {
-        value: "none",
-        label: "Ändert nichts",
-        hint: "Fächer und Fälligkeit bleiben, wie sie sind.",
-    },
-    {
-        value: "reset-unknown",
-        label: "Nicht gewusst setzt zurück",
-        hint: "Nicht gewusste Karten gehen zurück in Fach 1 und sind heute fällig. Gewusst ändert nichts.",
-    },
-];
-
-const AI_CHECK_MODES: { value: AiCheckMode; label: string; hint: string }[] = [
-    {
-        value: "button",
-        label: "Mit Button",
-        hint: "Die KI prüft nur, wenn du auf „Prüfen“ klickst.",
-    },
-    {
-        value: "auto",
-        label: "Automatisch",
-        hint: "Die KI prüft beim Umdrehen, sobald du eine Antwort eingetippt hast.",
-    },
-];
+// texts: settings.practiceEffects.<value> and settings.aiModes.<value>
+const PRACTICE_EFFECTS: PracticeEffect[] = ["none", "reset-unknown"];
+const AI_CHECK_MODES: AiCheckMode[] = ["button", "auto"];
 
 // settings menu, changes apply immediately (no save button)
 export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
     const { settings, updateSettings } = useSettings();
     const id = useId();
+    const { t } = useTranslation();
 
     return (
         <Modal open={open} onClose={onClose} labelledBy={`${id}-title`}>
             <h2 id={`${id}-title`} className="dialog__title">
-                Einstellungen
+                {t("settings.title")}
             </h2>
 
-            <h3 className="settings-heading">Lernen</h3>
+            <h3 className="settings-heading">{t("layout.language")}</h3>
+            <LanguageOptions />
+
+            <h3 className="settings-heading">{t("settings.learnHeading")}</h3>
             <label className="switch">
                 <input
                     type="checkbox"
@@ -55,10 +39,10 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                     onChange={(e) => updateSettings({ typeAnswer: e.target.checked })}
                 />
                 <span className="switch__track" aria-hidden="true" />
-                Antwort vor dem Umdrehen eintippen
+                {t("settings.typeAnswer")}
             </label>
 
-            <h3 className="settings-heading">KI</h3>
+            <h3 className="settings-heading">{t("settings.aiHeading")}</h3>
             <label className="switch">
                 <input
                     type="checkbox"
@@ -69,50 +53,48 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                     aria-describedby={`${id}-ai-hint`}
                 />
                 <span className="switch__track" aria-hidden="true" />
-                KI beim Lernen verwenden
+                {t("settings.aiEnabled")}
             </label>
             <p id={`${id}-ai-hint`} className="text-muted settings-note">
-                Die KI prüft eingetippte Antworten und beantwortet nach dem Umdrehen Fragen zur Karte. Dafür werden
-                Vorder- und Rückseite, deine Antwort und deine Fragen an einen KI-Dienst (OpenRouter) geschickt. Die KI
-                macht nur Vorschläge, bewerten musst du selbst.
-                {!settings.typeAnswer && " Die Prüfung braucht „Antwort eintippen“."}
+                {t("settings.aiHint")}
+                {!settings.typeAnswer && ` ${t("settings.aiNeedsTyping")}`}
             </p>
             {settings.aiEnabled && (
                 <fieldset className="settings-group">
-                    <legend className="settings-group__legend">Wann soll die KI deine Antwort prüfen?</legend>
-                    {AI_CHECK_MODES.map((option) => (
-                        <label key={option.value} className="radio">
+                    <legend className="settings-group__legend">{t("settings.aiModeLegend")}</legend>
+                    {AI_CHECK_MODES.map((mode) => (
+                        <label key={mode} className="radio">
                             <input
                                 type="radio"
                                 name={`${id}-ai-mode`}
-                                value={option.value}
-                                checked={settings.aiCheckMode === option.value}
-                                onChange={() => updateSettings({ aiCheckMode: option.value })}
+                                value={mode}
+                                checked={settings.aiCheckMode === mode}
+                                onChange={() => updateSettings({ aiCheckMode: mode })}
                             />
                             <span>
-                                <span className="radio__label">{option.label}</span>
-                                <span className="radio__hint text-muted">{option.hint}</span>
+                                <span className="radio__label">{t(`settings.aiModes.${mode}.label`)}</span>
+                                <span className="radio__hint text-muted">{t(`settings.aiModes.${mode}.hint`)}</span>
                             </span>
                         </label>
                     ))}
                 </fieldset>
             )}
 
-            <h3 className="settings-heading">Freies Üben</h3>
+            <h3 className="settings-heading">{t("settings.practiceHeading")}</h3>
             <fieldset className="settings-group">
-                <legend className="settings-group__legend">Wirkung auf den Lernfortschritt</legend>
-                {PRACTICE_EFFECTS.map((option) => (
-                    <label key={option.value} className="radio">
+                <legend className="settings-group__legend">{t("settings.practiceLegend")}</legend>
+                {PRACTICE_EFFECTS.map((effect) => (
+                    <label key={effect} className="radio">
                         <input
                             type="radio"
                             name={`${id}-practice-effect`}
-                            value={option.value}
-                            checked={settings.practiceEffect === option.value}
-                            onChange={() => updateSettings({ practiceEffect: option.value })}
+                            value={effect}
+                            checked={settings.practiceEffect === effect}
+                            onChange={() => updateSettings({ practiceEffect: effect })}
                         />
                         <span>
-                            <span className="radio__label">{option.label}</span>
-                            <span className="radio__hint text-muted">{option.hint}</span>
+                            <span className="radio__label">{t(`settings.practiceEffects.${effect}.label`)}</span>
+                            <span className="radio__hint text-muted">{t(`settings.practiceEffects.${effect}.hint`)}</span>
                         </span>
                     </label>
                 ))}
@@ -127,14 +109,14 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                     onChange={(e) => updateSettings({ shuffleByDefault: e.target.checked })}
                 />
                 <span className="switch__track" aria-hidden="true" />
-                Standardmäßig mischen
+                {t("settings.shuffle")}
             </label>
 
-            <p className="text-muted settings-note">Die Einstellungen gelten nur in diesem Browser.</p>
+            <p className="text-muted settings-note">{t("settings.browserOnly")}</p>
 
             <div className="dialog__actions">
                 <button type="button" className="btn btn--primary" onClick={onClose}>
-                    Fertig
+                    {t("settings.done")}
                 </button>
             </div>
         </Modal>

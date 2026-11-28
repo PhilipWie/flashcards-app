@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Dumbbell, GraduationCap } from "lucide-react";
 import type { Card } from "../types/Card";
 import type { DeckSummary } from "../types/Deck";
@@ -25,6 +26,7 @@ export default function DeckDetailPage() {
     const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
     const [deleting, setDeleting] = useState(false);
     const handleApiError = useApiError();
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (!validId) return;
@@ -103,7 +105,7 @@ export default function DeckDetailPage() {
 
     const backLink = (
         <Link to="/decks" className="back-link">
-            <ArrowLeft aria-hidden="true" /> Alle Stapel
+            <ArrowLeft aria-hidden="true" /> {t("common.allDecks")}
         </Link>
     );
 
@@ -112,8 +114,8 @@ export default function DeckDetailPage() {
             <div className="stack">
                 {backLink}
                 <section className="panel glass">
-                    <h1>Stapel nicht gefunden</h1>
-                    <p className="text-muted">Diesen Stapel gibt es nicht oder er gehört einem anderen Konto.</p>
+                    <h1>{t("common.deckNotFound")}</h1>
+                    <p className="text-muted">{t("common.deckNotFoundText")}</p>
                 </section>
             </div>
         );
@@ -128,11 +130,9 @@ export default function DeckDetailPage() {
             <section className="panel glass deck-hero" aria-labelledby="deck-title" aria-busy={loading}>
                 <div className="deck-hero__head">
                     <div>
-                        <h1 id="deck-title">{deck?.name ?? "Stapel"}</h1>
+                        <h1 id="deck-title">{deck?.name ?? t("deck.fallbackTitle")}</h1>
                         <p className="text-muted">
-                            {loading
-                                ? "Wird geladen …"
-                                : `${cards.length} ${cards.length === 1 ? "Karte" : "Karten"} · ${dueCount} heute fällig`}
+                            {loading ? t("common.loading") : t("deck.summary", { count: cards.length, due: dueCount })}
                         </p>
                     </div>
                     <div className="deck-hero__actions">
@@ -140,23 +140,23 @@ export default function DeckDetailPage() {
                         {cards.length > 0 ? (
                             <Link to={`/decks/${deckId}/practice`} className="btn btn--glass">
                                 <Dumbbell aria-hidden="true" />
-                                Frei üben
+                                {t("common.practice")}
                             </Link>
                         ) : (
                             <button type="button" className="btn btn--glass" disabled>
                                 <Dumbbell aria-hidden="true" />
-                                Frei üben
+                                {t("common.practice")}
                             </button>
                         )}
                         {dueCount > 0 ? (
                             <Link to={`/decks/${deckId}/learn`} className="btn btn--primary">
                                 <GraduationCap aria-hidden="true" />
-                                Lernen
+                                {t("common.learn")}
                             </Link>
                         ) : (
                             <button type="button" className="btn btn--primary" disabled>
                                 <GraduationCap aria-hidden="true" />
-                                Nichts fällig
+                                {t("deck.nothingDue")}
                             </button>
                         )}
                     </div>
@@ -172,17 +172,17 @@ export default function DeckDetailPage() {
 
             <section className="panel glass" aria-labelledby="new-card-title">
                 <h2 id="new-card-title" className="panel__title">
-                    Neue Karte
+                    {t("deck.newCard")}
                 </h2>
-                <CardForm submitLabel="Anlegen" onSubmit={handleCreate} />
+                <CardForm variant="create" onSubmit={handleCreate} />
             </section>
 
             <section className="panel glass" aria-labelledby="card-list-title">
                 <h2 id="card-list-title" className="panel__title">
-                    Karten
+                    {t("deck.cardsTitle")}
                 </h2>
                 {!loading && cards.length === 0 && (
-                    <p className="empty text-muted">Noch keine Karten. Lege oben die erste an.</p>
+                    <p className="empty text-muted">{t("deck.empty")}</p>
                 )}
                 {cards.length > 0 && (
                     <ul className="list">
@@ -195,9 +195,9 @@ export default function DeckDetailPage() {
 
             <ConfirmDialog
                 open={cardToDelete !== null}
-                title="Karte löschen?"
-                message={`"${cardToDelete?.front ?? ""}" wird gelöscht. Das lässt sich nicht rückgängig machen.`}
-                confirmLabel="Löschen"
+                title={t("deck.deleteCardTitle")}
+                message={t("deck.deleteCardMessage", { front: cardToDelete?.front ?? "" })}
+                confirmLabel={t("common.delete")}
                 busy={deleting}
                 onConfirm={confirmDelete}
                 onCancel={() => setCardToDelete(null)}

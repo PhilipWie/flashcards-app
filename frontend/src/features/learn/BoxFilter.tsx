@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { useTranslation } from "react-i18next";
 import { Dumbbell } from "lucide-react";
 import type { Card } from "../../types/Card";
 import { BOXES, boxColorStyle, countPerBox, filterByBoxes } from "../../lib/leitner";
@@ -6,9 +7,9 @@ import { BOXES, boxColorStyle, countPerBox, filterByBoxes } from "../../lib/leit
 // quick picks, they only set the box toggles.
 // box 5 = learned (see docs/technical_docu/api.md), so 1–4 = not learned yet
 const PRESETS = [
-    { label: "Alle", boxes: [...BOXES] },
-    { label: "Noch nicht gelernt", boxes: [1, 2, 3, 4] },
-    { label: "Schwierige", boxes: [1, 2] },
+    { key: "all", boxes: [...BOXES] },
+    { key: "notLearned", boxes: [1, 2, 3, 4] },
+    { key: "hard", boxes: [1, 2] },
 ] as const;
 
 type BoxFilterProps = {
@@ -35,6 +36,7 @@ export default function BoxFilter({
     onStart,
 }: BoxFilterProps) {
     const id = useId();
+    const { t } = useTranslation();
     const counts = countPerBox(cards);
     const selectedCount = filterByBoxes(cards, selectedBoxes).length;
 
@@ -54,24 +56,24 @@ export default function BoxFilter({
             }}
         >
             <fieldset className="box-filter__group">
-                <legend className="box-filter__legend">Schnellauswahl</legend>
+                <legend className="box-filter__legend">{t("boxFilter.quickPick")}</legend>
                 <div className="chips">
                     {PRESETS.map((preset) => (
                         <button
-                            key={preset.label}
+                            key={preset.key}
                             type="button"
                             className="chip"
                             aria-pressed={sameBoxes(selectedBoxes, preset.boxes)}
                             onClick={() => onSelectedBoxesChange([...preset.boxes])}
                         >
-                            {preset.label}
+                            {t(`boxFilter.${preset.key}`)}
                         </button>
                     ))}
                 </div>
             </fieldset>
 
             <fieldset className="box-filter__group">
-                <legend className="box-filter__legend">Fächer</legend>
+                <legend className="box-filter__legend">{t("boxFilter.boxes")}</legend>
                 <div className="chips">
                     {BOXES.map((box, i) => (
                         <label key={box} className="chip chip--check" style={boxColorStyle(box)}>
@@ -82,7 +84,7 @@ export default function BoxFilter({
                                 onChange={() => toggleBox(box)}
                             />
                             <span className="chip__dot" aria-hidden="true" />
-                            Fach {box} <span className="text-muted">({counts[i]})</span>
+                            {t("common.box", { box })} <span className="text-muted">({counts[i]})</span>
                         </label>
                     ))}
                 </div>
@@ -98,12 +100,12 @@ export default function BoxFilter({
                     onChange={(e) => onShuffledChange(e.target.checked)}
                 />
                 <span className="switch__track" aria-hidden="true" />
-                Karten mischen
+                {t("boxFilter.shuffle")}
             </label>
 
             <button type="submit" className="btn btn--primary" disabled={selectedCount === 0}>
                 <Dumbbell aria-hidden="true" />
-                {selectedCount === 1 ? "1 Karte üben" : `${selectedCount} Karten üben`}
+                {t("boxFilter.start", { count: selectedCount })}
             </button>
         </form>
     );
