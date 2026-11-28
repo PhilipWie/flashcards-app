@@ -1,10 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="de" data-theme="light">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Flashcards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // set the theme before React starts, so a dark theme doesn't flash light on reload
+      // default is light, key must match THEME_STORAGE_KEY in src/hooks/useTheme.ts
+      document.documentElement.dataset.theme =
+        localStorage.getItem("flashcards_theme") === "dark" ? "dark" : "light";
+    </script>
   </head>
   <body>
     <div id="root"></div>

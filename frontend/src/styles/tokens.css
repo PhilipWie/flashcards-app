@@ -1,0 +1,161 @@
+/*
+  Design tokens of the flashcards app
+  -----------------------------------
+  ALL colors, fonts, spacing and radii live here in one place.
+  Components only use these variables, never hard-coded values.
+  To change e.g. the red, change it only here.
+*/
+
+:root {
+  /* ---------- Red scale (base palette) ---------- */
+  --red-50: #fff5f5;
+  --red-100: #ffe4e5;
+  --red-200: #ffcacd;
+  --red-300: #ffa4a9;
+  --red-400: #f8777e;
+  --red-500: #f2545b; /* the typical "light red": lines, icons, accents */
+  --red-600: #d0343d; /* stronger: buttons and links (readable with white text) */
+  --red-700: #a92830;
+  --red-800: #7d1f26;
+
+  /* ---------- Semantic colors ---------- */
+  --color-bg: #fff6f6;
+  --color-bg-glow-1: rgba(255, 164, 169, 0.55); /* reddish light spots in the background */
+  --color-bg-glow-2: rgba(255, 202, 205, 0.7);
+
+  --color-text: #2b1a1d;
+  --color-text-muted: #7a6266;
+
+  --color-primary: var(--red-600);
+  --color-primary-hover: var(--red-700);
+  --color-on-primary: #ffffff; /* text on the primary color */
+  --color-accent: var(--red-500);
+
+  --color-success: #1f7f54; /* "knew it" */
+  --color-success-hover: #186842;
+  --color-on-success: #ffffff;
+
+  --color-error: var(--red-700); /* error messages */
+
+  /* glass surfaces: semi-transparent white + blur behind */
+  --color-surface: rgba(255, 255, 255, 0.55);
+  --color-surface-strong: rgba(255, 255, 255, 0.78);
+  --color-border: rgba(255, 255, 255, 0.8);
+  --color-border-soft: rgba(208, 52, 61, 0.14);
+  --color-focus: var(--red-600);
+  --color-backdrop: rgba(43, 26, 29, 0.3); /* behind modal dialogs */
+
+  /* Leitner boxes 1 to 5: from "still unsure" (red) to "learned" (green) */
+  --box-1: #f2545b;
+  --box-2: #f0884a;
+  --box-3: #e3b23c;
+  --box-4: #8dbb4f;
+  --box-5: #35a46c;
+
+  /* ---------- Typography ---------- */
+  --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-card: "Literata", Georgia, "Times New Roman", serif; /* only for card content */
+
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* ---------- Spacing (4px grid) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* ---------- Radii ---------- */
+  --radius-sm: 10px;  /* input fields, small elements */
+  --radius-md: 18px;  /* list items */
+  --radius-lg: 30px;  /* the flashcard */
+  --radius-pill: 999px; /* buttons, box badges */
+
+  /* ---------- Glass effect ---------- */
+  --glass-blur: 18px;
+  --shadow-glass:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 18px 40px -18px rgba(125, 31, 38, 0.28);
+  --shadow-lift: 0 10px 24px -12px rgba(125, 31, 38, 0.35);
+
+  /* ---------- Motion ---------- */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-flip: 500ms;
+
+  color-scheme: light;
+}
+
+/* ---------- Dark theme ----------
+   Applies automatically when the system is set to "dark",
+   unless the user explicitly chose "light" in the app.
+   Note: the app always sets data-theme (default "light"),
+   so this block only applies without JavaScript. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #1c0f12;
+    --color-bg-glow-1: rgba(208, 52, 61, 0.35);
+    --color-bg-glow-2: rgba(125, 31, 38, 0.45);
+    --color-text: #fbecee;
+    --color-text-muted: #c7a7ac;
+    --color-primary: #ff8a90;
+    --color-primary-hover: #ffa4a9;
+    --color-on-primary: #2b0d11;
+    --color-accent: #ff8a90;
+    --color-success: #5fd39c;
+    --color-success-hover: #7ee0b1;
+    --color-on-success: #0b2619;
+    --color-error: #ff9ca1;
+    --color-surface: rgba(58, 26, 32, 0.5);
+    --color-surface-strong: rgba(70, 32, 38, 0.78);
+    --color-border: rgba(255, 202, 205, 0.14);
+    --color-border-soft: rgba(255, 202, 205, 0.1);
+    --color-focus: #ff8a90;
+  --color-backdrop: rgba(0, 0, 0, 0.5);
+    --shadow-glass:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 18px 40px -18px rgba(0, 0, 0, 0.6);
+    --shadow-lift: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+
+/* same values when the user chose "dark" in the app */
+:root[data-theme="dark"] {
+  --color-bg: #1c0f12;
+  --color-bg-glow-1: rgba(208, 52, 61, 0.35);
+  --color-bg-glow-2: rgba(125, 31, 38, 0.45);
+  --color-text: #fbecee;
+  --color-text-muted: #c7a7ac;
+  --color-primary: #ff8a90;
+  --color-primary-hover: #ffa4a9;
+  --color-on-primary: #2b0d11;
+  --color-accent: #ff8a90;
+  --color-success: #5fd39c;
+  --color-success-hover: #7ee0b1;
+  --color-on-success: #0b2619;
+  --color-error: #ff9ca1;
+  --color-surface: rgba(58, 26, 32, 0.5);
+  --color-surface-strong: rgba(70, 32, 38, 0.78);
+  --color-border: rgba(255, 202, 205, 0.14);
+  --color-border-soft: rgba(255, 202, 205, 0.1);
+  --color-focus: #ff8a90;
+  --color-backdrop: rgba(0, 0, 0, 0.5);
+  --shadow-glass:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 40px -18px rgba(0, 0, 0, 0.6);
+  --shadow-lift: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}

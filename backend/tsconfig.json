@@ -42,5 +42,7 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src"]
+  "include": ["src"],
+  // tests run with Vitest, they are not part of the build
+  "exclude": ["src/**/*.test.ts"]
 }

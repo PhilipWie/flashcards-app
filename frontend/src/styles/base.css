@@ -1,0 +1,1260 @@
+/*
+  Base styles and building blocks of the flashcards app
+  -----------------------------------------------------
+  Uses only the variables from tokens.css.
+  Import order: tokens.css first, then base.css.
+*/
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  /* two soft light spots: they make the glass look like glass */
+  background-image:
+    radial-gradient(40rem 30rem at 12% -5%, var(--color-bg-glow-1), transparent 70%),
+    radial-gradient(36rem 28rem at 95% 30%, var(--color-bg-glow-2), transparent 70%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 var(--space-3);
+  line-height: 1.2;
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.015em;
+}
+
+h1 { font-size: var(--text-2xl); }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+a {
+  color: var(--color-primary);
+  text-underline-offset: 3px;
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* visible focus for keyboard users */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* ---------- Glass surface (top bar, lists, forms) ---------- */
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-glass);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+}
+
+/* ---------- Page frame ---------- */
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-8);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-7);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: inherit;
+  text-decoration: none;
+}
+.brand svg { color: var(--color-accent); }
+
+.topbar__actions { display: flex; gap: var(--space-1); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px; /* easy to tap on mobile */
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn svg {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.btn--success {
+  background: var(--color-success);
+  color: var(--color-on-success);
+}
+.btn--success:hover:not(:disabled) {
+  background: var(--color-success-hover);
+}
+
+/* glass button: secondary actions and "didn't know" */
+.btn--glass {
+  background: var(--color-surface-strong);
+  border-color: var(--color-border);
+  color: var(--color-text);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+}
+.btn--glass:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+/* icon only, e.g. edit/delete in lists */
+.btn--icon {
+  min-width: 44px;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+.btn--icon:hover {
+  color: var(--color-primary);
+  background: var(--color-surface-strong);
+}
+
+/* ---------- Form fields ---------- */
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:focus-visible {
+  outline-offset: 0;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.field__error {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-error);
+}
+
+.field__hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---------- Notice (e.g. "registration successful") ---------- */
+.notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface-strong);
+  font-size: var(--text-sm);
+}
+
+.notice--success {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+/* ---------- Login and registration form ---------- */
+.auth {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+}
+
+.auth h1 { margin: 0; }
+.auth p { margin: 0; }
+
+.auth__form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.auth__form .btn { width: 100%; }
+
+.auth__footer {
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ---------- Box badge (Leitner) ---------- */
+.box-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.box-badge::before {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--box-color, var(--box-1));
+}
+
+/* distribution of the cards across the 5 boxes as a thin bar */
+.box-bar {
+  display: flex;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-border-soft);
+}
+
+.box-bar span {
+  display: block;
+}
+
+/* ---------- Deck in the list ---------- */
+.deck {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+.deck__name {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.deck__meta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.deck__actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.deck .box-bar {
+  grid-column: 1 / -1;
+}
+
+/* on narrow screens the actions move below the name */
+@media (max-width: 34rem) {
+  .deck {
+    grid-template-columns: 1fr;
+    padding: var(--space-4);
+  }
+}
+
+/* ---------- The flashcard ----------
+   Inspired by a real index card with a red line at the top.
+   The glass surface stays in place, only the content turns when flipping. */
+.flashcard {
+  position: relative;
+  display: grid;
+  min-height: 18rem;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* the red header line of the index card */
+.flashcard::before {
+  content: "";
+  position: absolute;
+  inset: 3.25rem 0 auto;
+  height: 2px;
+  background: var(--color-accent);
+  opacity: 0.85;
+}
+
+.flashcard__side {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.flashcard__face {
+  grid-area: 1 / 1; /* front and back are stacked on top of each other */
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-family: var(--font-card);
+  font-size: var(--text-xl);
+  line-height: 1.45;
+  backface-visibility: hidden;
+  transition: transform var(--duration-flip) var(--ease);
+}
+
+.flashcard__face--front {
+  transform: perspective(900px) rotateY(0deg);
+}
+
+.flashcard__face--back {
+  font-size: var(--text-lg);
+  transform: perspective(900px) rotateY(180deg);
+}
+
+.flashcard.is-flipped .flashcard__face--front {
+  transform: perspective(900px) rotateY(-180deg);
+}
+
+.flashcard.is-flipped .flashcard__face--back {
+  transform: perspective(900px) rotateY(0deg);
+}
+
+/* users who prefer reduced motion get a simple fade instead */
+@media (prefers-reduced-motion: reduce) {
+  .flashcard__face {
+    transition: opacity var(--duration-fast) linear;
+    transform: none !important;
+  }
+  .flashcard__face--back,
+  .flashcard.is-flipped .flashcard__face--front {
+    opacity: 0;
+  }
+  .flashcard.is-flipped .flashcard__face--back {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 34rem) {
+  .flashcard { padding-inline: var(--space-5); }
+}
+
+/* ======================================================================
+   App pages: deck list, deck detail, learn mode
+   Every area of a page sits in its own glass panel ("capsule").
+   ====================================================================== */
+
+/* only for screen readers, e.g. labels of single-field forms */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Page layout ---------- */
+.stack {
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* learn mode: narrower, the card is the focus */
+.stack--narrow {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.page-header h1 { margin: 0; }
+.page-header p { margin: var(--space-1) 0 0; }
+
+.back-link {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+.back-link:hover { text-decoration: underline; }
+.back-link svg { width: 1.1em; height: 1.1em; }
+
+/* ---------- Glass panel ---------- */
+.panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+.panel h1,
+.panel p { margin: 0; }
+
+.panel__title {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-4) 0;
+  text-align: center;
+}
+
+/* ---------- Extra button and notice variants ---------- */
+.btn--danger:hover:not(:disabled) {
+  color: var(--color-error);
+}
+
+.notice--error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+/* textareas share .input, but grow in height */
+textarea.input {
+  min-height: 5.5rem;
+  padding-block: var(--space-3);
+  resize: vertical;
+  line-height: 1.45;
+}
+
+/* ---------- Input + button in one row ---------- */
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.inline-form .input {
+  flex: 1 1 14rem;
+}
+
+/* ---------- Lists inside a panel ---------- */
+.list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* rows inside a panel: no own glass, only a soft hover */
+.list .deck {
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.list .deck:hover,
+.list .deck:focus-within {
+  background: var(--color-surface-strong);
+}
+
+.deck .inline-form {
+  grid-column: 1 / -1;
+}
+
+.deck__name {
+  overflow-wrap: anywhere;
+}
+
+.deck__link {
+  color: inherit;
+  text-decoration: none;
+}
+.deck__link:hover { color: var(--color-primary); }
+
+/* ---------- Deck detail: header panel ---------- */
+.deck-hero__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.deck-hero h1 {
+  font-size: var(--text-2xl);
+  overflow-wrap: anywhere;
+}
+
+.box-summary {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.box-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.box-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.box-legend__dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+
+/* ---------- Card form ---------- */
+.card-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.card-form__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.card-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* ---------- Card in the list ---------- */
+.card-item {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.card-item + .card-item {
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.card-item:hover,
+.card-item:focus-within {
+  background: var(--color-surface-strong);
+}
+
+.card-item__text {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  font-family: var(--font-card);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap; /* keep line breaks from the textarea */
+}
+
+.card-item__text p { margin: 0; }
+.card-item__back { color: var(--color-text-muted); }
+
+.card-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.card-item__due {
+  font-size: var(--text-sm);
+}
+
+.card-item__meta .deck__actions {
+  margin-left: auto;
+}
+
+/* ---------- Learn mode ---------- */
+.learn-progress {
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+}
+
+.learn-progress__text {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* native <progress>, styled as a thin bar */
+.progress {
+  width: 100%;
+  height: 6px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  appearance: none;
+  background: var(--color-border-soft);
+  color: var(--color-accent); /* Firefox fallback */
+}
+.progress::-webkit-progress-bar { background: var(--color-border-soft); }
+.progress::-webkit-progress-value {
+  background: var(--color-accent);
+  transition: width var(--duration-fast) var(--ease);
+}
+.progress::-moz-progress-bar { background: var(--color-accent); }
+
+/* the flashcard is a <button>: reset the browser button styles */
+button.flashcard {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.flashcard__box {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-5);
+}
+
+.flashcard__face {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.learn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.learn-actions .btn {
+  flex: 1 1 10rem;
+  max-width: 16rem;
+}
+
+.learn-done {
+  text-align: center;
+}
+
+.learn-stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-7);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-muted);
+}
+
+.learn-stats li {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.learn-stats__value {
+  font-size: var(--text-3xl);
+  color: var(--color-text);
+}
+
+.learn-stats__value--known { color: var(--color-success); }
+
+/* typed answer: field before flipping, shown below the card after flipping */
+.answer-input {
+  flex: 1 1 100%;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.answer-input .field { width: 100%; }
+.answer-input .btn { width: 100%; }
+
+.answer-typed {
+  display: grid;
+  gap: var(--space-1);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.answer-typed__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 34rem) {
+  .card-form__fields,
+  .card-item__text {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .panel { padding: var(--space-4); }
+}
+
+/* ---------- Deck counts in the list ---------- */
+.deck__due {
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+}
+
+/* ---------- Confirm dialog (native <dialog>) ---------- */
+.dialog {
+  width: min(26rem, calc(100% - 2 * var(--space-4)));
+  padding: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+}
+
+/* a little more opaque than other glass: text must stay readable over the page */
+.dialog.glass {
+  background: var(--color-surface-strong);
+}
+
+.dialog::backdrop {
+  background: var(--color-backdrop);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.dialog__body {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.dialog__title {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.dialog__body p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* ---------- Deck detail: action buttons ---------- */
+.deck-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ---------- Free practice: start screen ---------- */
+.box-filter {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.box-filter__group {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.box-filter__legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* small pill buttons, "pressed" = selected */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease);
+}
+
+.chip:hover {
+  border-color: var(--color-accent);
+}
+
+.chip[aria-pressed="true"],
+.chip--check:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.chip--check:has(input:checked) .text-muted {
+  color: inherit;
+  opacity: 0.8;
+}
+
+/* the checkbox is visually hidden, so show its focus on the chip */
+.chip--check:has(input:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.chip__dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--box-color, var(--box-1));
+  box-shadow: 0 0 0 2px var(--color-surface-strong);
+}
+
+/* ---------- Switch (checkbox with role="switch") ---------- */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-self: start;
+  cursor: pointer;
+}
+
+.switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.switch__track {
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-border-soft);
+  border: 1px solid var(--color-border-soft);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+.switch__track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.5rem - 6px);
+  height: calc(1.5rem - 6px);
+  border-radius: 50%;
+  background: var(--color-surface-strong);
+  box-shadow: var(--shadow-lift);
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+.switch__input:checked + .switch__track {
+  background: var(--color-primary);
+}
+
+.switch__input:checked + .switch__track::after {
+  transform: translateX(1.25rem);
+  background: var(--color-on-primary);
+}
+
+.switch__input:focus-visible + .switch__track {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* ---------- Settings dialog ---------- */
+.settings-group {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.settings-group__legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-weight: var(--weight-medium);
+}
+
+.radio {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.radio input {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--color-primary);
+}
+
+.radio__label,
+.radio__hint {
+  display: block;
+}
+
+.radio__hint {
+  font-size: var(--text-sm);
+}
+
+.settings-note {
+  font-size: var(--text-sm);
+}
+
+.settings-heading {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Dashboard ---------- */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.btn--icon[aria-current="page"] {
+  color: var(--color-primary);
+  background: var(--color-surface-strong);
+}
+
+/* language switch in the top bar: icon button plus the short language code */
+.btn--icon.lang-switch {
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+}
+.lang-switch__code {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat-tile {
+  align-content: start;
+  gap: var(--space-1);
+}
+
+.stat-tile__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-accent);
+}
+
+.stat-tile__value {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+}
+
+.stat-tile__of {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}
+
+.stat-tile__label {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.stat-tile__hint {
+  display: block;
+}
+
+.stat-note {
+  font-size: var(--text-sm);
+}
+
+.activity {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.activity__days {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity__day {
+  display: grid;
+  grid-template-rows: 8rem auto;
+  justify-items: center;
+  gap: var(--space-1);
+}
+
+/* the column fills the 8rem row from the bottom */
+.activity__bar {
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 1.75rem);
+  min-height: 2px;
+  overflow: hidden;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--color-border-soft);
+}
+
+.activity__part { flex-basis: 0; }
+.activity__part--correct { background: var(--color-success); }
+.activity__part--wrong { background: var(--color-accent); }
+
+.activity__label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.activity__day[aria-current="date"] .activity__label {
+  color: var(--color-text);
+  font-weight: var(--weight-bold);
+}
+
+.activity__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.activity__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.activity__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
+
+/* ---------- AI check ---------- */
+.answer-input__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.answer-input__actions .btn {
+  flex: 1 1 10rem;
+  max-width: 16rem;
+}
+
+.ai-result {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* the grid gap sets the spacing, also outside a .panel (global p has a bottom margin) */
+.ai-result p,
+.answer-typed p { margin: 0; }
+
+.ai-result__verdict {
+  font-weight: var(--weight-bold);
+}
+
+.ai-result__verdict--correct { color: var(--color-success); }
+.ai-result__verdict--wrong { color: var(--color-error); }
+
+.ai-result__suggestion {
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}
+
+/* the button the AI suggests: highlighted, the user still clicks it */
+.btn.is-suggested {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.btn--success.is-suggested { outline-color: var(--color-success); }
+
+.ai-result__explanation {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.ai-result__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+}
+
+/* ---------- Card chat ---------- */
+.card-chat__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-weight: var(--weight-medium);
+}
+
+.card-chat__summary svg { width: 1.2em; height: 1.2em; color: var(--color-accent); }
+
+.card-chat[open] .card-chat__summary { margin-bottom: var(--space-2); }
+
+.card-chat__log {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card-chat__msg {
+  display: grid;
+  gap: var(--space-1);
+  max-width: 85%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-strong);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.card-chat__msg--user {
+  justify-self: end;
+  border: 1px solid var(--color-border-soft);
+}
+
+.card-chat__who {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+}
+
+.card-chat__msg p { margin: 0; }
+
+.card-chat__form {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.card-chat__form .input { flex: 1; min-width: 0; }
+
+.card-chat__note {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+}
