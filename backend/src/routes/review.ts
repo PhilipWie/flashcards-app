@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { and, eq, inArray, lte, sql } from 'drizzle-orm';
 import { apiLimit } from '../middleware/rateLimit.js';
+import { apiError } from '../lib/errors.js';
 import { db } from '../db/db.js';
 import { cards, decks, reviews } from '../db/schema.js';
 import { nextLeitner } from '../lib/leitner.js';
@@ -14,17 +15,13 @@ deckReviewRouter.get('/', apiLimit, async (req, res) => {
     try {
         const deckId = parseId(req.params.deckId);
         if (deckId === null) {
-            return res.status(400).json({
-                message: 'Deck id not valid',
-            });
+            return res.status(400).json(apiError('INVALID_ID', 'Deck id not valid'));
         }
         const userId = Number(req.userId);
         const deck = await db.select({ id: decks.id }).from(decks)
             .where(and(eq(decks.id, deckId), eq(decks.user_id, userId)));
         if (deck.length === 0) {
-            return res.status(404).json({
-                message: 'Deck not found',
-            });
+            return res.status(404).json(apiError('DECK_NOT_FOUND', 'Deck not found'));
         }
         const dueCards = await db.select({
             id: cards.id,
@@ -40,9 +37,7 @@ deckReviewRouter.get('/', apiLimit, async (req, res) => {
         });
     } catch (err: any) {
         console.error(err);
-        return res.status(500).json({
-            message: 'Internal Server Error',
-        });
+        return res.status(500).json(apiError('INTERNAL_ERROR', 'Internal Server Error'));
     }
 });
 
@@ -53,34 +48,24 @@ cardReviewRouter.post('/:id/review', apiLimit, async (req, res) => {
     try {
         const cardId = parseId(req.params.id);
         if (cardId === null) {
-            return res.status(400).json({
-                message: 'Card id not valid',
-            });
+            return res.status(400).json(apiError('INVALID_ID', 'Card id not valid'));
         }
         if (req.body == undefined || typeof req.body != 'object') {
-            return res.status(400).json({
-                message: 'wrong format of input data',
-            });
+            return res.status(400).json(apiError('INVALID_INPUT', 'wrong format of input data'));
         }
         const { correct, practice = false } = req.body;
         if (typeof correct !== 'boolean') {
-            return res.status(400).json({
-                message: 'correct must be a boolean',
-            });
+            return res.status(400).json(apiError('INVALID_INPUT', 'correct must be a boolean'));
         }
         if (typeof practice !== 'boolean') {
-            return res.status(400).json({
-                message: 'practice must be a boolean',
-            });
+            return res.status(400).json(apiError('INVALID_INPUT', 'practice must be a boolean'));
         }
         const userId = Number(req.userId);
         const userDecks = db.select({ id: decks.id }).from(decks).where(eq(decks.user_id, userId));
         const card = await db.select({ box: cards.box }).from(cards)
             .where(and(eq(cards.id, cardId), inArray(cards.deck_id, userDecks)));
         if (card.length === 0) {
-            return res.status(404).json({
-                message: 'Card not found',
-            });
+            return res.status(404).json(apiError('CARD_NOT_FOUND', 'Card not found'));
         }
         const { box, days } = nextLeitner(card[0]!.box, correct);
         // one transaction: the card is only moved if the answer is also saved, and the other way round
@@ -105,17 +90,13 @@ cardReviewRouter.post('/:id/review', apiLimit, async (req, res) => {
             return card;
         });
         if (!updated) {
-            return res.status(404).json({
-                message: 'Card not found',
-            });
+            return res.status(404).json(apiError('CARD_NOT_FOUND', 'Card not found'));
         }
         return res.status(200).json({
             card: updated,
         });
     } catch (err: any) {
         console.error(err);
-        return res.status(500).json({
-            message: 'Internal Server Error',
-        });
+        return res.status(500).json(apiError('INTERNAL_ERROR', 'Internal Server Error'));
     }
 });

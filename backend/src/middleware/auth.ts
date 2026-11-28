@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { verifyToken } from '../jwt.js';
+import { apiError } from '../lib/errors.js';
 
 // makes req.userId available in TypeScript
 declare global {
@@ -14,17 +15,17 @@ declare global {
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
     if (!header || !header.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'unauthorized' });
+        return res.status(401).json(apiError('UNAUTHORIZED', 'unauthorized'));
     }
     try {
         const id = Number(await verifyToken(header.slice('Bearer '.length)));
         if (!Number.isInteger(id)){
-            return res.status(401).json({ message: 'unauthorized' });
+            return res.status(401).json(apiError('UNAUTHORIZED', 'unauthorized'));
         }
         req.userId = id
         next();
     } catch {
-        return res.status(401).json({ message: 'unauthorized' });
+        return res.status(401).json(apiError('UNAUTHORIZED', 'unauthorized'));
     }
 }
 
