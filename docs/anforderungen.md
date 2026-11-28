@@ -24,35 +24,44 @@
 
 
 ## Anforderungen nach MoSCoW
+Stand: ☑ umgesetzt · ☐ offen · – bewusst nicht geplant
+
 #### Must have
-| Anforderung               | Beschreibung                                                                              |
-|---------------------------|-------------------------------------------------------------------------------------------|
-| Client-Server Architektur | React-Frontend (Client) Express-Backend (Server)                                          |
-| Browser Kompatibilität    | lauffähig in aktuellen Standardbrowsern (Chrome,Firefox, Edge, Safari)                    |
-| Anmelden- Abmelden        | Anmeldung mit E-Mail und Passwort.                                                        |
-| Registrieren              | Nutzer kann sich mit E-Mail und Passwort registrieren                                     | 
-| Karten verwalten          | Karten können in Ordnern kategorisiert werden, Karten können erstellt und gelöscht werden |
-| Lernmodus                 | Karten anzeigen, umdrehen und mit gewusst oder nicht gewusst antworten                    |
-| Server Speicherung        | Karten , Ordner und Nutzerdaten werden auf dem Server gespeichert                         |
+| Status | Anforderung               | Beschreibung                                                                              |
+|:------:|---------------------------|-------------------------------------------------------------------------------------------|
+| ☑ | Client-Server Architektur | React-Frontend (Client) Express-Backend (Server)                                          |
+| ☑ | Browser Kompatibilität    | lauffähig in aktuellen Standardbrowsern (Chrome, Firefox, Edge, Safari), in allen vier getestet |
+| ☑ | Anmelden- Abmelden        | Anmeldung mit E-Mail und Passwort.                                                        |
+| ☑ | Registrieren              | Nutzer kann sich mit E-Mail und Passwort registrieren                                     |
+| ☑ | Karten verwalten          | Karten können in Ordnern kategorisiert werden, Karten können erstellt und gelöscht werden |
+| ☑ | Lernmodus                 | Karten anzeigen, umdrehen und mit gewusst oder nicht gewusst antworten                    |
+| ☑ | Server Speicherung        | Karten , Ordner und Nutzerdaten werden auf dem Server gespeichert                         |
 
 #### Should have
-| Anforderung                  | Beschreibung                                                                               |
-|------------------------------|--------------------------------------------------------------------------------------------|
-| Lernsystem wie zB. (Leitner) | Karten die schwieriger sind werden öfter wiederholt einfache weniger. Logik auf dem server | 
-| Continous Integration        | Github baut das Projekt bei jedem Push                                                     |
-| Filterung                    | Filtern nach "Nur nicht gelernte Karten lernen" und ähnliche (tbd)                         |
-| Rudimentäre Lernstatistik    | Statistiken über die Lernhistorie                                                          |
-| Dokumentation                | Aufbau und Technische Dokumentation wie zB. (API) im Repository                            |
+| Status | Anforderung                  | Beschreibung                                                                               |
+|:------:|------------------------------|--------------------------------------------------------------------------------------------|
+| ☑ | Lernsystem wie zB. (Leitner) | Karten die schwieriger sind werden öfter wiederholt einfache weniger. Logik auf dem server |
+| ☑ | Continous Integration        | Github baut das Projekt bei jedem Push                                                     |
+| ☑ | Filterung                    | Filtern nach "Nur nicht gelernte Karten lernen" und ähnliche (tbd)                         |
+| ☑ | Rudimentäre Lernstatistik    | Statistiken über die Lernhistorie                                                          |
+| ☑ | Dokumentation                | Aufbau und Technische Dokumentation wie zB. (API) im Repository                            |
 
 #### Could have
-| Anforderung                           | Beschreibung                                                                                                                                             |
-|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Karten mit KI erstellen               | Nutzer können zB. (md) Notizen hochladen und eine KI erstellt darauf basierend Karteikarten                                                              | 
-| Automatische KI Bewertung beim Lernen | Ein Textfeld wird im Lernmodus angezeigt wo der Nutzer seine Antwort schreiben kann eine KI bewertet diese und beurteilt den Lernbedarf bei dieser Karte |
+| Status | Anforderung                           | Beschreibung                                                                                                                                             |
+|:------:|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ☐ | Karten mit KI erstellen               | Nutzer können zB. (md) Notizen hochladen und eine KI erstellt darauf basierend Karteikarten                                                              |
+| ☑ | Automatische KI Bewertung beim Lernen | Ein Textfeld wird im Lernmodus angezeigt wo der Nutzer seine Antwort schreiben kann eine KI bewertet diese und beurteilt den Lernbedarf bei dieser Karte |
+
+#### Zusätzlich umgesetzt
+| Status | Anforderung | Beschreibung |
+|:------:|-------------|--------------|
+| ☑ | KI-Chat zur Karte | Nach dem Umdrehen Fragen zur Karte an die KI stellen |
+| ☑ | Mehrsprachigkeit | Oberfläche auf Deutsch und Englisch umschaltbar |
+| ☑ | Längere Sitzungen | Refresh-Tokens: angemeldet bleiben, ohne dass das Access-Token lange gilt |
 
 #### Won't have
-| Anforderung                           | Beschreibung                                                               |
-|---------------------------------------|----------------------------------------------------------------------------|
-| Native Mobile-App                     | Eine eigene spezifische App für Andoid und oder Ios ist noch nicht geplant | 
-| Automatische KI Bewertung beim Lernen | Bilder und Audio bei Karteikarten                                          |
-| Interaktivität                        | Ein zusammenarbeiten (Lernen) ist nicht vorgesehen                         |
+| Status | Anforderung                           | Beschreibung                                                               |
+|:------:|---------------------------------------|----------------------------------------------------------------------------|
+| – | Native Mobile-App                     | Eine eigene spezifische App für Andoid und oder Ios ist noch nicht geplant |
+| – | Bilder und Audio                      | Bilder und Audio bei Karteikarten                                          |
+| – | Interaktivität                        | Ein zusammenarbeiten (Lernen) ist nicht vorgesehen                         |
