@@ -6,9 +6,14 @@ import { login } from "../api/auth";
 import { apiErrorMessage } from "../i18n/apiErrors";
 import type { RegisteredState } from "./RegisterPage";
 
+// state that the login page receives when the session ran out (see useApiError)
+export type SessionExpiredState = { sessionExpired: true };
+
 export default function LoginPage() {
-    // set by RegisterPage after a successful registration
-    const registered = useLocation().state as RegisteredState | null;
+    // set by RegisterPage after a successful registration, or by useApiError when the session ended
+    const state = useLocation().state as RegisteredState | SessionExpiredState | null;
+    const registered = state && "registered" in state ? state : null;
+    const sessionExpired = state !== null && "sessionExpired" in state;
     const [email, setEmail] = useState(registered?.email ?? "");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -38,6 +43,12 @@ export default function LoginPage() {
                 <h1 id="login-title">{t("login.title")}</h1>
                 <p className="text-muted">{t("login.intro")}</p>
             </div>
+
+            {sessionExpired && !error && (
+                <p className="notice" role="status">
+                    {t("login.sessionExpired")}
+                </p>
+            )}
 
             {registered?.registered && !error && (
                 <p className="notice notice--success" role="status">

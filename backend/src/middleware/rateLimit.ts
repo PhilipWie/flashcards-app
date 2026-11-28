@@ -23,6 +23,15 @@ export const apiLimit = rateLimit({
     message: err_body,
 });
 
+// Refresh and logout: own counter, so refreshes from several tabs don't use up the login limit
+export const refreshLimit = rateLimit({
+    windowMs: windowMs,
+    limit: 30,
+    standardHeaders: standardHeaders,
+    legacyHeaders: legacyHeaders,
+    message: err_body,
+});
+
 // AI requests cost money: own, stricter limit per user (not per IP).
 // Must run after requireAuth, which sets req.userId.
 export const aiLimit = rateLimit({

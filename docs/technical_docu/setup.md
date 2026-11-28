@@ -44,7 +44,7 @@ In der `.env` mindestens `POSTGRES_PASSWORD` (auch in `DATABASE_URL`) und `JWT_S
 | `POSTGRES_DB` | `flashcards` | Name der Datenbank |
 | `POSTGRES_PORT` | `5432` | Port der Datenbank auf dem eigenen Rechner |
 | `DATABASE_URL` | `postgresql://flashcards:<passwort>@localhost:5432/flashcards` | Verbindung des Servers zur Datenbank, muss zu den Werten oben passen |
-| `FRONTEND_URL` | `http://localhost:5173` | Adresse des Frontends, für CORS. Ohne `/` am Ende |
+| `FRONTEND_URL` | `http://localhost:5173` | Adresse des Frontends, für CORS und den CSRF-Schutz der Refresh-Cookies. Pflicht: ohne den Wert startet das Backend nicht. Ohne `/` am Ende |
 | `JWT_SECRET` | *zufälliger Wert* | Schlüssel zum Signieren der Tokens, mindestens 32 Zeichen |
 | `OPENROUTER_API_KEY` | *leer* | Optional: Key für die KI-Prüfung, siehe [KI-Anbindung](ai.md). Ohne Key ist die Prüfung aus |
 | `OPENROUTER_MODEL` | `anthropic/claude-haiku-5.5` | Optional: Modell bei OpenRouter |

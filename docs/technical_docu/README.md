@@ -21,11 +21,12 @@
 flowchart LR
     subgraph Browser
         UI["React-Frontend<br/>(Vite, React Router)"]
-        LS[("localStorage<br/>Token, Theme, Sprache, Einstellungen")]
+        LS[("localStorage<br/>Access-Token, Theme, Sprache, Einstellungen")]
+        CK[("HttpOnly-Cookie<br/>Refresh-Token")]
     end
 
     subgraph Server["Backend (Node.js, Express 5)"]
-        MW["Middleware<br/>CORS, JSON, Rate Limit, requireAuth"]
+        MW["Middleware<br/>CORS, JSON, Cookies, Rate Limit,<br/>requireAuth, requireSameOrigin"]
         R["Routen<br/>/api/..."]
     end
 
@@ -35,12 +36,13 @@ flowchart LR
     MW --> R
     R -- "Drizzle ORM" --> DB
     UI <--> LS
+    CK -. "nur an /api/auth/*" .-> MW
 ```
 
 | Teil | Technik | Ordner |
 |------|---------|--------|
 | Frontend | React 19, TypeScript, Vite, React Router, i18next / react-i18next, lucide-react | [frontend/](../../frontend) |
-| Backend | Node.js, Express 5, TypeScript, jose (JWT), argon2, validator | [backend/](../../backend) |
+| Backend | Node.js, Express 5, TypeScript, jose (JWT), argon2, validator, cookie-parser | [backend/](../../backend) |
 | Datenbank | PostgreSQL 18 in Docker, Drizzle ORM für Schema und Migrationen | [backend/drizzle/](../../backend/drizzle) |
 | CI | GitHub Actions: Build und Tests (Backend, Frontend) und ESLint (Frontend) bei Push und Pull Request auf `main` und `develop` | [.github/workflows/ci.yml](../../.github/workflows/ci.yml) |
 
@@ -74,7 +76,7 @@ backend/src/
 ├── app.ts        Express-App: Middleware und Routen
 ├── jwt.ts        Token erstellen und prüfen
 ├── db/           Verbindung (db.ts) und Schema (schema.ts)
-├── lib/          Fachlogik ohne HTTP: errors.ts (Fehlercodes), leitner.ts, stats.ts (Statistik), ai.ts (OpenRouter-Client), answerCheck.ts (KI-Prüfung), cardChat.ts (KI-Chat)
-├── middleware/   auth.ts (requireAuth), rateLimit.ts
-└── routes/       ein Router pro Bereich (register, login, decks, cards, review, check, chat, stats, health)
+├── lib/          Fachlogik ohne HTTP: errors.ts (Fehlercodes), refreshTokens.ts und refreshCookie.ts (Refresh-Token), leitner.ts, stats.ts (Statistik), ai.ts (OpenRouter-Client), answerCheck.ts (KI-Prüfung), cardChat.ts (KI-Chat)
+├── middleware/   auth.ts (requireAuth), sameOrigin.ts (CSRF-Schutz), rateLimit.ts
+└── routes/       ein Router pro Bereich (register, login, auth, decks, cards, review, check, chat, stats, health)
 ```
