@@ -49,13 +49,13 @@ describe("request", () => {
         await expect(request("DELETE", "/api/cards/1")).resolves.toBeUndefined();
     });
 
-    it("throws ApiError with status and message from the backend", async () => {
-        fetchMock.mockResolvedValue(jsonResponse(404, { message: "Deck not found" }));
+    it("throws ApiError with status, code and message from the backend", async () => {
+        fetchMock.mockResolvedValue(jsonResponse(404, { code: "DECK_NOT_FOUND", message: "Deck not found" }));
 
         const error = await request("GET", "/api/decks/9").catch((e: unknown) => e);
 
         expect(error).toBeInstanceOf(ApiError);
-        expect(error).toMatchObject({ status: 404, message: "Deck not found" });
+        expect(error).toMatchObject({ status: 404, code: "DECK_NOT_FOUND", message: "Deck not found" });
     });
 
     it("uses a fallback message if the error body is not JSON", async () => {

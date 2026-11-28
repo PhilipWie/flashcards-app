@@ -1018,6 +1018,36 @@ button.flashcard {
   background: var(--color-surface-strong);
 }
 
+/* language switch in the top bar: native select, styled like the icon buttons */
+.lang-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.lang-select__icon {
+  position: absolute;
+  left: var(--space-3);
+  width: 1.15em;
+  height: 1.15em;
+  color: var(--color-text-muted);
+  pointer-events: none; /* clicks go to the select */
+}
+.lang-select__input {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) + 1.15em + var(--space-2));
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.lang-select__input:hover {
+  color: var(--color-primary);
+  background: var(--color-surface-strong);
+}
+
 .stat-tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));

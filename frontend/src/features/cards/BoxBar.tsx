@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { Card } from "../../types/Card";
 import { BOXES, countPerBox } from "../../lib/leitner";
 
@@ -18,6 +19,7 @@ type BoxCountsBarProps = {
 // same bar from counts, e.g. from the statistics (no card list needed)
 export function BoxCountsBar({ counts }: BoxCountsBarProps) {
     const total = counts.reduce((sum, n) => sum + n, 0);
+    const { t } = useTranslation();
 
     return (
         <div className="box-summary">
@@ -35,7 +37,7 @@ export function BoxCountsBar({ counts }: BoxCountsBarProps) {
                 {counts.map((count, i) => (
                     <li key={BOXES[i]}>
                         <span className="box-legend__dot" style={{ background: `var(--box-${BOXES[i]})` }} />
-                        Fach {BOXES[i]}: {count}
+                        {t("boxBar.legend", { box: BOXES[i], count })}
                     </li>
                 ))}
             </ul>

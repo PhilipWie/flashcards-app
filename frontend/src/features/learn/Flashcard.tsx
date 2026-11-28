@@ -1,4 +1,5 @@
 import type { Ref } from "react";
+import { useTranslation } from "react-i18next";
 import type { Card } from "../../types/Card";
 import { boxColorStyle } from "../../lib/leitner";
 
@@ -12,6 +13,7 @@ type FlashcardProps = {
 
 // the index card from base.css (.flashcard), click turns it around
 export default function Flashcard({ card, flipped, onFlip, ref }: FlashcardProps) {
+    const { t } = useTranslation();
     return (
         <button
             ref={ref}
@@ -21,9 +23,9 @@ export default function Flashcard({ card, flipped, onFlip, ref }: FlashcardProps
             // no aria-label: the visible side and its text are the accessible name
             aria-pressed={flipped}
         >
-            <span className="flashcard__side">{flipped ? "Rückseite" : "Vorderseite"}</span>
+            <span className="flashcard__side">{flipped ? t("card.back") : t("card.front")}</span>
             <span className="box-badge flashcard__box" style={boxColorStyle(card.box)}>
-                Fach {card.box}
+                {t("common.box", { box: card.box })}
             </span>
             {/* both faces are stacked, only the visible one is read out */}
             <span className="flashcard__face flashcard__face--front" aria-hidden={flipped}>

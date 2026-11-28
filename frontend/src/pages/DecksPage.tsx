@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { LayoutDashboard, Plus } from "lucide-react";
 import type { DeckSummary } from "../types/Deck";
 import { createDeck, deleteDeck, getDecks, updateDeck } from "../api/decks";
@@ -18,6 +19,7 @@ export default function DecksPage() {
     const [newName, setNewName] = useState("");
     const [creating, setCreating] = useState(false);
     const handleApiError = useApiError();
+    const { t } = useTranslation();
 
     // load the decks once when the page opens
     useEffect(() => {
@@ -90,14 +92,14 @@ export default function DecksPage() {
         <div className="stack">
             <header className="page-header">
                 <div>
-                    <h1>Deine Stapel</h1>
+                    <h1>{t("decks.title")}</h1>
                     <p className="text-muted">
-                        {loading ? "Wird geladen …" : `${decks.length} Stapel`}
+                        {loading ? t("common.loading") : t("decks.count", { count: decks.length })}
                     </p>
                 </div>
                 <Link to="/dashboard" className="btn btn--glass">
                     <LayoutDashboard aria-hidden="true" />
-                    Dashboard
+                    {t("layout.dashboard")}
                 </Link>
             </header>
 
@@ -109,16 +111,16 @@ export default function DecksPage() {
 
             <section className="panel glass" aria-labelledby="new-deck-title">
                 <h2 id="new-deck-title" className="panel__title">
-                    Neuer Stapel
+                    {t("decks.newTitle")}
                 </h2>
                 <form className="inline-form" onSubmit={handleCreate}>
                     <label htmlFor="new-deck-name" className="visually-hidden">
-                        Name des Stapels
+                        {t("decks.nameLabel")}
                     </label>
                     <input
                         id="new-deck-name"
                         className="input"
-                        placeholder="z. B. Webentwicklung"
+                        placeholder={t("decks.namePlaceholder")}
                         maxLength={DECK_NAME_MAX}
                         required
                         value={newName}
@@ -126,17 +128,17 @@ export default function DecksPage() {
                     />
                     <button type="submit" className="btn btn--primary" disabled={creating || newName.trim() === ""}>
                         <Plus aria-hidden="true" />
-                        Anlegen
+                        {t("common.create")}
                     </button>
                 </form>
             </section>
 
             <section className="panel glass" aria-labelledby="deck-list-title" aria-busy={loading}>
                 <h2 id="deck-list-title" className="panel__title">
-                    Stapel
+                    {t("decks.listTitle")}
                 </h2>
                 {!loading && decks.length === 0 && (
-                    <p className="empty text-muted">Noch keine Stapel. Lege oben deinen ersten an.</p>
+                    <p className="empty text-muted">{t("decks.empty")}</p>
                 )}
                 {decks.length > 0 && (
                     <ul className="list">
@@ -149,9 +151,9 @@ export default function DecksPage() {
 
             <ConfirmDialog
                 open={deckToDelete !== null}
-                title="Stapel löschen?"
-                message={`"${deckToDelete?.name ?? ""}" und alle ${deckToDelete?.card_count ?? 0} Karten darin werden gelöscht. Das lässt sich nicht rückgängig machen.`}
-                confirmLabel="Löschen"
+                title={t("decks.deleteTitle")}
+                message={t("decks.deleteMessage", { name: deckToDelete?.name ?? "", count: deckToDelete?.card_count ?? 0 })}
+                confirmLabel={t("common.delete")}
                 busy={deleting}
                 onConfirm={confirmDelete}
                 onCancel={() => setDeckToDelete(null)}

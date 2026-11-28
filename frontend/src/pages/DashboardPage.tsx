@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { Trans, useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { ArrowLeft, CalendarClock, Flame, GraduationCap, Target } from "lucide-react";
 import type { Stats } from "../types/Stats";
 import { getStats } from "../api/stats";
@@ -7,8 +9,8 @@ import { useApiError } from "../hooks/useApiError";
 import ActivityChart from "../features/stats/ActivityChart";
 import { BoxCountsBar } from "../features/cards/BoxBar";
 
-function percent(value: number | null): string {
-    return value === null ? "–" : `${value} %`;
+function percent(value: number | null, t: TFunction): string {
+    return value === null ? "–" : t("dashboard.percent", { value });
 }
 
 // learning statistics of all decks
@@ -16,6 +18,7 @@ export default function DashboardPage() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [error, setError] = useState<string | null>(null);
     const handleApiError = useApiError();
+    const { t } = useTranslation();
 
     useEffect(() => {
         let ignore = false;
@@ -33,7 +36,7 @@ export default function DashboardPage() {
 
     const backLink = (
         <Link to="/decks" className="back-link">
-            <ArrowLeft aria-hidden="true" /> Alle Stapel
+            <ArrowLeft aria-hidden="true" /> {t("common.allDecks")}
         </Link>
     );
 
@@ -41,14 +44,14 @@ export default function DashboardPage() {
         return (
             <div className="stack">
                 {backLink}
-                <h1>Dashboard</h1>
+                <h1>{t("dashboard.title")}</h1>
                 {error ? (
                     <p className="notice notice--error" role="alert">
                         {error}
                     </p>
                 ) : (
                     <p className="text-muted" role="status">
-                        Statistik wird geladen …
+                        {t("dashboard.loading")}
                     </p>
                 )}
             </div>
@@ -62,8 +65,8 @@ export default function DashboardPage() {
             {backLink}
             <header className="page-header">
                 <div>
-                    <h1>Dashboard</h1>
-                    <p className="text-muted">Dein Lernfortschritt über alle Stapel</p>
+                    <h1>{t("dashboard.title")}</h1>
+                    <p className="text-muted">{t("dashboard.subtitle")}</p>
                 </div>
             </header>
 
@@ -71,14 +74,16 @@ export default function DashboardPage() {
                 <li className="panel glass stat-tile">
                     <Flame aria-hidden="true" className="stat-tile__icon" />
                     <span className="stat-tile__value">{stats.streak}</span>
-                    <span className="stat-tile__label">{stats.streak === 1 ? "Tag in Folge" : "Tage in Folge"}</span>
+                    <span className="stat-tile__label">{t("dashboard.streak", { count: stats.streak })}</span>
                 </li>
                 <li className="panel glass stat-tile">
                     <Target aria-hidden="true" className="stat-tile__icon" />
-                    <span className="stat-tile__value">{percent(stats.period.accuracy)}</span>
+                    <span className="stat-tile__value">{percent(stats.period.accuracy, t)}</span>
                     <span className="stat-tile__label">
-                        gewusst in {stats.period.days} Tagen
-                        <span className="stat-tile__hint">gesamt {percent(stats.total.accuracy)}</span>
+                        {t("dashboard.accuracy", { days: stats.period.days })}
+                        <span className="stat-tile__hint">
+                            {t("dashboard.accuracyTotal", { value: percent(stats.total.accuracy, t) })}
+                        </span>
                     </span>
                 </li>
                 <li className="panel glass stat-tile">
@@ -87,36 +92,34 @@ export default function DashboardPage() {
                         {stats.cards.learned}
                         <span className="stat-tile__of"> / {stats.cards.total}</span>
                     </span>
-                    <span className="stat-tile__label">Karten gelernt (Fach 5)</span>
+                    <span className="stat-tile__label">{t("dashboard.learned")}</span>
                 </li>
                 <li className="panel glass stat-tile">
                     <CalendarClock aria-hidden="true" className="stat-tile__icon" />
                     <span className="stat-tile__value">{stats.cards.due}</span>
-                    <span className="stat-tile__label">{stats.cards.due === 1 ? "Karte heute fällig" : "Karten heute fällig"}</span>
+                    <span className="stat-tile__label">{t("dashboard.due", { count: stats.cards.due })}</span>
                 </li>
             </ul>
 
             <section className="panel glass" aria-labelledby="activity-title">
                 <h2 id="activity-title" className="panel__title">
-                    Antworten der letzten {stats.period.days} Tage
+                    {t("dashboard.activityTitle", { days: stats.period.days })}
                 </h2>
                 {noAnswers ? (
-                    <p className="text-muted">
-                        Noch keine Antworten. Sobald du im Lernmodus Karten beantwortest, erscheint hier dein Verlauf.
-                    </p>
+                    <p className="text-muted">{t("dashboard.noAnswers")}</p>
                 ) : (
                     <ActivityChart days={stats.days} today={stats.today} />
                 )}
-                <p className="text-muted stat-note">Gezählt werden Antworten im Lernmodus, nicht beim freien Üben.</p>
+                <p className="text-muted stat-note">{t("dashboard.practiceNote")}</p>
             </section>
 
             <section className="panel glass" aria-labelledby="boxes-title">
                 <h2 id="boxes-title" className="panel__title">
-                    Karten nach Fach
+                    {t("dashboard.boxesTitle")}
                 </h2>
                 {stats.cards.total === 0 ? (
                     <p className="text-muted">
-                        Noch keine Karten. <Link to="/decks">Leg einen Stapel an</Link> und füge Karten hinzu.
+                        <Trans i18nKey="dashboard.noCards" components={{ link: <Link to="/decks" /> }} />
                     </p>
                 ) : (
                     <BoxCountsBar counts={stats.cards.boxes} />

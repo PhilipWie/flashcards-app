@@ -13,11 +13,11 @@ export function isDue(nextReview: string): boolean {
     return nextReview <= todayIso();
 }
 
-const dateFormat = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
-
-// "2026-12-01" -> "01.12.2026"
+// "2026-12-01" -> "01.12.2026" (de) or "12/01/2026" (en), locale = current UI language
 // not new Date("2026-12-01"): that is parsed as UTC and can show the previous day
-export function formatDate(iso: string): string {
+export function formatDate(iso: string, locale: string): string {
     const [year, month, day] = iso.split("-").map(Number);
-    return dateFormat.format(new Date(year, month - 1, day));
+    return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric" }).format(
+        new Date(year, month - 1, day),
+    );
 }

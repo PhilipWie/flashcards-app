@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pencil, Trash2 } from "lucide-react";
 import type { Card } from "../../types/Card";
 import { boxColorStyle } from "../../lib/leitner";
@@ -14,6 +15,7 @@ type CardItemProps = {
 // one card in the deck detail list, can switch into an inline edit form
 export default function CardItem({ card, onUpdate, onDelete }: CardItemProps) {
     const [editing, setEditing] = useState(false);
+    const { t, i18n } = useTranslation();
 
     if (editing) {
         return (
@@ -21,7 +23,7 @@ export default function CardItem({ card, onUpdate, onDelete }: CardItemProps) {
                 <CardForm
                     initialFront={card.front}
                     initialBack={card.back}
-                    submitLabel="Speichern"
+                    variant="edit"
                     onSubmit={async (front, back) => {
                         const ok = await onUpdate(card.id, front, back);
                         if (ok) setEditing(false);
@@ -41,18 +43,20 @@ export default function CardItem({ card, onUpdate, onDelete }: CardItemProps) {
             </div>
             <div className="card-item__meta">
                 <span className="box-badge" style={boxColorStyle(card.box)}>
-                    Fach {card.box}
+                    {t("common.box", { box: card.box })}
                 </span>
                 <span className="text-muted card-item__due">
-                    {isDue(card.next_review) ? "heute fällig" : `ab ${formatDate(card.next_review)}`}
+                    {isDue(card.next_review)
+                        ? t("card.dueToday")
+                        : t("card.dueFrom", { date: formatDate(card.next_review, i18n.language) })}
                 </span>
                 <div className="deck__actions">
                     <button
                         type="button"
                         className="btn btn--icon"
                         onClick={() => setEditing(true)}
-                        aria-label={`Karte "${card.front}" bearbeiten`}
-                        title="Bearbeiten"
+                        aria-label={t("card.editAria", { front: card.front })}
+                        title={t("common.edit")}
                     >
                         <Pencil aria-hidden="true" />
                     </button>
@@ -60,8 +64,8 @@ export default function CardItem({ card, onUpdate, onDelete }: CardItemProps) {
                         type="button"
                         className="btn btn--icon btn--danger"
                         onClick={() => onDelete(card)}
-                        aria-label={`Karte "${card.front}" löschen`}
-                        title="Löschen"
+                        aria-label={t("card.deleteAria", { front: card.front })}
+                        title={t("common.delete")}
                     >
                         <Trash2 aria-hidden="true" />
                     </button>

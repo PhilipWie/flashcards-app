@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { RotateCcw, Sparkles } from "lucide-react";
 import { ANSWER_MAX } from "./constants";
 
@@ -18,6 +19,7 @@ type AnswerInputProps = {
 // Mounted fresh for every card, so autoFocus puts the cursor in the field each time.
 export default function AnswerInput({ value, onChange, onSubmit, onCheck, children }: AnswerInputProps) {
     const id = useId();
+    const { t } = useTranslation();
 
     return (
         <form
@@ -28,7 +30,7 @@ export default function AnswerInput({ value, onChange, onSubmit, onCheck, childr
             }}
         >
             <div className="field">
-                <label htmlFor={id}>Deine Antwort</label>
+                <label htmlFor={id}>{t("session.yourAnswer")}</label>
                 <input
                     id={id}
                     className="input"
@@ -52,12 +54,12 @@ export default function AnswerInput({ value, onChange, onSubmit, onCheck, childr
                         disabled={value.trim() === ""}
                     >
                         <Sparkles aria-hidden="true" />
-                        Prüfen
+                        {t("session.check")}
                     </button>
                 )}
                 <button type="submit" className="btn btn--primary">
                     <RotateCcw aria-hidden="true" />
-                    Umdrehen
+                    {t("session.flip")}
                 </button>
             </div>
         </form>

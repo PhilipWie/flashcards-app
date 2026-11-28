@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Card } from "../types/Card";
 import { getDeck } from "../api/decks";
@@ -20,6 +21,7 @@ export default function LearnPage() {
     const [notFound, setNotFound] = useState(!validId);
     const [error, setError] = useState<string | null>(null);
     const handleApiError = useApiError();
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (!validId) return;
@@ -51,7 +53,7 @@ export default function LearnPage() {
 
     const backLink = (
         <Link to={validId && !notFound ? `/decks/${deckId}` : "/decks"} className="back-link">
-            <ArrowLeft aria-hidden="true" /> {deckName ?? "Zurück"}
+            <ArrowLeft aria-hidden="true" /> {deckName ?? t("common.back")}
         </Link>
     );
 
@@ -60,8 +62,8 @@ export default function LearnPage() {
             <div className="stack stack--narrow">
                 {backLink}
                 <section className="panel glass">
-                    <h1>Stapel nicht gefunden</h1>
-                    <p className="text-muted">Diesen Stapel gibt es nicht oder er gehört einem anderen Konto.</p>
+                    <h1>{t("common.deckNotFound")}</h1>
+                    <p className="text-muted">{t("common.deckNotFoundText")}</p>
                 </section>
             </div>
         );
@@ -72,7 +74,7 @@ export default function LearnPage() {
             <div className="stack stack--narrow">
                 {backLink}
                 <p className="text-muted" role="status">
-                    Karten werden geladen …
+                    {t("common.cardsLoading")}
                 </p>
             </div>
         );
@@ -81,10 +83,10 @@ export default function LearnPage() {
     const deckActions = (
         <>
             <Link to={`/decks/${deckId}`} className="btn btn--glass">
-                Zum Stapel
+                {t("common.toDeck")}
             </Link>
             <Link to="/decks" className="btn btn--primary">
-                Alle Stapel
+                {t("common.allDecks")}
             </Link>
         </>
     );
@@ -95,22 +97,20 @@ export default function LearnPage() {
             <div className="stack stack--narrow">
                 {backLink}
                 <section className="panel glass learn-done" aria-labelledby="done-title">
-                    <h1 id="done-title">{error ? "Laden fehlgeschlagen" : "Heute nichts fällig"}</h1>
+                    <h1 id="done-title">{error ? t("learn.loadFailed") : t("learn.nothingDueTitle")}</h1>
                     {error ? (
                         <p className="notice notice--error" role="alert">
                             {error}
                         </p>
                     ) : (
-                        <p className="text-muted">
-                            In diesem Stapel ist heute keine Karte fällig. Schau morgen wieder vorbei oder übe frei.
-                        </p>
+                        <p className="text-muted">{t("learn.nothingDueText")}</p>
                     )}
                     <div className="learn-actions">
                         <Link to={`/decks/${deckId}`} className="btn btn--glass">
-                            Zum Stapel
+                            {t("common.toDeck")}
                         </Link>
                         <Link to={`/decks/${deckId}/practice`} className="btn btn--primary">
-                            Frei üben
+                            {t("common.practice")}
                         </Link>
                     </div>
                 </section>
