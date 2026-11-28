@@ -25,7 +25,11 @@ export function getToken(): string | null {
     return localStorage.getItem(token_storage_name);
 }
 
+// counts logouts in this tab: a refresh that started before a logout must not log the user in again
+let logoutCount = 0;
+
 export function removeToken() {
+    logoutCount++;
     localStorage.removeItem(token_storage_name);
 }
 
@@ -104,6 +108,7 @@ async function runRefresh(failedToken: string | null): Promise<boolean> {
     // another tab refreshed while this one waited for the lock: use its token
     const current = getToken();
     if (current !== null && current !== failedToken) return true;
+    const logoutsBefore = logoutCount;
     try {
         const res = await postAuth("/api/auth/refresh");
         if (!res.ok) return false;
@@ -111,6 +116,10 @@ async function runRefresh(failedToken: string | null): Promise<boolean> {
         if (typeof data !== "object" || data === null || typeof (data as { token?: unknown }).token !== "string") {
             return false;
         }
+        // logged out while the refresh was running (this tab: counter, other tab: token gone):
+        // don't save the new token, otherwise the user would be logged in again.
+        // The backend revoked the whole login on logout, so the new refresh cookie is useless too.
+        if (logoutCount !== logoutsBefore || (current !== null && getToken() === null)) return false;
         saveToken((data as { token: string }).token);
         return true;
     } catch {

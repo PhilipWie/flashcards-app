@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, getToken, request, saveToken } from "./client";
+import { ApiError, getToken, removeToken, request, saveToken } from "./client";
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -136,6 +136,23 @@ describe("automatic refresh on 401", () => {
 
         expect(paths()).toEqual(["/api/decks", "/api/decks"]);
         expect(lastInit().headers).toMatchObject({ Authorization: "Bearer from-other-tab" });
+    });
+
+    it.each([
+        ["in this tab", () => removeToken()],
+        // another tab: only the shared localStorage changes, not this tab's counter
+        ["in another tab", () => localStorage.removeItem("flashcards_token")],
+    ])("does not log in again if the user logged out %s during the refresh", async (_name, logOut) => {
+        saveToken("old");
+        fetchMock.mockResolvedValueOnce(expired()).mockImplementationOnce(async () => {
+            logOut();
+            return jsonResponse(200, { token: "new" });
+        });
+
+        await expect(request("GET", "/api/decks")).rejects.toMatchObject({ status: 401 });
+        expect(getToken()).toBeNull();
+        // no retry with the new token
+        expect(paths()).toEqual(["/api/decks", "/api/auth/refresh"]);
     });
 
     it.each(["/api/login", "/api/register"])("never refreshes for %s (no loop)", async (path) => {

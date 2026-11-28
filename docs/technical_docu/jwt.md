@@ -139,6 +139,20 @@ sequenceDiagram
 
 Sonst antwortet der Server mit `403 FORBIDDEN_ORIGIN`.
 
+### Betrieb: Frontend und Backend auf derselben Site
+Wegen `SameSite=Strict` schickt der Browser das Cookie nur, wenn Frontend und Backend zur **selben Site** gehören, also dieselbe registrierbare Domain haben. Ports zählen dabei nicht.
+
+| Frontend | Backend | Refresh funktioniert? |
+|----------|---------|-----------------------|
+| `http://localhost:5173` | `http://localhost:3000` | ja (lokale Entwicklung) |
+| `https://app.example.de` | `https://api.example.de` | ja, gleiche Domain `example.de` |
+| `https://app.vercel.app` | `https://api.onrender.com` | **nein**: Das Cookie wird weder gespeichert noch gesendet, jeder Refresh endet mit `401` |
+
+Bei getrennten Domains müsste das Backend unter derselben Domain laufen, z. B. über einen Reverse Proxy (`/api` auf dem Frontend-Host). `SameSite=None` würde den CSRF-Schutz des Cookies aufgeben und ist deshalb keine gute Lösung.
+
+### Logout während eines laufenden Refresh
+Klickt der Nutzer auf „Abmelden“, während ein Refresh noch unterwegs ist, speichert der Client das neue Access-Token **nicht** mehr. Erkannt wird das an einem Logout-Zähler im Tab und daran, dass das Token aus dem `localStorage` verschwunden ist (Logout in einem anderen Tab). Im Backend hat der Logout die ganze Anmeldung widerrufen, also ist auch das neue Refresh-Cookie wertlos.
+
 ## Beispiel (curl)
 
 Login:
